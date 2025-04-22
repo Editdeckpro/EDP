@@ -58,7 +58,10 @@ export default function Page() {
             </button>
           </div>
           <div className="flex justify-end">
-            <Link href="#" className="text-sm text-destructive hover:underline">
+            <Link
+              href="/forget"
+              className="text-sm text-destructive hover:underline"
+            >
               Forgot Password?
             </Link>
           </div>

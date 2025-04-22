@@ -6,9 +6,9 @@ interface LayoutProps {
 }
 const Layout: FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
+    <main className="flex min-h-screen flex-col md:flex-row">
       {/* Background Image Section */}
-      <div className="w-full min-h-72 md:h-auto md:w-2/3 relative">
+      <section className="w-full min-h-72 md:h-auto md:w-2/3 relative">
         <Image
           src="/images/auth/login-bg.jpg"
           alt="Cybernetic tiger in a field of red flowers"
@@ -16,10 +16,10 @@ const Layout: FC<LayoutProps> = ({ children }) => {
           className="object-cover"
           priority
         />
-      </div>
+      </section>
 
       {/* Login Form Section */}
-      <div className="w-full md:w-1/2 flex items-center justify-center bg-white p-8">
+      <section className="w-full md:w-1/2 flex items-center justify-center bg-white p-8 md:relative">
         <div className="w-full max-w-md space-y-8">
           {/* Logo */}
           <div className="flex justify-center">
@@ -35,8 +35,8 @@ const Layout: FC<LayoutProps> = ({ children }) => {
 
           {children}
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 export default Layout;
