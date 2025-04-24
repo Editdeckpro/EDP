@@ -1,10 +1,14 @@
+// ! This will be dashboard page
+
+import ImageCard from "@/components/layout/image-card";
+
 export default function Page() {
   return (
-    <p>
-      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Qui
-      reprehenderit debitis aperiam cupiditate quasi adipisci minima asperiores
-      saepe, ut quo, possimus dignissimos doloribus fugiat dolorem optio
-      consectetur ipsum illum similique.
-    </p>
+    <div className="flex gap-3">
+      <ImageCard />
+      <ImageCard />
+      <ImageCard />
+      <ImageCard />
+    </div>
   );
 }
