@@ -13,7 +13,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
       <section className="p-5 lg:pr-0 min-w-1/4 ">
         <Sidebar />
       </section>
-      <section className="p-5 space-y-5">
+      <section className="p-5 space-y-5  w-full">
         <DashboardHeader />
         {children}
       </section>
