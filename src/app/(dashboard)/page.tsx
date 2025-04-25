@@ -1,14 +1,32 @@
 // ! This will be dashboard page
-
-import ImageCard from "@/components/layout/image-card";
+import ImageCardGrid from "@/components/pages/dashboard/image-card-grid";
+import ImageGridPagination from "@/components/pages/dashboard/image-grid-pagination";
+import PageCta from "@/components/pages/dashboard/page-cta";
 
 export default function Page() {
   return (
-    <div className="flex gap-3">
-      <ImageCard />
-      <ImageCard />
-      <ImageCard />
-      <ImageCard />
-    </div>
+    <section className="space-y-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <PageCta
+          title="Image Creator"
+          description="Craft stunning album covers from pure imagination."
+          buttonText="Generate Now"
+          buttonIcon="sparkles"
+          imageSrc="/images/cta-fg.jpg"
+          bgImgSrc="/images/cta-bg.jpg"
+        />
+        <PageCta
+          title="Remix Wizard"
+          description="Transform and evolve your visuals with a single prompt."
+          buttonText="Remix Image"
+          buttonIcon="sparkles"
+          imageSrc="/images/cta-2-fg-1.jpg"
+          buttonVariant="secondary"
+          bgImgSrc="/images/cta-2.jpg"
+        />
+      </div>
+      <ImageCardGrid />
+      <ImageGridPagination />
+    </section>
   );
 }

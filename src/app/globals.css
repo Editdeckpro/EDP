@@ -4,6 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --breakpoint-xs: 30rem;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -119,5 +121,15 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+@media (min-width: 375px) {
+  .xs-visible {
+    display: block;
+  }
+}
+@media (max-width: 375px) {
+  .xs-visible {
+    display: none;
   }
 }

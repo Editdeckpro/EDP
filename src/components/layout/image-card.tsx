@@ -9,14 +9,14 @@ interface ImageCardProps {}
 
 const ImageCard: FC<ImageCardProps> = ({}) => {
   return (
-    <div className="relative min-w-[13rem] aspect-square group overflow-hidden">
+    <div tabIndex={0} className="relative aspect-square group overflow-hidden">
       <Image
         src={"/images/image-card.png"}
         fill
         alt="image -card image"
         className="rounded-md"
       />
-      <div className="absolute flex flex-col gap-2 -right-52 top-2 group-hover:right-2 transition-all duration-200">
+      <div className="absolute flex-col gap-2 right-2 top-2 hidden group-focus:flex group-hover:flex transition-all duration-200">
         <Button size={"icon"} className="rounded-full size-8 bg-[#1B1C1E]">
           <GIcon size={17} name="draw" />
         </Button>
@@ -28,7 +28,7 @@ const ImageCard: FC<ImageCardProps> = ({}) => {
         </Button>
       </div>
 
-      <Button className="absolute -bottom-52 group-hover:bottom-2 w-[90%] left-1/2 -translate-x-1/2">
+      <Button className="absolute bottom-2 hidden group-focus:block group-hover:block w-[90%] left-1/2 -translate-x-1/2">
         Remix
       </Button>
     </div>

@@ -14,10 +14,10 @@ import {
 const Sidebar = ({}) => {
   return (
     <>
-      <aside className="hidden md:block p-5 bg-white border w-full rounded-3xl min-h-dvh space-y-5 text-sm text-gray-700 font-medium">
+      <aside className="hidden lg:block p-5 bg-white border w-full rounded-3xl min-h-dvh space-y-5 text-sm text-gray-700 font-medium">
         <SidebarContent />
       </aside>
-      <header className="md:hidden block">
+      <header className="lg:hidden block">
         <nav className=" flex items-center gap-2 justify-between">
           <div className="flex gap-2 items-center">
             <MobileNavSheet />
