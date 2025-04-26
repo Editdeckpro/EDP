@@ -108,12 +108,12 @@ export const sidebarSections: SidebarSectionType[] = [
       {
         icon: <GIcon size={22}>wand_stars</GIcon>,
         text: "Image Generation",
-        link: "#",
+        link: "/image-generation",
       },
       {
         icon: <GIcon size={22}>cards_star</GIcon>,
         text: "Remix Image",
-        link: "#",
+        link: "/remix-image",
         isNew: true,
       },
     ],
@@ -134,17 +134,17 @@ export const sidebarSections: SidebarSectionType[] = [
       {
         icon: <GIcon size={22}>live_help</GIcon>,
         text: "Support",
-        link: "#",
+        link: "/support",
       },
       {
         icon: <GIcon size={22}>smart_display</GIcon>,
         text: "Tutorial",
-        link: "#",
+        link: "/tutorial",
       },
       {
         icon: <GIcon size={22}>quiz</GIcon>,
         text: "FAQs",
-        link: "#",
+        link: "/faq",
       },
     ],
   },
