@@ -98,7 +98,7 @@ const SidebarLinkButton = ({
         size={"full"}
         className={cn(
           "flex justify-start items-center font-normal cursor-pointer w-full text-wrap",
-          active ? "" : "hover:bg-gray-200",
+          active ? "" : "hover:bg-gray-200 hover:text-black",
           className
         )}
       >

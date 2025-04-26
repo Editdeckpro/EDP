@@ -30,7 +30,7 @@ const PricingCard: FC<PricingCardProps> = ({
       ? "bg-primary"
       : color === "secondary"
       ? "bg-secondary"
-      : "bg-[#4092dd]";
+      : "bg-accent";
 
   return (
     <div className="bg-white rounded-xl p-3 border border-[#dedede]">

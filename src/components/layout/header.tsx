@@ -10,7 +10,7 @@ export default function DashboardHeader() {
       <div className="flex items-center gap-2">
         {/* Credits Badge */}
         <div className="flex items-center gap-2 bg-white text-black outline outline-gray-300 rounded-full px-3 py-1 pl-[5px]">
-          <div className="rounded-full bg-accent p-2 aspect-square flex items-center justify-center text-xs font-bold">
+          <div className="rounded-full bg-secondary p-2 aspect-square flex items-center justify-center text-xs font-bold">
             <GIcon name="toll" />
           </div>
           <div className="text-xs">
