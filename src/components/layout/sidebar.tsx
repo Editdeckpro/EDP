@@ -1,8 +1,4 @@
 "use client";
-import Image from "next/image";
-import GIcon from "../g-icon";
-import { Button } from "../ui/button";
-import SidebarContent from "./sidebar-content";
 import {
   Sheet,
   SheetContent,
@@ -11,41 +7,25 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import GIcon from "../g-icon";
+import { Button } from "../ui/button";
+import SidebarContent from "./sidebar-content";
 
 const Sidebar = ({}) => {
   return (
     <>
-      <aside className="hidden lg:block p-5 bg-white border w-full rounded-3xl min-h-dvh space-y-5 text-sm text-gray-700 font-medium">
+      <aside className="p-5 bg-white border w-full rounded-3xl min-h-dvh space-y-5 text-sm text-gray-700 font-medium">
         <SidebarContent />
       </aside>
-      <header className="lg:hidden block">
-        <nav className=" flex items-center gap-2 justify-between">
-          <div className="flex gap-2 items-center">
-            <MobileNavSheet />
-            <div className="-space-y-2">
-              <h1 className="font-bold text-lg ">Dashboard</h1>
-              <span className="text-xs ">
-                Credit Remained: <samp>21,465</samp>
-              </span>
-            </div>
-          </div>
-          <Image
-            src="/images/pfp.jpg"
-            width={40}
-            height={40}
-            alt="pfp image"
-            className="rounded-full"
-          />
-        </nav>
-      </header>
     </>
   );
 };
 export default Sidebar;
 
-const MobileNavSheet = () => {
+// This will be used in the header file for responsive layout
+export const MobileNavSheet = () => {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
