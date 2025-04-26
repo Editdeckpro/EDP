@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import React from "react";
 import GIcon from "../g-icon";
@@ -5,6 +6,7 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
+import { usePathname } from "next/navigation";
 
 export default function SidebarContent() {
   return (
@@ -14,9 +16,8 @@ export default function SidebarContent() {
 
       <SidebarLinkButton
         icon={<GIcon size={22}>home</GIcon>}
-        link="#"
+        link="/"
         text="Dashboard"
-        active
       />
 
       <ul className="space-y-1">
@@ -42,7 +43,7 @@ export default function SidebarContent() {
         <li className="pl-2">
           <SidebarLinkButton
             icon={<GIcon size={22}>crown</GIcon>}
-            link="#"
+            link="/subscription"
             text="Manage Subscription"
           />
         </li>
@@ -79,30 +80,36 @@ interface SidebarLinkButtonProp {
   link: string;
   text: string;
   icon: React.ReactNode;
-  active?: boolean;
   className?: string;
   isNew?: boolean;
 }
+
 const SidebarLinkButton = ({
   icon,
   link,
   text,
   className,
-  active = false,
   isNew = false,
 }: SidebarLinkButtonProp) => {
+  const pathname = usePathname();
+
+  const isActive = pathname === link; // <- simple matching
+  // if you want *startsWith* behavior (for nested routes), use:
+  // const isActive = pathname.startsWith(link);
+
   return (
     <Link href={link}>
       <Button
-        variant={active ? "default" : "ghost"}
+        variant={isActive ? "default" : "ghost"}
         size={"full"}
         className={cn(
-          "flex justify-start items-center font-normal cursor-pointer w-full text-wrap",
-          active ? "" : "hover:bg-gray-200 hover:text-black",
+          "flex justify-start items-center font-normal cursor-pointer w-full text-wrap gap-2",
+          isActive ? "" : "hover:bg-gray-200 hover:text-black",
           className
         )}
       >
-        {icon} <div className="text-wrap">{text}</div>
+        {icon}
+        <div className="text-wrap">{text}</div>
         {isNew && (
           <span className="py-[2px] px-2 bg-[#FF8A3D] rounded-sm text-xs font-semibold">
             New

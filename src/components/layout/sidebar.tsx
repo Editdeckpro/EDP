@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import GIcon from "../g-icon";
 import { Button } from "../ui/button";
@@ -10,6 +11,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const Sidebar = ({}) => {
   return (
@@ -43,12 +46,19 @@ const Sidebar = ({}) => {
 export default Sidebar;
 
 const MobileNavSheet = () => {
+  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setOpen(false); // close sheet on URL/pathname change
+  }, [pathname]);
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button
           size={"icon"}
-          className="rounded-full  text-black cursor-pointer"
+          className="rounded-full text-black cursor-pointer"
           variant={"secondary"}
         >
           <GIcon name="menu" />
@@ -58,11 +68,11 @@ const MobileNavSheet = () => {
         side="left"
         className="max-w-xs w-xs bg-transparent border-none"
       >
-        {/* // ! this is only for accessibility do not make is visible */}
+        {/* Accessibility only */}
         <SheetHeader className="hidden">
           <SheetTitle>Sidebar</SheetTitle>
           <SheetDescription>
-            This is sidebar can be used for navigating into different pages
+            This is a sidebar for navigating different pages
           </SheetDescription>
         </SheetHeader>
 
