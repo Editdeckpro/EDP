@@ -1,12 +1,24 @@
+"use client";
+
 import Image from "next/image";
 import React from "react";
 import GIcon from "../g-icon";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { sidebarSections } from "./sidebar-content";
 
 export default function DashboardHeader() {
+  const pathname = usePathname();
+
+  const activeLink = sidebarSections
+    .flatMap((section) => section.links)
+    .find((link) => link.link === pathname);
+
+  const title = activeLink?.text ?? "Dashboard";
+
   return (
     <header className="hidden justify-between lg:flex items-center">
-      <h1 className="text-lg font-bold">Dashboard</h1>
+      <h1 className="text-lg font-bold">{title}</h1>
       <div className="flex items-center gap-2">
         {/* Credits Badge */}
         <div className="flex items-center gap-2 bg-white text-black outline outline-gray-300 rounded-full px-3 py-1 pl-[5px]">
@@ -22,7 +34,6 @@ export default function DashboardHeader() {
         </div>
 
         {/* User Profile */}
-        {/* todo add profile link */}
         <Link href={"#"}>
           <div className="flex items-center gap-2 bg-gray-100 text-black rounded-full px-4 py-1 pl-[5px]">
             <Image
@@ -32,7 +43,6 @@ export default function DashboardHeader() {
               height={42}
               className="rounded-full overflow-hidden"
             />
-
             <span className="text-sm font-medium text-gray-800">HSung15</span>
           </div>
         </Link>

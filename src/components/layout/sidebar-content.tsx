@@ -14,64 +14,23 @@ export default function SidebarContent() {
       <Image src={"/images/logo.jpg"} width={110} height={110} alt="logo" />
       <Separator />
 
-      <SidebarLinkButton
-        icon={<GIcon size={22}>home</GIcon>}
-        link="/"
-        text="Dashboard"
-      />
-
-      <ul className="space-y-1">
-        <header className="font-bold text-black">Tools</header>
-        <li className="pl-2">
-          <SidebarLinkButton
-            icon={<GIcon size={22}>wand_stars</GIcon>}
-            link="#"
-            text="Image Generation"
-          />
-        </li>
-        <li className="pl-2">
-          <SidebarLinkButton
-            icon={<GIcon size={22}>cards_star</GIcon>}
-            link="#"
-            text="Remix Image"
-            isNew
-          />
-        </li>
-      </ul>
-      <ul className="space-y-1">
-        <header className="font-bold text-black">Subscription</header>
-        <li className="pl-2">
-          <SidebarLinkButton
-            icon={<GIcon size={22}>crown</GIcon>}
-            link="/subscription"
-            text="Manage Subscription"
-          />
-        </li>
-      </ul>
-      <ul className="space-y-1">
-        <header className="font-bold text-black">Other Options</header>
-        <li className="pl-2">
-          <SidebarLinkButton
-            icon={<GIcon size={22}>live_help</GIcon>}
-            link="#"
-            text="Support"
-          />
-        </li>
-        <li className="pl-2">
-          <SidebarLinkButton
-            icon={<GIcon size={22}>smart_display</GIcon>}
-            link="#"
-            text="Tutorial"
-          />
-        </li>
-        <li className="pl-2">
-          <SidebarLinkButton
-            icon={<GIcon size={22}>quiz</GIcon>}
-            link="#"
-            text="FAQs"
-          />
-        </li>
-      </ul>
+      {sidebarSections.map((section, i) => (
+        <ul className="space-y-1" key={i}>
+          {section.header && (
+            <header className="font-bold text-black">{section.header}</header>
+          )}
+          {section.links.map((item, idx) => (
+            <li className="pl-2" key={idx}>
+              <SidebarLinkButton
+                icon={item.icon}
+                link={item.link}
+                text={item.text}
+                isNew={item.isNew}
+              />
+            </li>
+          ))}
+        </ul>
+      ))}
     </>
   );
 }
@@ -119,3 +78,74 @@ const SidebarLinkButton = ({
     </Link>
   );
 };
+
+type SidebarLink = {
+  icon: React.ReactNode;
+  text: string;
+  link: string;
+  isNew?: boolean;
+};
+
+export type SidebarSectionType = {
+  header: string | null;
+  links: SidebarLink[];
+};
+
+export const sidebarSections: SidebarSectionType[] = [
+  {
+    header: null,
+    links: [
+      {
+        icon: <GIcon size={22}>home</GIcon>,
+        text: "Dashboard",
+        link: "/",
+      },
+    ],
+  },
+  {
+    header: "Tools",
+    links: [
+      {
+        icon: <GIcon size={22}>wand_stars</GIcon>,
+        text: "Image Generation",
+        link: "#",
+      },
+      {
+        icon: <GIcon size={22}>cards_star</GIcon>,
+        text: "Remix Image",
+        link: "#",
+        isNew: true,
+      },
+    ],
+  },
+  {
+    header: "Subscription",
+    links: [
+      {
+        icon: <GIcon size={22}>crown</GIcon>,
+        text: "Manage Subscription",
+        link: "/subscription",
+      },
+    ],
+  },
+  {
+    header: "Other Options",
+    links: [
+      {
+        icon: <GIcon size={22}>live_help</GIcon>,
+        text: "Support",
+        link: "#",
+      },
+      {
+        icon: <GIcon size={22}>smart_display</GIcon>,
+        text: "Tutorial",
+        link: "#",
+      },
+      {
+        icon: <GIcon size={22}>quiz</GIcon>,
+        text: "FAQs",
+        link: "#",
+      },
+    ],
+  },
+];
