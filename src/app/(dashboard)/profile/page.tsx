@@ -1,8 +1,8 @@
 import ChangePasswordDialog from "@/components/pages/profile/change-password-dialog";
 import DeleteAccountDialog from "@/components/pages/profile/delete-account-dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Page() {
   return (
@@ -25,7 +25,9 @@ export default function Page() {
               </h3>
             </div>
           </div>
-          <Button>Edit Profile</Button>
+          <Link href={"/profile/edit"}>
+            <Button>Edit Profile</Button>
+          </Link>
         </div>
         <div className="flex gap-2">
           <ChangePasswordDialog />

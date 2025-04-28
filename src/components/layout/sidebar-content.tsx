@@ -153,6 +153,8 @@ export const sidebarSections: SidebarSectionType[] = [
       },
     ],
   },
+  // other routes that does not show on sidebar
+  // but necessary for header title
   {
     header: false,
     links: [
@@ -160,6 +162,11 @@ export const sidebarSections: SidebarSectionType[] = [
         icon: <></>,
         text: "My Profile",
         link: "/profile",
+      },
+      {
+        icon: <></>,
+        text: "Edit Profile",
+        link: "/profile/edit",
       },
     ],
   },
