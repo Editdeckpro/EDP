@@ -38,7 +38,7 @@ export default function DashboardHeader() {
           </div>
 
           {/* User Profile */}
-          <Link href={"#"}>
+          <Link href={"/profile"}>
             <div className="flex items-center gap-2 bg-gray-100 text-black rounded-full px-4 py-1 pl-[5px]">
               <Image
                 src="/images/pfp.jpg"
@@ -63,13 +63,15 @@ export default function DashboardHeader() {
               </span>
             </div>
           </div>
-          <Image
-            src="/images/pfp.jpg"
-            width={40}
-            height={40}
-            alt="pfp image"
-            className="rounded-full"
-          />
+          <Link href={"/profile"}>
+            <Image
+              src="/images/pfp.jpg"
+              width={40}
+              height={40}
+              alt="pfp image"
+              className="rounded-full"
+            />
+          </Link>
         </nav>
       </header>
     </>
