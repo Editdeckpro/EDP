@@ -12,9 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChevronRight, Eye } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function DeleteAccountDialog() {
   return (

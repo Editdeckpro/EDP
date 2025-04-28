@@ -14,23 +14,28 @@ export default function SidebarContent() {
       <Image src={"/images/logo.jpg"} width={110} height={110} alt="logo" />
       <Separator />
 
-      {sidebarSections.map((section, i) => (
-        <ul className="space-y-1" key={i}>
-          {section.header && (
-            <header className="font-bold text-black">{section.header}</header>
-          )}
-          {section.links.map((item, idx) => (
-            <li className="pl-2" key={idx}>
-              <SidebarLinkButton
-                icon={item.icon}
-                link={item.link}
-                text={item.text}
-                isNew={item.isNew}
-              />
-            </li>
-          ))}
-        </ul>
-      ))}
+      {sidebarSections.map(
+        (section, i) =>
+          section.header != false && (
+            <ul className="space-y-1" key={i}>
+              {section.header && (
+                <header className="font-bold text-black">
+                  {section.header}
+                </header>
+              )}
+              {section.links.map((item, idx) => (
+                <li className="pl-2" key={idx}>
+                  <SidebarLinkButton
+                    icon={item.icon}
+                    link={item.link}
+                    text={item.text}
+                    isNew={item.isNew}
+                  />
+                </li>
+              ))}
+            </ul>
+          )
+      )}
     </>
   );
 }
@@ -87,7 +92,7 @@ type SidebarLink = {
 };
 
 export type SidebarSectionType = {
-  header: string | null;
+  header: string | null | false;
   links: SidebarLink[];
 };
 
@@ -145,6 +150,16 @@ export const sidebarSections: SidebarSectionType[] = [
         icon: <GIcon size={22}>quiz</GIcon>,
         text: "FAQs",
         link: "/faq",
+      },
+    ],
+  },
+  {
+    header: false,
+    links: [
+      {
+        icon: <></>,
+        text: "My Profile",
+        link: "/profile",
       },
     ],
   },
