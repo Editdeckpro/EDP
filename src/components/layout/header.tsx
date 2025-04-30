@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import React from "react";
+import React, { FC } from "react";
 import GIcon from "../g-icon";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -9,7 +9,11 @@ import { sidebarSections } from "./sidebar-content";
 import { MobileNavSheet } from "./sidebar";
 import { ChevronLeft } from "lucide-react";
 
-export default function DashboardHeader() {
+interface HeaderProps {
+  type?: "prompt" | "nav";
+}
+
+const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -170,4 +174,5 @@ export default function DashboardHeader() {
       </header>
     </>
   );
-}
+};
+export default DashboardHeader;
