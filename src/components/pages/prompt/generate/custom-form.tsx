@@ -1,8 +1,6 @@
 "use client";
-import { FC, useState } from "react";
-
+import { Dispatch, FC, SetStateAction, useState } from "react";
 import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
-
 import GIcon from "@/components/g-icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,10 +20,11 @@ import {
   CustomFormSchemaType,
 } from "@/schemas/custom-schema";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface CustomFormProps {}
+interface CustomFormProps {
+  setData: Dispatch<SetStateAction<string>>;
+}
 
-const CustomForm: FC<CustomFormProps> = ({}) => {
+const CustomForm: FC<CustomFormProps> = ({ setData }) => {
   const [customPromptOpen, setCustomPromptOpen] = useState(true);
   const [otherSettingsOpen, setOtherSettingsOpen] = useState(true);
 
@@ -41,6 +40,7 @@ const CustomForm: FC<CustomFormProps> = ({}) => {
   function onSubmit(values: CustomFormSchemaType) {
     console.log(values);
     // Handle form submission
+    setData(values.customPrompt);
   }
 
   return (

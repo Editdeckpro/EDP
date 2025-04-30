@@ -2,9 +2,13 @@
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CustomForm from "./custom-form";
-import { useState } from "react";
+import { Dispatch, FC, SetStateAction, useState } from "react";
 
-export default function GenerateSidebarContent() {
+interface GenerateSidebarContent {
+  setData: Dispatch<SetStateAction<string>>;
+}
+
+const GenerateSidebarContent: FC<GenerateSidebarContent> = ({ setData }) => {
   const [selectedTab, setSelectedTab] = useState<"custom" | "filter">("custom");
 
   return (
@@ -45,10 +49,12 @@ export default function GenerateSidebarContent() {
           </div>
         </div>
         <TabsContent value="custom">
-          <CustomForm />
+          <CustomForm setData={setData} />
         </TabsContent>
         <TabsContent value="filter">Add filter form</TabsContent>
       </Tabs>
     </>
   );
-}
+};
+
+export default GenerateSidebarContent;

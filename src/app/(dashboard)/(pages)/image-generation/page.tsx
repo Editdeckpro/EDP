@@ -16,7 +16,7 @@ export default function Page() {
             suscipit eos dicta culpa
           </p>
         </div>
-        <Link href={"/generate"}>
+        <Link href={"/image-generation/generate"}>
           <Button className="w-full sm:w-auto">
             Generate now <GIcon>wand_stars</GIcon>
           </Button>

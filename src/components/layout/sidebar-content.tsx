@@ -11,7 +11,14 @@ import { usePathname } from "next/navigation";
 export default function SidebarContent() {
   return (
     <>
-      <Image src={"/images/logo.jpg"} width={110} height={110} alt="logo" />
+      <Image
+        src={"/images/logo.jpg"}
+        width={110}
+        height={110}
+        alt="logo"
+        priority
+        fetchPriority="high"
+      />
       <Separator />
 
       {sidebarSections.map(
