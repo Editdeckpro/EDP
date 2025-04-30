@@ -1,55 +1,62 @@
-import axios from "axios";
+// app/api/auth/[...nextauth]/route.ts
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import axios from "axios";
 
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
-      id: "credentials",
-      // The name to display on the sign in form (e.g. "Sign in with...")
       name: "Credentials",
-      // `credentials` is used to generate a form on the sign in page.
-      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-      // e.g. domain, username, password, 2FA token, etc.
-      // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "jsmith" },
+        username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
-        // Add logic here to look up the user from the credentials supplied
-        const user = { id: "1", name: "J Smith", email: "jsmith@example.com" };
+      async authorize(credentials) {
+        // Safe guard: ensure credentials are present
+        if (!credentials?.username || !credentials?.password) {
+          throw new Error("Missing credentials");
+        }
 
-        if (user) {
-          // Any object returned will be saved in `user` property of the JWT
+        try {
+          const response = await axios.post(
+            `${process.env.NEXT_PUBLIC_BE_URL}/auth/login`,
+            {
+              username: credentials.username,
+              password: credentials.password,
+            }
+          );
+
+          // Assuming response shape: { accessToken: "..." }
+          const user = {
+            id: credentials.username,
+            accessToken: response.data.accessToken,
+          };
+
           return user;
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
-          return null;
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            const status = error.response?.status;
 
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
+            if (status === 400) throw new Error("User not found");
+            if (status === 403) throw new Error("Invalid password");
+          }
+
+          throw new Error("Server error");
         }
       },
     }),
   ],
-  pages: {
-    signIn: "/login", // Your custom sign-in page
-    error: "/login?error=true",
-  },
   session: {
-    strategy: "jwt", // Use JWT strategy for sessions
+    strategy: "jwt",
   },
   callbacks: {
-    // If you need to pass custom properties (like tokens), you can use callbacks
     async jwt({ token, user }) {
-      if (user) {
-        // For example, store the JWT token returned by the backend
-        token.accessToken = user.token; // Adjust based on your backend response structure
+      if (user?.accessToken) {
+        token.accessToken = user.accessToken;
       }
       return token;
     },
     async session({ session, token }) {
-      // Attach the JWT token to the session for use in the client
       session.accessToken = token.accessToken as string;
       return session;
     },
