@@ -1,8 +1,8 @@
-import React, { Dispatch, SetStateAction } from "react";
+import { GenerateResType } from ".";
 import GenerateSidebarContent from "./sidebar-content";
 
 interface GenerateSidebar {
-  setData: Dispatch<SetStateAction<string>>;
+  setData: GenerateResType;
 }
 
 export default function GenerateSidebar({ setData }: GenerateSidebar) {

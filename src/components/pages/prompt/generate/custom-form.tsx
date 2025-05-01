@@ -112,7 +112,7 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
                 <p className="text-sm text-gray-600 mb-2">
                   Number of Images to be Generated
                 </p>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {[1, 2, 3, 4].map((number) => (
                     <Button
                       key={number}

@@ -1,11 +1,12 @@
 "use client";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FC, useState } from "react";
+import { GenerateResType } from ".";
 import CustomForm from "./custom-form";
-import { Dispatch, FC, SetStateAction, useState } from "react";
 
 interface GenerateSidebarContent {
-  setData: Dispatch<SetStateAction<string>>;
+  setData: GenerateResType;
 }
 
 const GenerateSidebarContent: FC<GenerateSidebarContent> = ({ setData }) => {

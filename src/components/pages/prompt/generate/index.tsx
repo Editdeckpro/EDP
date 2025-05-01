@@ -1,7 +1,10 @@
 "use client";
 import DashboardHeader from "@/components/layout/header";
 import GenerateSidebar from "./sidebar";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
+import GenerateMobileHeader from "../mobile-header";
+
+export type GenerateResType = Dispatch<SetStateAction<string>>;
 
 export default function Generate() {
   const [prompt, setPrompt] = useState("");
@@ -12,7 +15,8 @@ export default function Generate() {
         <GenerateSidebar setData={setPrompt} />
       </section>
       <section className="p-5 space-y-5  w-full">
-        <DashboardHeader />
+        <DashboardHeader type="prompt" />
+        <GenerateMobileHeader setData={setPrompt} />
         <p>{prompt}</p>
       </section>
     </section>
