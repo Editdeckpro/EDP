@@ -1,6 +1,4 @@
 "use client";
-import { Dispatch, FC, SetStateAction, useState } from "react";
-import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import GIcon from "@/components/g-icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,15 +11,18 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   customFormSchema,
   CustomFormSchemaType,
 } from "@/schemas/custom-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { FC, useState } from "react";
+import { useForm } from "react-hook-form";
+import { GenerateResType } from ".";
 
 interface CustomFormProps {
-  setData: Dispatch<SetStateAction<string>>;
+  setData: GenerateResType;
 }
 
 const CustomForm: FC<CustomFormProps> = ({ setData }) => {

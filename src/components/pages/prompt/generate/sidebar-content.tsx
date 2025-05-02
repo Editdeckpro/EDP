@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FC, useState } from "react";
 import { GenerateResType } from ".";
 import CustomForm from "./custom-form";
+import GenerateFilterForm from "./filter-form";
 
 interface GenerateSidebarContent {
   setData: GenerateResType;
@@ -52,7 +53,9 @@ const GenerateSidebarContent: FC<GenerateSidebarContent> = ({ setData }) => {
         <TabsContent value="custom">
           <CustomForm setData={setData} />
         </TabsContent>
-        <TabsContent value="filter">Add filter form</TabsContent>
+        <TabsContent value="filter">
+          <GenerateFilterForm setData={setData} />
+        </TabsContent>
       </Tabs>
     </>
   );
