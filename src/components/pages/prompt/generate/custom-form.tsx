@@ -19,10 +19,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
-import { GenerateResType } from ".";
+import { SetGenerateResType } from ".";
+import { customFormDataSubmit } from "./request";
+import { toast } from "sonner";
 
 interface CustomFormProps {
-  setData: GenerateResType;
+  setData: SetGenerateResType;
 }
 
 const CustomForm: FC<CustomFormProps> = ({ setData }) => {
@@ -38,10 +40,27 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
     },
   });
 
-  function onSubmit(values: CustomFormSchemaType) {
-    console.log(values);
-    // Handle form submission
-    setData(values.customPrompt);
+  async function onSubmit(values: CustomFormSchemaType) {
+    try {
+      const data = await customFormDataSubmit(values);
+
+      if (data === "error") {
+        toast.error("Something went wrong", {
+          description: "Please try submitting form again",
+        });
+        form.reset();
+        return;
+      }
+      setData(data);
+    } catch (err) {
+      console.log(err);
+
+      toast.error("Something went wrong", {
+        description: "Please try submitting form again",
+      });
+      form.reset();
+      return;
+    }
   }
 
   return (

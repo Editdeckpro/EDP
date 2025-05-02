@@ -1,8 +1,8 @@
-import { GenerateResType } from ".";
+import { SetGenerateResType } from ".";
 import GenerateSidebarContent from "./sidebar-content";
 
 interface GenerateSidebar {
-  setData: GenerateResType;
+  setData: SetGenerateResType;
 }
 
 export default function GenerateSidebar({ setData }: GenerateSidebar) {

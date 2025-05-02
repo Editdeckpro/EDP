@@ -2,12 +2,12 @@
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FC, useState } from "react";
-import { GenerateResType } from ".";
+import { SetGenerateResType } from ".";
 import CustomForm from "./custom-form";
 import GenerateFilterForm from "./filter-form";
 
 interface GenerateSidebarContent {
-  setData: GenerateResType;
+  setData: SetGenerateResType;
 }
 
 const GenerateSidebarContent: FC<GenerateSidebarContent> = ({ setData }) => {

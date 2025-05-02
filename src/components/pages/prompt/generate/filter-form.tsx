@@ -25,13 +25,13 @@ import {
 } from "lucide-react";
 import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
-import { GenerateResType } from ".";
+import { SetGenerateResType } from ".";
 import ColorPaletteModal from "./modals/colors-modal";
 import MoodModal from "./modals/mood-modal";
 import VisualStyleModal from "./modals/visual-modal";
 
 interface GenerateFilterFormProps {
-  setData: GenerateResType;
+  setData: SetGenerateResType;
 }
 
 const GenerateFilterForm: FC<GenerateFilterFormProps> = ({}) => {

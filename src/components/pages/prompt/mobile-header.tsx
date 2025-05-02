@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { FC, useState } from "react";
-import { GenerateResType } from "./generate";
+import { SetGenerateResType } from "./generate";
 
 import GIcon from "@/components/g-icon";
 import { sidebarSections } from "@/components/layout/sidebar-content";
@@ -20,7 +20,7 @@ import { usePathname } from "next/navigation";
 import GenerateSidebarContent from "./generate/sidebar-content";
 
 interface GenerateMobileHeaderProps {
-  setData: GenerateResType;
+  setData: SetGenerateResType;
 }
 
 const GenerateMobileHeader: FC<GenerateMobileHeaderProps> = ({ setData }) => {
@@ -103,7 +103,7 @@ const GenerateMobileHeader: FC<GenerateMobileHeaderProps> = ({ setData }) => {
 export default GenerateMobileHeader;
 
 interface MobileNavSheet {
-  setData: GenerateResType;
+  setData: SetGenerateResType;
 }
 
 const MobileNavSheet: FC<MobileNavSheet> = ({ setData }) => {
