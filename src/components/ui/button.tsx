@@ -43,6 +43,7 @@ function Button({
   size,
   asChild = false,
   isLoading = false,
+  disabled,
   children,
   ...props
 }: React.ComponentProps<"button"> &
@@ -54,6 +55,7 @@ function Button({
 
   return (
     <Comp
+      disabled={isLoading ? true : disabled}
       data-slot="button"
       className={cn(
         "relative",

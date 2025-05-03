@@ -12,7 +12,8 @@ import {
 export type GenerateResType =
   | CustomGeneratedImage
   | FilterGeneratedImage
-  | null;
+  | null
+  | "loading";
 export type SetGenerateResType = Dispatch<
   SetStateAction<GenerateResType | null>
 >;

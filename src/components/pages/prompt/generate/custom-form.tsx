@@ -30,6 +30,7 @@ interface CustomFormProps {
 const CustomForm: FC<CustomFormProps> = ({ setData }) => {
   const [customPromptOpen, setCustomPromptOpen] = useState(true);
   const [otherSettingsOpen, setOtherSettingsOpen] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const form = useForm<CustomFormSchemaType>({
     resolver: zodResolver(customFormSchema),
@@ -42,7 +43,10 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
 
   async function onSubmit(values: CustomFormSchemaType) {
     try {
+      setIsSubmitting(true);
+      setData("loading");
       const data = await customFormDataSubmit(values);
+      setIsSubmitting(false);
 
       if (data === "error") {
         toast.error("Something went wrong", {
@@ -58,6 +62,7 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
       toast.error("Something went wrong", {
         description: "Please try submitting form again",
       });
+      setData(null);
       form.reset();
       return;
     }
@@ -178,7 +183,7 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
           )}
         </div>
 
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full" isLoading={isSubmitting}>
           Generate Images <GIcon>wand_stars</GIcon>
         </Button>
       </form>

@@ -37,9 +37,10 @@ interface GenerateFilterFormProps {
 }
 
 const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
-  const [generalSettingOpen, setGeneralSettingOpen] = useState(true);
-  const [otherSettingsOpen, setOtherSettingsOpen] = useState(true);
-  const [styleOpen, setStyleOpen] = useState(true);
+  const [generalSettingOpen, setGeneralSettingOpen] = useState<boolean>(true);
+  const [otherSettingsOpen, setOtherSettingsOpen] = useState<boolean>(true);
+  const [styleOpen, setStyleOpen] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const form = useForm<GenerateFilterFormSchemaType>({
     resolver: zodResolver(generateFilterFormSchema),
@@ -57,7 +58,10 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
 
   async function onSubmit(values: GenerateFilterFormSchemaType) {
     try {
+      setIsSubmitting(true);
+      setData("loading");
       const data = await filterFormDataSubmit(values);
+      setIsSubmitting(false);
 
       if (data === "error") {
         toast.error("Something went wrong", {
@@ -67,12 +71,14 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
         return;
       }
       setData(data);
+      return;
     } catch (err) {
       console.log(err);
       toast.error("Something went wrong", {
         description: "Please try submitting form again",
       });
       form.reset();
+      setData(null);
       return;
     }
   }
@@ -296,7 +302,7 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
           )}
         </div>
 
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full" isLoading={isSubmitting}>
           Generate Images <GIcon>wand_stars</GIcon>
         </Button>
       </form>
