@@ -13,7 +13,7 @@ export interface RequestFilterGeneratedImage {
   genre: string;
   mood: string;
   visualStyle: string;
-  // elements: string;
+  elements: string;
   colorPallete: string;
   noOfImages: number;
 }

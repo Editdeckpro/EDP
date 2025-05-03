@@ -66,6 +66,7 @@ export async function filterFormDataSubmit(
     noOfImages: data.numberOfImages,
     projectName: data.albumSongName,
     visualStyle: data.visualStyles,
+    elements: data.elements,
   };
 
   try {

@@ -21,6 +21,7 @@ import {
   ChevronUp,
   CircleDot,
   Drama,
+  SquareMousePointer,
   UserRound,
 } from "lucide-react";
 import { FC, useState } from "react";
@@ -161,6 +162,24 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
                         placeholder="Genre"
                         {...field}
                         icon={<Drama className="text-muted-foreground" />}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="elements"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        placeholder="Elements"
+                        {...field}
+                        icon={
+                          <SquareMousePointer className="text-muted-foreground" />
+                        }
                       />
                     </FormControl>
                     <FormMessage />

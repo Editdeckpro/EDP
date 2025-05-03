@@ -4,6 +4,7 @@ export const generateFilterFormSchema = z.object({
   albumSongName: z.string().min(1, "Album song name is required"),
   artistName: z.string().min(1, "Artist name is required"),
   genre: z.string().min(1, "Genre is required"),
+  elements: z.string().min(1, "Element is required"),
 
   visualStyles: z.string().min(1, {
     message: "Select a visual style",
