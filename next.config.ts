@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
         destination: "/generate", // Keep the URL /image-generation/generate but show content from /generate
       },
       {
-        source: "/image-remix/remix",
+        source: "/remix-image/remix",
         destination: "/remix", // Keep the URL /image-remix/remix but show content from /remix
       },
     ];
