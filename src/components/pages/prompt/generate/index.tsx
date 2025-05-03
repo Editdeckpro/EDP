@@ -4,9 +4,15 @@ import GenerateSidebar from "./sidebar";
 import { Dispatch, SetStateAction, useState } from "react";
 import GenerateMobileHeader from "../mobile-header";
 import GeneratePage from "./generate-page";
-import { CustomGeneratedImage } from "@type/api/custom-generated.type";
+import {
+  CustomGeneratedImage,
+  FilterGeneratedImage,
+} from "@type/api/generate.type";
 
-export type GenerateResType = CustomGeneratedImage | null;
+export type GenerateResType =
+  | CustomGeneratedImage
+  | FilterGeneratedImage
+  | null;
 export type SetGenerateResType = Dispatch<
   SetStateAction<GenerateResType | null>
 >;

@@ -29,12 +29,14 @@ import { SetGenerateResType } from ".";
 import ColorPaletteModal from "./modals/colors-modal";
 import MoodModal from "./modals/mood-modal";
 import VisualStyleModal from "./modals/visual-modal";
+import { filterFormDataSubmit } from "./request";
+import { toast } from "sonner";
 
 interface GenerateFilterFormProps {
   setData: SetGenerateResType;
 }
 
-const GenerateFilterForm: FC<GenerateFilterFormProps> = ({}) => {
+const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
   const [generalSettingOpen, setGeneralSettingOpen] = useState(true);
   const [otherSettingsOpen, setOtherSettingsOpen] = useState(true);
   const [styleOpen, setStyleOpen] = useState(true);
@@ -53,10 +55,26 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({}) => {
     },
   });
 
-  function onSubmit(values: GenerateFilterFormSchemaType) {
-    console.log(values);
-    // Handle form submission
-    // setData(values.customPrompt);
+  async function onSubmit(values: GenerateFilterFormSchemaType) {
+    try {
+      const data = await filterFormDataSubmit(values);
+
+      if (data === "error") {
+        toast.error("Something went wrong", {
+          description: "Please try submitting form again",
+        });
+        form.reset();
+        return;
+      }
+      setData(data);
+    } catch (err) {
+      console.log(err);
+      toast.error("Something went wrong", {
+        description: "Please try submitting form again",
+      });
+      form.reset();
+      return;
+    }
   }
 
   const handleVisualStyleSelect = (styleName: string) => {
