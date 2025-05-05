@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React, { FC, useState } from "react";
-import { SetGenerateResType } from "./generate";
+import { usePathname } from "next/navigation";
+import React, { ReactNode, useState } from "react";
 
 import GIcon from "@/components/g-icon";
 import { sidebarSections } from "@/components/layout/sidebar-content";
@@ -16,20 +16,15 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { usePathname } from "next/navigation";
-import GenerateSidebarContent from "./generate/sidebar-content";
 
-interface GenerateMobileHeaderProps {
-  setData: SetGenerateResType;
+interface PromptMobileHeaderProps {
+  SidebarContent: ReactNode;
 }
 
-const GenerateMobileHeader: FC<GenerateMobileHeaderProps> = ({ setData }) => {
+const PromptMobileHeader = ({ SidebarContent }: PromptMobileHeaderProps) => {
   const pathname = usePathname();
-
-  // Split the path into parts
   const pathParts = pathname.split("/").filter(Boolean);
 
-  // Get corresponding link titles
   const breadcrumbs = pathParts.map((part, index) => {
     const linkPath = "/" + pathParts.slice(0, index + 1).join("/");
     const link = sidebarSections
@@ -38,12 +33,11 @@ const GenerateMobileHeader: FC<GenerateMobileHeaderProps> = ({ setData }) => {
 
     const title =
       link?.text ||
-      part.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()); // fallback to formatted slug
+      part.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
     return { title, href: linkPath };
   });
 
-  // Final Title or Breadcrumb
   const isRoot = breadcrumbs.length === 0;
   const pageTitle = isRoot
     ? "Dashboard"
@@ -53,10 +47,9 @@ const GenerateMobileHeader: FC<GenerateMobileHeaderProps> = ({ setData }) => {
     <header className="lg:hidden block">
       <nav className="flex items-center gap-2 justify-between">
         <div className="flex gap-2 items-center">
-          <MobileNavSheet setData={setData} />
+          <MobileNavSheet SidebarContent={SidebarContent} />
           <div>
             <div className="flex items-center gap-1">
-              {/* Mobile Breadcrumbs or Dashboard */}
               {isRoot ? (
                 <h1 className="text-base font-bold text-black">{pageTitle}</h1>
               ) : (
@@ -65,7 +58,7 @@ const GenerateMobileHeader: FC<GenerateMobileHeaderProps> = ({ setData }) => {
                     <Link
                       href={crumb.href}
                       className={`text-sm font-semibold hover:underline ${
-                        index === 0 && breadcrumbs.length != 1
+                        index === 0 && breadcrumbs.length !== 1
                           ? "text-muted-foreground"
                           : "text-black"
                       }`}
@@ -79,7 +72,6 @@ const GenerateMobileHeader: FC<GenerateMobileHeaderProps> = ({ setData }) => {
                 ))
               )}
             </div>
-            {/* Credits below on mobile */}
             <div className="text-xs text-gray-500">
               Credit Remained:{" "}
               <span className="font-bold text-primary">21,465</span>
@@ -100,26 +92,23 @@ const GenerateMobileHeader: FC<GenerateMobileHeaderProps> = ({ setData }) => {
     </header>
   );
 };
-export default GenerateMobileHeader;
 
-interface MobileNavSheet {
-  setData: SetGenerateResType;
+export default PromptMobileHeader;
+
+interface MobileNavSheetProps {
+  SidebarContent: ReactNode;
 }
 
-const MobileNavSheet: FC<MobileNavSheet> = ({ setData }) => {
+const MobileNavSheet = ({ SidebarContent }: MobileNavSheetProps) => {
   const [open, setOpen] = useState(false);
-
-  function closeSidebar() {
-    setOpen(false);
-  }
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button
-          size={"icon"}
+          size="icon"
           className="rounded-full text-black cursor-pointer"
-          variant={"secondary"}
+          variant="secondary"
         >
           <GIcon name="menu" />
         </Button>
@@ -128,7 +117,6 @@ const MobileNavSheet: FC<MobileNavSheet> = ({ setData }) => {
         side="left"
         className="max-w-screen w-xs bg-transparent border-none"
       >
-        {/* Accessibility only */}
         <SheetHeader className="hidden">
           <SheetTitle>Sidebar</SheetTitle>
           <SheetDescription>
@@ -137,7 +125,7 @@ const MobileNavSheet: FC<MobileNavSheet> = ({ setData }) => {
         </SheetHeader>
 
         <div className="p-2 py-5 bg-white border w-full rounded-r-3xl min-h-dvh space-y-5 text-sm text-gray-700 font-medium overflow-y-scroll">
-          <GenerateSidebarContent setData={setData} />
+          {SidebarContent}
         </div>
       </SheetContent>
     </Sheet>
