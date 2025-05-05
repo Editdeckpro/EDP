@@ -20,16 +20,19 @@ import { cn, fileToBase64 } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import GIcon from "@/components/g-icon";
 import { Slider } from "@/components/ui/slider";
+import { remixFormDataSubmit } from "./request";
+import { toast } from "sonner";
 
 interface RemixSidebarContentProps {
   setData: SetRemixResType;
 }
 
-const RemixSidebarContent: FC<RemixSidebarContentProps> = ({}) => {
+const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData }) => {
   const [customPromptOpen, setCustomPromptOpen] = useState<boolean>(true);
   const [imageGuidancesOpen, setImageGuidanceOpen] = useState<boolean>(true);
   const [imageSimilarityOpen, setImageSimilarityOpen] = useState<boolean>(true);
   const [imageBase64, setImageBase64] = useState<string | undefined>(undefined);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const form = useForm<RemixFormSchemaType>({
     resolver: zodResolver(remixFormSchema),
@@ -41,32 +44,31 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({}) => {
   });
 
   async function onSubmit(values: RemixFormSchemaType) {
-    console.log(values);
+    try {
+      setIsSubmitting(true);
+      setData("loading");
+      const data = await remixFormDataSubmit(values);
+      setIsSubmitting(false);
 
-    // try {
-    //   setIsSubmitting(true);
-    //   setData("loading");
-    //   const data = await customFormDataSubmit(values);
-    //   setIsSubmitting(false);
+      if (data === "error") {
+        toast.error("Something went wrong", {
+          description: "Please try submitting form again",
+        });
+        form.reset();
+        return;
+      }
+      setData(data);
+    } catch (err) {
+      console.log(err);
 
-    //   if (data === "error") {
-    //     toast.error("Something went wrong", {
-    //       description: "Please try submitting form again",
-    //     });
-    //     form.reset();
-    //     return;
-    //   }
-    //   setData(data);
-    // } catch (err) {
-    //   console.log(err);
-
-    //   toast.error("Something went wrong", {
-    //     description: "Please try submitting form again",
-    //   });
-    //   setData(null);
-    //   form.reset();
-    //   return;
-    // }
+      setIsSubmitting(false);
+      toast.error("Something went wrong", {
+        description: "Please try submitting form again",
+      });
+      setData(null);
+      form.reset();
+      return;
+    }
   }
 
   return (
@@ -222,11 +224,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({}) => {
             )}
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            //   isLoading={isSubmitting}
-          >
+          <Button type="submit" className="w-full" isLoading={isSubmitting}>
             Remix Image <GIcon>wand_stars</GIcon>
           </Button>
         </form>

@@ -57,6 +57,7 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
       }
       setData(data);
     } catch (err) {
+      setIsSubmitting(false);
       console.log(err);
 
       toast.error("Something went wrong", {

@@ -16,6 +16,11 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [new URL("http://localhost:5000/images/**")],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: 10 * 1024 * 1024, // 10 MB in bytes
+    },
+  },
 };
 
 export default nextConfig;

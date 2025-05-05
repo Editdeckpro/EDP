@@ -32,3 +32,19 @@ export interface FilterGeneratedImage {
   images: [string];
   createdAt: string;
 }
+
+export interface RequestRemixImage {
+  image: File;
+  userPrompt: string;
+  imgSimilarityPercentage: number;
+}
+export interface RemixImage {
+  id: number;
+  referenceImageUrl: string;
+  userPrompt: string;
+  imgSimilarityPercentage: 0;
+  finalPrompt: string;
+  generationType: string;
+  images: [string];
+  createdAt: string;
+}

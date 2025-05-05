@@ -4,8 +4,10 @@ import { Dispatch, SetStateAction, useState } from "react";
 import PromptMobileHeader from "../mobile-header";
 import PromptSidebar from "../sidebar";
 import RemixSidebarContent from "./sidebar-content";
+import { RemixImage } from "@type/api/generate.type";
+import RemixPage from "./remix-page";
 
-export type RemixResType = null | "loading";
+export type RemixResType = RemixImage | null | "loading";
 export type SetRemixResType = Dispatch<SetStateAction<RemixResType | null>>;
 
 export default function Remix() {
@@ -23,11 +25,7 @@ export default function Remix() {
         <PromptMobileHeader
           SidebarContent={<RemixSidebarContent setData={setPrompt} />}
         />
-        {/* <GeneratePage data={prompt} /> */}
-
-        <p>Lorem, ipsum.</p>
-        <p>Lorem, ipsum.</p>
-        <p>Lorem, ipsum.</p>
+        <RemixPage data={prompt} />
       </section>
     </section>
   );
