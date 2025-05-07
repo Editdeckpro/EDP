@@ -5,11 +5,11 @@ import { useInView } from "@/hook/user-in-view";
 import { useGenerations } from "@/hook/use-generation";
 import { useEffect } from "react";
 import { LoaderCircle } from "lucide-react";
+import Image from "next/image";
 
 export default function ImageCardGrid() {
   const { generations, loading, loadNextPage, hasNextPage, error } =
     useGenerations({
-      generationType: undefined,
       limit: 12,
     });
 
@@ -50,6 +50,17 @@ export default function ImageCardGrid() {
           <LoaderCircle className="mx-auto text-primary/50 animate-spin" />
         )}
       </div>
+      {error && (
+        <div className="flex flex-col gap-2 items-center justify-center">
+          <Image
+            src={"/images/rocket-undraw.svg"}
+            width={200}
+            height={200}
+            alt=""
+          />
+          <span className="text-orange-800 font-bold text-lg">{error}</span>
+        </div>
+      )}
     </section>
   );
 }

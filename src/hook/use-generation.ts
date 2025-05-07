@@ -27,7 +27,7 @@ export interface ApiResponse {
 }
 
 interface UseGenerationsOptions {
-  generationType?: GenerationType;
+  generationType?: GenerationType | GenerationType[];
   limit?: number;
 }
 
@@ -46,14 +46,17 @@ export function useGenerations({
   // ✅ Triggered ONLY when `page` changes
   useEffect(() => {
     const fetchGenerations = async () => {
+      // If user is not authenticated, redirect to login
       if (status === "unauthenticated") {
         router.replace("/login");
-        return null;
+        return;
       }
 
+      // Prevent API call if loading, or there's no next page to fetch
       if (loading || !hasNextPage || status === "loading") return;
 
       setLoading(true);
+      setError(null); // Reset any previous errors
 
       try {
         const res = await axios.get<ApiResponse>(
@@ -70,11 +73,9 @@ export function useGenerations({
           }
         );
 
-        console.log(res);
-
         setGenerations((prev) => [...prev, ...res.data.data]);
         setHasNextPage(res.data.pagination.hasNextPage);
-        setError(null); // clear previous errors
+        setError(null); // Clear previous errors
       } catch (e) {
         const err = e as AxiosError<{ message: string }>;
         setError(err.response?.data?.message || err.message || "Unknown error");
@@ -83,9 +84,15 @@ export function useGenerations({
       }
     };
 
+    // Avoid calling the API again if there's an error
+    if (error) {
+      console.error("API Error:", error);
+      return;
+    }
+
     fetchGenerations();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, generationType, limit, status]);
+  }, [page, generationType, limit, status, error]);
 
   const loadNextPage = () => {
     if (!loading && hasNextPage) {
