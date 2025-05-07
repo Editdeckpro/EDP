@@ -1,6 +1,6 @@
 // ! This will be dashboard page
 import ImageCardGrid from "@/components/pages/dashboard/image-card-grid";
-import ImageGridPagination from "@/components/pages/dashboard/image-grid-pagination";
+// import ImageGridPagination from "@/components/pages/dashboard/image-grid-pagination";
 import PageCta from "@/components/pages/dashboard/page-cta";
 
 export default function Page() {
@@ -26,7 +26,7 @@ export default function Page() {
         />
       </div>
       <ImageCardGrid />
-      <ImageGridPagination />
+      {/* <ImageGridPagination /> */}
     </section>
   );
 }
