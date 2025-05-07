@@ -1,9 +1,7 @@
 import GIcon from "@/components/g-icon";
-import ImageCard from "@/components/layout/image-card";
-import ImageGridHeader from "@/components/pages/dashboard/image-grid-header";
+import ImageCardGrid from "@/components/pages/dashboard/image-card-grid";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import React from "react";
 
 export default function Page() {
   return (
@@ -23,27 +21,7 @@ export default function Page() {
         </Link>
       </div>
 
-      <div className="space-y-3">
-        <ImageGridHeader />
-        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <ImageCard
-            imageSrc="/images/image-card.png"
-            imgAlt="image-card.png"
-          />
-          <ImageCard
-            imageSrc="/images/image-card.png"
-            imgAlt="image-card.png"
-          />
-          <ImageCard
-            imageSrc="/images/image-card.png"
-            imgAlt="image-card.png"
-          />
-          <ImageCard
-            imageSrc="/images/image-card.png"
-            imgAlt="image-card.png"
-          />
-        </div>
-      </div>
+      <ImageCardGrid generationType="remix" />
     </section>
   );
 }

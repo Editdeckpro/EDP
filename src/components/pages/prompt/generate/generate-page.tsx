@@ -4,12 +4,23 @@ import { Sparkles } from "lucide-react";
 import ImageCard from "@/components/layout/image-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import ImageCardGrid from "../../dashboard/image-card-grid";
 
 interface GeneratePageProps {
   data: GenerateResType;
 }
 
-const GeneratePage: FC<GeneratePageProps> = ({ data }) => {
+const GeneratePage: FC<GeneratePageProps> = (props) => {
+  return (
+    <section>
+      <DataResult {...props} />
+      <ImageCardGrid generationType="custom" />
+    </section>
+  );
+};
+export default GeneratePage;
+
+const DataResult = ({ data }: GeneratePageProps) => {
   if (data === "loading")
     return (
       <div className="space-y-4">
@@ -69,4 +80,3 @@ const GeneratePage: FC<GeneratePageProps> = ({ data }) => {
       </section>
     );
 };
-export default GeneratePage;

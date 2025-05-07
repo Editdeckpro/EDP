@@ -27,7 +27,7 @@ export interface ApiResponse {
 }
 
 interface UseGenerationsOptions {
-  generationType?: GenerationType | GenerationType[];
+  generationType?: GenerationType;
   limit?: number;
 }
 

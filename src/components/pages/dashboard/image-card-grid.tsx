@@ -2,15 +2,20 @@
 import ImageCard from "@/components/layout/image-card";
 import ImageGridHeader from "./image-grid-header";
 import { useInView } from "@/hook/user-in-view";
-import { useGenerations } from "@/hook/use-generation";
+import { GenerationType, useGenerations } from "@/hook/use-generation";
 import { useEffect } from "react";
 import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
 
-export default function ImageCardGrid() {
+export default function ImageCardGrid({
+  generationType,
+}: {
+  generationType?: GenerationType;
+}) {
   const { generations, loading, loadNextPage, hasNextPage, error } =
     useGenerations({
-      limit: 12,
+      generationType,
+      limit: 10,
     });
 
   const { inView, setRef } = useInView({ threshold: 1 });
@@ -18,6 +23,7 @@ export default function ImageCardGrid() {
   useEffect(() => {
     function fetchNext() {
       if (inView && hasNextPage && !loading && !error) {
+        console.log("Loading next page");
         loadNextPage();
       }
     }
@@ -31,15 +37,10 @@ export default function ImageCardGrid() {
         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {generations.map((item, index) => {
             const isLast = index === generations.length - 1;
-
             return (
               <ImageCard
                 ref={isLast ? setRef : null}
-                key={
-                  String(item.id) +
-                    String(item.imageGenerationId) +
-                    item.imagePath || index
-                }
+                key={index}
                 imageSrc={item.imagePath}
                 imgAlt={item.imageGenerationId}
               />
