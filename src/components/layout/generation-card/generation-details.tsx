@@ -55,10 +55,6 @@ export default function GenerationDetails({
     fetchData();
   }, [id, session]);
 
-  if (data === null && !loading) {
-    return;
-  }
-
   if (loading) {
     return (
       <div className="flex flex-col lg:flex-row gap-6 p-5 overflow-y-scroll md:overflow-y-auto">
@@ -112,6 +108,10 @@ export default function GenerationDetails({
         </div>
       </div>
     );
+  }
+
+  if (data === null) {
+    return;
   }
 
   return (
