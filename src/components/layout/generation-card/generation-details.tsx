@@ -55,7 +55,7 @@ export default function GenerationDetails({
     fetchData();
   }, [id, session]);
 
-  if (data === null) {
+  if (data === null && !loading) {
     return;
   }
 
