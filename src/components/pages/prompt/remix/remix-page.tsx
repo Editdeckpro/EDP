@@ -1,4 +1,4 @@
-import ImageCard from "@/components/layout/image-card";
+import ImageCard from "@/components/layout/generation-card/image-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sparkles } from "lucide-react";
 import { FC } from "react";
@@ -56,6 +56,7 @@ const RemixPage: FC<RemixPageProps> = ({ data }) => {
           <div className="grid grid-cols-1 gap-4 max-w-2xs mx-auto">
             {data.images.map((src, i) => (
               <ImageCard
+                id={String(data.id)}
                 imageSrc={src}
                 imgAlt={data.finalPrompt}
                 key={src + String(i)}

@@ -1,0 +1,114 @@
+"use client";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { useMediaQuery } from "@/hook/use-media-querry";
+import Image from "next/image";
+import React, { forwardRef } from "react";
+import GIcon from "../../g-icon";
+import GenerationDetails from "./generation-details";
+
+interface ImageCardProps {
+  id: string;
+  imageSrc: string;
+  imgAlt: string;
+}
+
+const ImageCard = forwardRef<HTMLDivElement, ImageCardProps>(
+  ({ imageSrc, imgAlt, id }, ref) => {
+    return (
+      <div
+        ref={ref}
+        tabIndex={0}
+        className="relative aspect-square group overflow-hidden"
+      >
+        <DrawerDialogDemo imageSrc={imageSrc} imageAlt={imgAlt} id={id} />
+        <div className="absolute flex-col gap-2 right-2 top-2 pointer-fine:hidden pointer-coarse:flex group-focus:flex group-hover:flex transition-all duration-200">
+          <Button size={"icon"} className="rounded-full size-8 bg-[#1B1C1E]">
+            <GIcon size={17} name="draw" />
+          </Button>
+          <Button size={"icon"} className="rounded-full size-8 bg-[#1B1C1E]">
+            <GIcon size={17} name="delete" />
+          </Button>
+          <Button size={"icon"} className="rounded-full size-8 bg-[#1B1C1E]">
+            <GIcon size={17} name="share" />
+          </Button>
+        </div>
+
+        <Button className="absolute bottom-2 pointer-fine:hidden pointer-coarse:block group-focus:block group-hover:block w-[90%] left-1/2 -translate-x-1/2">
+          Remix
+        </Button>
+      </div>
+    );
+  }
+);
+
+ImageCard.displayName = "ImageCard"; // Required for forwardRef in dev tools
+
+export default ImageCard;
+
+function DrawerDialogDemo({
+  id,
+  imageSrc,
+  imageAlt,
+}: {
+  id: string;
+  imageSrc: string;
+  imageAlt: string;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  if (isDesktop) {
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Image src={imageSrc} fill alt={imageAlt} className="rounded-md" />
+        </DialogTrigger>
+        <DialogContent className="min-w-3xl">
+          {/* For accessability */}
+          <DialogHeader className="hidden">
+            <DialogTitle>Generation Details</DialogTitle>
+            <DialogDescription>
+              View all the details of the generation
+            </DialogDescription>
+          </DialogHeader>
+
+          <GenerationDetails id={id} />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DrawerTrigger asChild>
+        <Image src={imageSrc} fill alt={"imgAlt"} className="rounded-md" />
+      </DrawerTrigger>
+      <DrawerContent>
+        {/* For accessability */}
+        <DrawerHeader className="hidden">
+          <DrawerTitle>Generation Details</DrawerTitle>
+          <DrawerDescription>
+            View all the details of the generation
+          </DrawerDescription>
+        </DrawerHeader>
+        <GenerationDetails className="px-4" id={id} />
+      </DrawerContent>
+    </Drawer>
+  );
+}

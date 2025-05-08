@@ -1,10 +1,10 @@
 import React, { FC } from "react";
 import { GenerateResType } from ".";
 import { Sparkles } from "lucide-react";
-import ImageCard from "@/components/layout/image-card";
+import ImageCard from "@/components/layout/generation-card/image-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import ImageCardGrid from "../../dashboard/image-card-grid";
+import ImageCardGrid from "../../../layout/generation-card/image-card-grid";
 
 interface GeneratePageProps {
   data: GenerateResType;
@@ -70,6 +70,7 @@ const DataResult = ({ data }: GeneratePageProps) => {
           <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {data.images.map((src, i) => (
               <ImageCard
+                id={String(data.id)}
                 imageSrc={src}
                 imgAlt={data.finalPrompt}
                 key={src + String(i)}

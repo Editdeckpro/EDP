@@ -1,6 +1,6 @@
 "use client";
-import ImageCard from "@/components/layout/image-card";
-import ImageGridHeader from "./image-grid-header";
+import ImageCard from "./image-card";
+import ImageGridHeader from "../../pages/dashboard/image-grid-header";
 import { useInView } from "@/hook/user-in-view";
 import { GenerationType, useGenerations } from "@/hook/use-generation";
 import { useEffect } from "react";
@@ -39,6 +39,7 @@ export default function ImageCardGrid({
             const isLast = index === generations.length - 1;
             return (
               <ImageCard
+                id={item.imageGenerationId}
                 ref={isLast ? setRef : null}
                 key={index}
                 imageSrc={item.imagePath}

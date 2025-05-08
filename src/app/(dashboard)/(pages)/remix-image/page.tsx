@@ -1,5 +1,5 @@
 import GIcon from "@/components/g-icon";
-import ImageCardGrid from "@/components/pages/dashboard/image-card-grid";
+import ImageCardGrid from "@/components/layout/generation-card/image-card-grid";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
