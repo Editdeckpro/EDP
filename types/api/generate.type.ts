@@ -1,10 +1,10 @@
 export interface CustomGeneratedImage {
   id: number;
-  userPrompt: string;
-  finalPrompt: string;
-  generationType: string;
+  // userPrompt: string;
+  // finalPrompt: string;
+  // generationType: string;
   images: [string];
-  createdAt: string;
+  // createdAt: string;
 }
 
 export interface RequestFilterGeneratedImage {
@@ -20,17 +20,17 @@ export interface RequestFilterGeneratedImage {
 
 export interface FilterGeneratedImage {
   id: number;
-  projectName: string;
-  artistName: string;
-  genre: string;
-  mood: string;
-  visualStyle: string;
-  elements: string;
-  colorPallete: string;
-  finalPrompt: string;
-  generationType: string;
+  // projectName: string;
+  // artistName: string;
+  // genre: string;
+  // mood: string;
+  // visualStyle: string;
+  // elements: string;
+  // colorPallete: string;
+  // finalPrompt: string;
+  // generationType: string;
   images: [string];
-  createdAt: string;
+  // createdAt: string;
 }
 
 export interface RequestRemixImage {
@@ -40,11 +40,11 @@ export interface RequestRemixImage {
 }
 export interface RemixImage {
   id: number;
-  referenceImageUrl: string;
-  userPrompt: string;
-  imgSimilarityPercentage: 0;
-  finalPrompt: string;
-  generationType: string;
+  // referenceImageUrl: string;
+  // userPrompt: string;
+  // imgSimilarityPercentage: 0;
+  // finalPrompt: string;
+  // generationType: string;
   images: [string];
-  createdAt: string;
+  // createdAt: string;
 }

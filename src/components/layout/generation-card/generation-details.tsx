@@ -114,6 +114,8 @@ export default function GenerationDetails({
     return;
   }
 
+  console.log(data);
+
   return (
     <section
       className={cn(
@@ -135,8 +137,12 @@ export default function GenerationDetails({
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
+        {data.noOfImages > 1 && (
+          <>
+            <CarouselPrevious />
+            <CarouselNext />
+          </>
+        )}
       </Carousel>
       <div className="flex-1 gap-5 md:gap-0 flex flex-col justify-between h-full w-full md:w-auto">
         <div>
@@ -192,13 +198,13 @@ export default function GenerationDetails({
               </div>
             </div>
           )}
-          {data.generationType === "custom" ||
-            (data.generationType === "remix" && (
-              <div className="flex gap-2 items-center bg-muted p-2 rounded-md text-muted-foreground font-medium ">
-                <Sparkles className="size-5 text-primary" />
-                <div>{data.generationDetails.userPrompt}</div>
-              </div>
-            ))}
+          {(data.generationType === "custom" ||
+            data.generationType === "remix") && (
+            <div className="flex gap-2 items-center bg-muted p-2 rounded-md text-muted-foreground font-medium ">
+              <Sparkles className="size-5 text-primary" />
+              <div>{data.generationDetails.userPrompt}</div>
+            </div>
+          )}
         </div>
         <div className="w-full flex-1">
           <div className="flex-1 flex-col flex justify-between md:flex-row md:items-end items-center gap-5 h-full">

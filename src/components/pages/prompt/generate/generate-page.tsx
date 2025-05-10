@@ -62,17 +62,17 @@ const DataResult = ({ data }: GeneratePageProps) => {
         </div>
 
         <div className="px-4 py-2 rounded-lg bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-3 items-start md:items-center">
-          <div className="flex items-center gap-3 text-sm">
+          {/* <div className="flex items-center gap-3 text-sm">
             <Sparkles className="text-primary size-5 min-w-4" />
             {data.finalPrompt}
-          </div>
+          </div> */}
 
           <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {data.images.map((src, i) => (
               <ImageCard
                 id={String(data.id)}
                 imageSrc={src}
-                imgAlt={data.finalPrompt}
+                imgAlt={src}
                 key={src + String(i)}
               />
             ))}
