@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { sidebarSections } from "./sidebar-content";
 import { MobileNavSheet } from "./sidebar";
 import { ChevronLeft } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 interface HeaderProps {
   type?: "prompt" | "nav";
@@ -16,6 +17,7 @@ interface HeaderProps {
 const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
   const pathname = usePathname();
   const router = useRouter();
+  const session = useSession();
 
   // Split the path into parts
   const pathParts = pathname.split("/").filter(Boolean);
@@ -115,7 +117,9 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
                 height={42}
                 className="rounded-full overflow-hidden"
               />
-              <span className="text-sm font-medium text-gray-800">HSung15</span>
+              <span className="text-sm font-medium text-gray-800">
+                {session.data?.user.username}
+              </span>
             </div>
           </Link>
         </div>

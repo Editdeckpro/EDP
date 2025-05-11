@@ -1,9 +1,15 @@
 // components/Providers.tsx
 import axios from "axios";
-import { getServerSession, NextAuthOptions } from "next-auth";
+import { getServerSession, NextAuthOptions, User } from "next-auth";
+import { AdapterUser } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
+import { jwtDecode, JwtPayload } from "jwt-decode";
+
+interface DecodedJWT extends JwtPayload {
+  username: string;
+}
 
 // Define the type for authOptions
 export const authOptions: NextAuthOptions = {
@@ -29,10 +35,12 @@ export const authOptions: NextAuthOptions = {
             }
           );
 
-          // Assuming response shape: { accessToken: "..." }
-          const user = {
+          const decoded = jwtDecode<DecodedJWT>(response.data.accessToken);
+
+          const user: User | AdapterUser = {
             id: credentials.username,
             accessToken: response.data.accessToken,
+            username: decoded.username,
           };
 
           return user;
@@ -57,10 +65,14 @@ export const authOptions: NextAuthOptions = {
       if (user?.accessToken) {
         token.accessToken = user.accessToken;
       }
+      if (user?.username) {
+        token.username = user.username;
+      }
       return token;
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken as string;
+      session.user.username = token.username as string;
       return session;
     },
   },

@@ -1,10 +1,18 @@
+import { authOptions } from "@/auth-guard";
 import ChangePasswordDialog from "@/components/pages/profile/change-password-dialog";
 import DeleteAccountDialog from "@/components/pages/profile/delete-account-dialog";
 import { Button } from "@/components/ui/button";
+import { getServerSession } from "next-auth";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Page() {
+export default async function Page() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    return;
+  }
+
   return (
     <section>
       <section className="p-4 rounded-lg border border-primary/30 bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-5">
@@ -19,7 +27,9 @@ export default function Page() {
             />
             <div className="-space-y-1">
               <h1 className="text-2xl font-bold">John Smith</h1>
-              <h2 className="font-medium text-primary">HSung15</h2>
+              <h2 className="font-medium text-primary">
+                {session.user?.username}
+              </h2>
               <h3 className="text-muted-foreground break-words">
                 emailadress123@gmail.com
               </h3>
