@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { FC } from "react";
 
 interface PageCtaProps {
@@ -11,6 +12,7 @@ interface PageCtaProps {
   imageSrc: string;
   bgImgSrc: string;
   buttonVariant?: "default" | "secondary";
+  btnLink: string;
 }
 
 const PageCta: FC<PageCtaProps> = ({
@@ -19,6 +21,7 @@ const PageCta: FC<PageCtaProps> = ({
   description,
   imageSrc,
   title,
+  btnLink,
   buttonVariant = "default",
 }) => {
   return (
@@ -40,17 +43,19 @@ const PageCta: FC<PageCtaProps> = ({
           </p>
         </div>
 
-        <Button
-          variant={buttonVariant === "default" ? "default" : "secondary"}
-          className={`mt-4 w-fit ${
-            buttonVariant === "secondary"
-              ? "bg-orange-400 hover:bg-orange-500"
-              : ""
-          }`}
-        >
-          {buttonText}
-          <Sparkles className="ml-2 h-4 w-4" />
-        </Button>
+        <Link href={btnLink}>
+          <Button
+            variant={buttonVariant === "default" ? "default" : "secondary"}
+            className={`mt-4 w-fit ${
+              buttonVariant === "secondary"
+                ? "bg-orange-400 hover:bg-orange-500"
+                : ""
+            }`}
+          >
+            {buttonText}
+            <Sparkles className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
       </div>
 
       <div className="xs-visible relative w-32 h-32 md:w-40 md:h-40 self-center md:self-auto">

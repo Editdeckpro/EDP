@@ -8,7 +8,7 @@ interface LayoutProps {
 const Layout: FC<LayoutProps> = ({ children }) => {
   return (
     <section className="flex flex-col lg:flex-row">
-      <section className="hidden lg:block p-5 lg:pr-0 min-w-1/4 ">
+      <section className="hidden lg:block p-5 lg:pr-0 min-w-[22%] ">
         <Sidebar />
       </section>
       <section className="p-5 space-y-5  w-full">

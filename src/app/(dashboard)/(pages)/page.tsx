@@ -14,6 +14,7 @@ export default function Page() {
           buttonIcon="sparkles"
           imageSrc="/images/cta-fg.jpg"
           bgImgSrc="/images/cta-bg.jpg"
+          btnLink="/image-generation/generate"
         />
         <PageCta
           title="Remix Wizard"
@@ -23,6 +24,7 @@ export default function Page() {
           imageSrc="/images/cta-2-fg-1.jpg"
           buttonVariant="secondary"
           bgImgSrc="/images/cta-2.jpg"
+          btnLink="/remix-image/remix"
         />
       </div>
       <ImageCardGrid />

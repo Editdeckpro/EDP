@@ -74,15 +74,22 @@ const SidebarLinkButton = ({
         variant={isActive ? "default" : "ghost"}
         size={"full"}
         className={cn(
-          "flex justify-start items-center font-normal cursor-pointer w-full text-wrap gap-2",
+          "flex justify-between items-center font-normal cursor-pointer w-full text-wrap gap-2",
           isActive ? "" : "hover:bg-gray-200 hover:text-black",
           className
         )}
       >
-        {icon}
-        <div className="text-wrap">{text}</div>
+        <div className="flex items-center gap-1">
+          {icon}
+          <div className="text-wrap">{text}</div>
+        </div>
         {isNew && (
-          <span className="py-[2px] px-2 bg-[#FF8A3D] rounded-sm text-xs font-semibold">
+          <span
+            className={cn(
+              "py-[2px] px-2 bg-[#FF8A3D] rounded-sm text-xs font-semibold",
+              isActive && "bg-white text-black"
+            )}
+          >
             New
           </span>
         )}

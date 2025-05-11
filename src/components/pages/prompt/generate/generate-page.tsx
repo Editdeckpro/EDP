@@ -5,6 +5,7 @@ import ImageCard from "@/components/layout/generation-card/image-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import ImageCardGrid from "../../../layout/generation-card/image-card-grid";
+import Image from "next/image";
 
 interface GeneratePageProps {
   data: GenerateResType;
@@ -14,7 +15,7 @@ const GeneratePage: FC<GeneratePageProps> = (props) => {
   return (
     <section>
       <DataResult {...props} />
-      <ImageCardGrid generationType="custom" />
+      {/* <ImageCardGrid generationType="custom" /> */}
     </section>
   );
 };
@@ -80,4 +81,15 @@ const DataResult = ({ data }: GeneratePageProps) => {
         </div>
       </section>
     );
+  else {
+    return (
+      <div className="px-4 py-2 rounded-lg bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-1 items-start md:items-center">
+        <div className="grid grid-cols-1 gap-1 text-center max-w-2xs mx-auto">
+          <div className="relative aspect-square">
+            <Image src={"/images/remix-empty.svg"} fill alt="something" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 };
