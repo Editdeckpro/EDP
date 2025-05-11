@@ -70,7 +70,7 @@ const DataResult = ({ data }: GeneratePageProps) => {
           <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {data.images.map((src, i) => (
               <ImageCard
-                id={String(data.id)}
+                id={String(data.imageGenerationId)}
                 imageSrc={src}
                 imgAlt={src}
                 key={src + String(i)}

@@ -21,6 +21,8 @@ export async function remixFormDataSubmit(
   formData.append("image", data.referenceImage); // Image should be a `File` object
   formData.append("imgSimilarityPercentage", data.imageSimilarity.toString());
   formData.append("userPrompt", data.customPrompt);
+  // This is default to 1
+  formData.append("noOfImages", "1");
 
   try {
     const response = await axios.post<RemixImage>(
@@ -32,11 +34,12 @@ export async function remixFormDataSubmit(
         },
       }
     );
+    console.log(response.data);
 
     return response.data;
   } catch (error) {
     const e = error as AxiosError;
-    console.error("API request failed:", e.response?.data);
+    console.error("API request failed:", e);
     throw new Error("Something went wrong!");
   }
 }

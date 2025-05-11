@@ -1,5 +1,5 @@
 export interface CustomGeneratedImage {
-  id: number;
+  imageGenerationId: number;
   // userPrompt: string;
   // finalPrompt: string;
   // generationType: string;
@@ -19,7 +19,7 @@ export interface RequestFilterGeneratedImage {
 }
 
 export interface FilterGeneratedImage {
-  id: number;
+  imageGenerationId: number;
   // projectName: string;
   // artistName: string;
   // genre: string;
@@ -39,7 +39,7 @@ export interface RequestRemixImage {
   imgSimilarityPercentage: number;
 }
 export interface RemixImage {
-  id: number;
+  imageGenerationId: number;
   // referenceImageUrl: string;
   // userPrompt: string;
   // imgSimilarityPercentage: 0;

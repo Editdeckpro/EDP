@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./g-font.css";
 import { Toaster } from "@/components/ui/sonner";
+import localFont from "next/font/local";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,6 +13,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const materialSymbols = localFont({
+  src: "../font/MaterialSymbolsOutlined-VariableFont_FILL,GRAD,opsz,wght.ttf",
+  display: "swap",
+  variable: "--font-symbols",
 });
 
 export const metadata: Metadata = {
@@ -28,7 +35,7 @@ export default function RootLayout({
     <html lang="en">
       <meta name="grammarly" content="off" />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${materialSymbols.variable} antialiased`}
       >
         <Toaster richColors position="top-right" />
         {children}

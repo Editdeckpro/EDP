@@ -200,8 +200,8 @@ export default function GenerationDetails({
           )}
           {(data.generationType === "custom" ||
             data.generationType === "remix") && (
-            <div className="flex gap-2 items-center bg-muted p-2 rounded-md text-muted-foreground font-medium ">
-              <Sparkles className="size-5 text-primary" />
+            <div className="flex gap-2 items-start bg-muted p-2 rounded-md text-muted-foreground font-medium ">
+              <Sparkles className="size-5 text-primary min-w-5" />
               <div>{data.generationDetails.userPrompt}</div>
             </div>
           )}

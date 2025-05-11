@@ -56,7 +56,7 @@ const RemixPage: FC<RemixPageProps> = ({ data }) => {
           <div className="grid grid-cols-1 gap-4 max-w-2xs mx-auto">
             {data.images.map((src, i) => (
               <ImageCard
-                id={String(data.id)}
+                id={String(data.imageGenerationId)}
                 imageSrc={src}
                 imgAlt={src}
                 key={src + String(i)}

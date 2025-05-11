@@ -54,6 +54,7 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
       mood: "",
       numberOfImages: 1,
       visualStyles: "",
+      elements: "",
     },
   });
 
