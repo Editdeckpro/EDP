@@ -20,9 +20,13 @@ import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useTopLoader } from "nextjs-toploader";
 
 export default function LoginForm() {
   const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
+  const topLoader = useTopLoader();
 
   // 1. Define your form.
   const form = useForm<loginFormSchemaType>({
@@ -35,6 +39,8 @@ export default function LoginForm() {
 
   // 2. Define a submit handler.
   async function onSubmit(data: loginFormSchemaType) {
+    setLoading(true);
+    topLoader.start();
     const res = await signIn("credentials", {
       redirect: false,
       username: data.username,
@@ -47,8 +53,11 @@ export default function LoginForm() {
       router.push("/");
     } else {
       toast.error("Invalid username or password");
+      setLoading(false);
+      topLoader.done();
     }
   }
+
   return (
     <Form {...form}>
       <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
@@ -83,7 +92,7 @@ export default function LoginForm() {
           </div>
         </div>
 
-        <Button type="submit" size={"full"}>
+        <Button type="submit" size={"full"} isLoading={loading}>
           Log In
         </Button>
       </form>

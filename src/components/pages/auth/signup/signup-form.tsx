@@ -19,9 +19,13 @@ import { useForm } from "react-hook-form";
 import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useTopLoader } from "nextjs-toploader";
 
 export default function SignupForm() {
   const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
+  const topLoader = useTopLoader();
   const form = useForm<SignupFormSchemaType>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
@@ -35,6 +39,8 @@ export default function SignupForm() {
   });
 
   async function onSubmit(values: SignupFormSchemaType) {
+    setLoading(true);
+    topLoader.start();
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_BE_URL}/auth/register`,
@@ -57,6 +63,8 @@ export default function SignupForm() {
         description: "Please try again after some time",
       });
     }
+    setLoading(false);
+    topLoader.done();
   }
 
   return (
@@ -134,7 +142,7 @@ export default function SignupForm() {
           placeholder="Confirm Your Password"
         />
 
-        <Button type="submit" size={"full"}>
+        <Button type="submit" size={"full"} isLoading={loading}>
           Register
         </Button>
       </form>
