@@ -1,11 +1,10 @@
-import React, { FC } from "react";
-import { GenerateResType } from ".";
-import { Sparkles } from "lucide-react";
 import ImageCard from "@/components/layout/generation-card/image-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import ImageCardGrid from "../../../layout/generation-card/image-card-grid";
+import { Sparkles } from "lucide-react";
 import Image from "next/image";
+import { FC } from "react";
+import { GenerateResType } from ".";
 
 interface GeneratePageProps {
   data: GenerateResType;
