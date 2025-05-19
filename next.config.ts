@@ -17,6 +17,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       new URL("http://localhost:5000/images/**"),
       new URL("https://editdeckpro-backend.onrender.com/**"),
+      new URL("https://backend.editdeckpro.com/**"),
     ],
   },
   experimental: {
