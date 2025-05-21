@@ -1,11 +1,30 @@
+"use client";
+import { GetAxiosWithAuth } from "@/lib/axios-instance";
 import { Layers2Icon, Layers3Icon, StickyNoteIcon } from "lucide-react";
-import PricingCard, { PricingCardProps } from "./pricing-card";
-import SubscriptionHeader from "./subscription-header";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { billingPeriod } from ".";
+import PricingCard, { PlanID, PricingCardProps } from "./pricing-card";
+import SubscriptionHeader from "./subscription-header";
+import { toast } from "sonner";
 
 export default function SubscriptionPricing() {
   const [billingPeriod, setBillingPeriod] = useState<billingPeriod>("monthly");
+  const [currentPlan, setCurrentPlan] = useState<PlanID>("FREE");
+
+  useEffect(() => {
+    const fetchCurrentPlan = async () => {
+      try {
+        const axios = await GetAxiosWithAuth();
+        const data = await axios.get("/subscription");
+        console.log(data);
+        setCurrentPlan(data.data.planType);
+      } catch (error) {
+        toast.error("Error fetching current plan");
+        console.info("Error fetching current plan", error);
+      }
+    };
+    fetchCurrentPlan();
+  }, []);
 
   return (
     <>
@@ -21,6 +40,7 @@ export default function SubscriptionPricing() {
             {...card}
             key={card.title}
             billingPeriod={billingPeriod}
+            isCurrentPlan={currentPlan === card.id}
           />
         ))}
       </div>
@@ -28,26 +48,39 @@ export default function SubscriptionPricing() {
   );
 }
 
-const pricingPlansDetails: Omit<PricingCardProps, "billingPeriod">[] = [
+const pricingPlansDetails: Omit<
+  PricingCardProps,
+  "billingPeriod" | "isCurrentPlan"
+>[] = [
   {
+    id: "FREE",
     title: "Basic Plan",
     price: 15,
-    features: ["Lorem ipsum dolore ipsum", "Lorem ipsum", "Lorem dolore ipsum"],
-    isCurrentPlan: true,
+    features: [],
     color: "primary",
     icon: <StickyNoteIcon color="white" />,
   },
   {
+    id: "STARTER",
     title: "Professional Plan",
     price: 15,
-    features: ["Lorem ipsum dolore ipsum", "Lorem ipsum", "Lorem dolore ipsum"],
+    features: [
+      "50 image generations per month",
+      "Standard resolution",
+      "Basic support",
+    ],
     color: "secondary",
     icon: <Layers2Icon color="white" />,
   },
   {
+    id: "NEXT_LEVEL",
     title: "Advanced Plan",
     price: 15,
-    features: ["Lorem ipsum dolore ipsum", "Lorem ipsum", "Lorem dolore ipsum"],
+    features: [
+      "Unlimited image generations",
+      "High resolution output",
+      "Advanced customization options",
+    ],
     color: "blue",
     icon: <Layers3Icon color="white" />,
   },

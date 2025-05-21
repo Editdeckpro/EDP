@@ -1,5 +1,5 @@
 import SubscriptionPage from "@/components/pages/subscription";
 
-export default function Page() {
+export default async function Page() {
   return <SubscriptionPage />;
 }

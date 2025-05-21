@@ -1,10 +1,17 @@
+"use client";
 import GIcon from "@/components/g-icon";
 import { Button } from "@/components/ui/button";
 import React, { FC } from "react";
 import { billingPeriod } from ".";
 import { cn } from "@/lib/utils";
+import { GetAxiosWithAuth } from "@/lib/axios-instance";
+import { useRouter } from "next/navigation";
+import { useTopLoader } from "nextjs-toploader";
+import { toast } from "sonner";
 
+export type PlanID = "FREE" | "STARTER" | "NEXT_LEVEL";
 export interface PricingCardProps {
+  id: PlanID;
   title: string;
   price: number;
   billingPeriod: billingPeriod;
@@ -15,6 +22,7 @@ export interface PricingCardProps {
 }
 
 const PricingCard: FC<PricingCardProps> = ({
+  id,
   billingPeriod,
   features,
   price,
@@ -32,44 +40,71 @@ const PricingCard: FC<PricingCardProps> = ({
       ? "bg-secondary"
       : "bg-accent";
 
+  const router = useRouter();
+  const topLoader = useTopLoader();
+  const [loading, setLoading] = React.useState(false);
+
+  async function upgradePlan() {
+    topLoader.start();
+    setLoading(true);
+    try {
+      const axios = await GetAxiosWithAuth();
+      const res = await axios.post("subscription/create-checkout-session", {
+        planType: id,
+        interval: billingPeriod,
+      });
+      router.push(res.data.url);
+      toast.success("Redirecting to checkout page");
+    } catch (error) {
+      toast.error("Error upgrading plan");
+      console.info("Error upgrading plan", error);
+      setLoading(false);
+      topLoader.done();
+    }
+  }
+
   return (
-    <div className="bg-white rounded-xl p-3 border border-[#dedede]">
-      <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-gray-200/50">
-        <div
-          className={cn(
-            "w-10 h-10 rounded-lg flex items-center justify-center",
-            cardBg
-          )}
-        >
-          {/* <StickyNoteIcon color="white" /> */}
-          {Icon}
+    <div className="bg-white rounded-xl p-3 border border-[#dedede] flex flex-col justify-between">
+      <div>
+        <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-gray-200/50">
+          <div
+            className={cn(
+              "w-10 h-10 rounded-lg flex items-center justify-center",
+              cardBg
+            )}
+          >
+            {/* <StickyNoteIcon color="white" /> */}
+            {Icon}
+          </div>
+          <span className="font-semibold text-lg">{title}</span>
         </div>
-        <span className="font-semibold text-lg">{title}</span>
+
+        <div className="mb-6">
+          <span className="text-4xl font-bold">
+            ${billingPeriod === "monthly" ? price : yearlyPrice}
+          </span>
+          <span className="text-[#6a6c7b]">
+            /{billingPeriod === "monthly" ? "Month" : "Year"}
+          </span>
+        </div>
       </div>
 
-      <div className="mb-6">
-        <span className="text-4xl font-bold">
-          ${billingPeriod === "monthly" ? price : yearlyPrice}
-        </span>
-        <span className="text-[#6a6c7b]">
-          /{billingPeriod === "monthly" ? "Month" : "Year"}
-        </span>
-      </div>
-
-      <div className="mb-8">
-        <h4 className="font-semibold mb-4">Features Included:</h4>
-        <ul className="space-y-3">
-          {features.map((feature) => (
-            <li
-              key={feature}
-              className="flex items-center gap-2 text-[#6a6c7b]"
-            >
-              <GIcon name="send" className={"text-primary"} size={20} />
-              {feature}
-            </li>
-          ))}
-        </ul>
-      </div>
+      {features.length > 0 && (
+        <div className="mb-8">
+          <h4 className="font-semibold mb-4">Features Included:</h4>
+          <ul className="space-y-3">
+            {features.map((feature) => (
+              <li
+                key={feature}
+                className="flex items-center gap-2 text-[#6a6c7b]"
+              >
+                <GIcon name="send" className={"text-primary"} size={20} />
+                {feature}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {isCurrentPlan ? (
         <div className="grid grid-cols-2 gap-3">
@@ -77,7 +112,9 @@ const PricingCard: FC<PricingCardProps> = ({
           <Button variant={"secondary"}>Renew Plan</Button>
         </div>
       ) : (
-        <Button size={"full"}>Upgrade Plan</Button>
+        <Button size={"full"} onClick={upgradePlan} isLoading={loading}>
+          Upgrade Plan
+        </Button>
       )}
     </div>
   );
