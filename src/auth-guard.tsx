@@ -6,6 +6,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 import { jwtDecode, JwtPayload } from "jwt-decode";
+import Credentials from "next-auth/providers/credentials";
+import { axiosInstance } from "./lib/axios-instance";
 
 interface DecodedJWT extends JwtPayload {
   username: string;
@@ -14,6 +16,35 @@ interface DecodedJWT extends JwtPayload {
 // Define the type for authOptions
 export const authOptions: NextAuthOptions = {
   providers: [
+    Credentials({
+      name: "CustomOAuth",
+      credentials: {
+        token: { label: "Token", type: "text" },
+      },
+      async authorize(credentials) {
+        const token = credentials?.token;
+
+        if (!token) return null;
+
+        // OPTIONAL: Validate the token with your backend
+        // const res = await axiosInstance("https://your-backend.com/api/auth/validate", {
+        //   method: "POST",
+        //   headers: { Authorization: `Bearer ${token}` },
+        // });
+        // if (!res.ok) return null;
+        // const user = await res.json();
+
+        const decoded = jwtDecode<DecodedJWT>(token);
+
+        const user: User | AdapterUser = {
+          id: decoded.username,
+          accessToken: token,
+          username: decoded.username,
+        };
+
+        return user;
+      },
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -27,13 +58,10 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_BE_URL}/auth/login`,
-            {
-              username: credentials.username,
-              password: credentials.password,
-            }
-          );
+          const response = await axiosInstance.post(`/auth/login`, {
+            username: credentials.username,
+            password: credentials.password,
+          });
 
           const decoded = jwtDecode<DecodedJWT>(response.data.accessToken);
 

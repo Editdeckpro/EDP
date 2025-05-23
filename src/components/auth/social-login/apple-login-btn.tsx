@@ -4,7 +4,7 @@ export default function AppleLoginBtn() {
   return (
     <button
       type="button"
-      className="cursor-pointer flex items-center justify-center py-2 px-4 border border-[#dcdde3] rounded-md hover:bg-[#f8f8f8] focus:outline-none focus:ring-2 focus:ring-[#000000] focus:ring-offset-2"
+      className="cursor-pointer flex items-center justify-center py-2 px-4 border border-[#dcdde3] rounded-md hover:bg-[#f8f8f8] focus:outline-none focus:ring-2 focus:ring-[#000000] focus:ring-offset-2 w-full"
     >
       <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none">
         <path

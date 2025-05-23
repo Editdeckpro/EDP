@@ -2,7 +2,7 @@ import axios from "axios";
 import { getSession } from "next-auth/react";
 
 export const axiosInstance = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_BE_URL}/api/`,
+  baseURL: `${process.env.NEXT_PUBLIC_BE_URL}/`,
 });
 
 export async function GetAxiosWithAuth() {

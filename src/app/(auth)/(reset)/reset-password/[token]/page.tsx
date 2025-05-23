@@ -40,7 +40,7 @@ const Page: FC<PageProps> = ({ params }) => {
   async function onSubmit(values: ResetPasswordSchemaType) {
     setLoading(true);
     try {
-      await axiosInstance.post("password/reset", {
+      await axiosInstance.post("api/password/reset", {
         token: token,
         newPassword: values.password,
       });

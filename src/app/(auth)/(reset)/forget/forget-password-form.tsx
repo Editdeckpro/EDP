@@ -32,7 +32,7 @@ export default function ForgetPasswordForm() {
   async function onSubmit(values: ForgetPasswordSchemaType) {
     setLoading(true);
     try {
-      await axiosInstance.post("password/forgot", { email: values.email });
+      await axiosInstance.post("api/password/forgot", { email: values.email });
       toast.success("If this email exists, a reset link will be sent.");
       form.reset();
     } catch (error) {
