@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Loader2Icon } from "lucide-react";
 
-export default function OAuthCallback() {
+function OAuthCallback() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -30,5 +30,13 @@ export default function OAuthCallback() {
       </div>
       <div>Validating session, please wait...</div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OAuthCallback />
+    </Suspense>
   );
 }
