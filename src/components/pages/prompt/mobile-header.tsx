@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { ReactNode, useState } from "react";
 
 import GIcon from "@/components/g-icon";
+import ProfileDropdown from "@/components/layout/profile-dropdown";
 import { sidebarSections } from "@/components/layout/sidebar-content";
 import { Button } from "@/components/ui/button";
 import {
@@ -79,15 +79,7 @@ const PromptMobileHeader = ({ SidebarContent }: PromptMobileHeaderProps) => {
           </div>
         </div>
 
-        <Link href={"/profile"}>
-          <Image
-            src="/images/pfp.jpg"
-            width={40}
-            height={40}
-            alt="pfp image"
-            className="rounded-full"
-          />
-        </Link>
+        <ProfileDropdown isMobile />
       </nav>
     </header>
   );

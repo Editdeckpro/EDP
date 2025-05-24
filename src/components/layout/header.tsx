@@ -1,14 +1,12 @@
 "use client";
-
-import Image from "next/image";
-import React, { FC } from "react";
-import GIcon from "../g-icon";
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { sidebarSections } from "./sidebar-content";
+import React, { FC } from "react";
+import GIcon from "../g-icon";
+import ProfileDropdown from "./profile-dropdown";
 import { MobileNavSheet } from "./sidebar";
-import { ChevronLeft } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { sidebarSections } from "./sidebar-content";
 
 interface HeaderProps {
   type?: "prompt" | "nav";
@@ -17,7 +15,6 @@ interface HeaderProps {
 const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const session = useSession();
 
   // Split the path into parts
   const pathParts = pathname.split("/").filter(Boolean);
@@ -108,20 +105,8 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
           </div>
 
           {/* User Profile */}
-          <Link href={"/profile"}>
-            <div className="flex items-center gap-2 bg-gray-100 text-black rounded-full px-4 py-1 pl-[5px]">
-              <Image
-                src="/images/pfp.jpg"
-                alt="User Avatar"
-                width={42}
-                height={42}
-                className="rounded-full overflow-hidden"
-              />
-              <span className="text-sm font-medium text-gray-800">
-                {session.data?.user.username}
-              </span>
-            </div>
-          </Link>
+
+          <ProfileDropdown />
         </div>
       </header>
 
@@ -166,15 +151,7 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
               </div>
             </div>
 
-            <Link href={"/profile"}>
-              <Image
-                src="/images/pfp.jpg"
-                width={40}
-                height={40}
-                alt="pfp image"
-                className="rounded-full"
-              />
-            </Link>
+            <ProfileDropdown isMobile />
           </nav>
         </header>
       )}

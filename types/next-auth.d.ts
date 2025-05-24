@@ -9,8 +9,8 @@ declare module "next-auth" {
   }
 
   interface JWT {
-    accessToken?: string;
-    username?: string; // Optional, if you plan to persist it in the JWT
+    accessToken: string;
+    username: string;
   }
 
   interface Session {
@@ -19,7 +19,7 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
-      username?: string | null; // Add username to session user
+      username: string;
     };
   }
 }
