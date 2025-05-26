@@ -1,12 +1,11 @@
 // components/Providers.tsx
 import axios from "axios";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 import { getServerSession, NextAuthOptions, User } from "next-auth";
 import { AdapterUser } from "next-auth/adapters";
-import CredentialsProvider from "next-auth/providers/credentials";
+import Credentials from "next-auth/providers/credentials";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
-import { jwtDecode, JwtPayload } from "jwt-decode";
-import Credentials from "next-auth/providers/credentials";
 import { axiosInstance } from "./lib/axios-instance";
 
 interface DecodedJWT extends JwtPayload {
@@ -17,70 +16,29 @@ interface DecodedJWT extends JwtPayload {
 export const authOptions: NextAuthOptions = {
   providers: [
     Credentials({
-      name: "CustomOAuth",
+      name: "credentials",
       credentials: {
-        token: { label: "Token", type: "text" },
+        token: { label: "Token", type: "text", optional: true },
+        username: { label: "Username", type: "text", optional: true },
+        password: { label: "Password", type: "password", optional: true },
       },
       async authorize(credentials) {
-        const token = credentials?.token;
+        if (credentials?.token) {
+          const token = credentials?.token;
+          if (!token) return null;
 
-        if (!token) return null;
-
-        // OPTIONAL: Validate the token with your backend
-        // const res = await axiosInstance("https://your-backend.com/api/auth/validate", {
-        //   method: "POST",
-        //   headers: { Authorization: `Bearer ${token}` },
-        // });
-        // if (!res.ok) return null;
-        // const user = await res.json();
-
-        const decoded = jwtDecode<DecodedJWT>(token);
-
-        const user: User | AdapterUser = {
-          id: decoded.username,
-          accessToken: token,
-          username: decoded.username,
-        };
-
-        return user;
-      },
-    }),
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        // Safe guard: ensure credentials are present
-        if (!credentials?.username || !credentials?.password) {
-          throw new Error("Missing credentials");
-        }
-
-        try {
-          const response = await axiosInstance.post(`/auth/login`, {
-            username: credentials.username,
-            password: credentials.password,
-          });
-
-          const decoded = jwtDecode<DecodedJWT>(response.data.accessToken);
-
-          const user: User | AdapterUser = {
-            id: credentials.username,
-            accessToken: response.data.accessToken,
-            username: decoded.username,
-          };
-
-          return user;
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            const status = error.response?.status;
-
-            if (status === 400) throw new Error("User not found");
-            if (status === 403) throw new Error("Invalid password");
+          return loginWithToken(token);
+        } else if (credentials?.username && credentials?.password) {
+          if (!credentials?.username || !credentials?.password) {
+            throw new Error("Missing credentials");
           }
 
-          throw new Error("Server error");
+          return loginWithCredentials(
+            credentials.username,
+            credentials.password
+          );
+        } else {
+          throw new Error("Missing credentials");
         }
       },
     }),
@@ -118,4 +76,56 @@ export default async function AuthGuard({ children }: ProvidersProps) {
   }
 
   return <>{children}</>;
+}
+
+function loginWithToken(token: string) {
+  // OPTIONAL: Validate the token with your backend
+  // const res = await axiosInstance("https://your-backend.com/api/auth/validate", {
+  //   method: "POST",
+  //   headers: { Authorization: `Bearer ${token}` },
+  // });
+  // if (!res.ok) return null;
+  // const user = await res.json();
+
+  try {
+    const decoded = jwtDecode<DecodedJWT>(token);
+    const user: User | AdapterUser = {
+      id: decoded.username,
+      accessToken: token,
+      username: decoded.username,
+    };
+
+    return user;
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    throw new Error("Invalid token");
+  }
+}
+
+async function loginWithCredentials(username: string, password: string) {
+  try {
+    const response = await axiosInstance.post(`auth/login`, {
+      username: username,
+      password: password,
+    });
+
+    const decoded = jwtDecode<DecodedJWT>(response.data.accessToken);
+
+    const user: User | AdapterUser = {
+      id: username,
+      accessToken: response.data.accessToken,
+      username: decoded.username,
+    };
+
+    return user;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+
+      if (status === 400) throw new Error("User not found");
+      if (status === 403) throw new Error("Invalid password");
+    }
+
+    throw new Error("Server error");
+  }
 }
