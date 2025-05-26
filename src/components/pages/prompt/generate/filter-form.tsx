@@ -15,7 +15,7 @@ import {
 } from "@/schemas/filter-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Switch } from "@/components/ui/switch";
+// import { Switch } from "@/components/ui/switch";
 import {
   ChevronDown,
   ChevronUp,
@@ -300,7 +300,7 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center">
+              {/* <div className="flex justify-between items-center">
                 <p className="text-sm text-gray-600">
                   Include/Exclude Text in Image?
                 </p>
@@ -318,7 +318,7 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
                     </FormItem>
                   )}
                 />
-              </div>
+              </div> */}
             </div>
           )}
         </div>

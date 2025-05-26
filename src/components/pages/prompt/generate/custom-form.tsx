@@ -8,7 +8,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Switch } from "@/components/ui/switch";
+// import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import {
@@ -161,7 +161,7 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-600">
                   Include/Exclude Text in Image?
                 </p>
@@ -179,7 +179,7 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
                     </FormItem>
                   )}
                 />
-              </div>
+              </div> */}
             </div>
           )}
         </div>
