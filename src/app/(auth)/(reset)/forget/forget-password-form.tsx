@@ -37,7 +37,7 @@ export default function ForgetPasswordForm() {
       form.reset();
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
-      // console.info("Error sending reset password email", error);
+      console.info("Error sending reset password email", error);
     } finally {
       setLoading(false);
     }

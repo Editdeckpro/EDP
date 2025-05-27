@@ -76,7 +76,7 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
       return;
     } catch (err) {
       setIsSubmitting(false);
-      // console.log(err);
+      console.log(err);
       toast.error("Something went wrong", {
         description: "Please try submitting form again",
       });

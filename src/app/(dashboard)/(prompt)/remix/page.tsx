@@ -1,18 +1,10 @@
 import Remix from "@/components/pages/prompt/remix";
-import React from "react";
+import React, { Suspense } from "react";
 
-interface PageProps {
-  searchParams: {
-    imageUrl?: string;
-  };
+export default function Page() {
+  return (
+    <Suspense>
+      <Remix />
+    </Suspense>
+  );
 }
-
-const Page: React.FC<PageProps> = ({ searchParams }) => {
-  const url =
-    searchParams.imageUrl && searchParams.imageUrl !== ""
-      ? searchParams.imageUrl
-      : undefined;
-  return <Remix url={url} />;
-};
-
-export default Page;

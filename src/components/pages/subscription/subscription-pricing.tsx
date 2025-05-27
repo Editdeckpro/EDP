@@ -20,7 +20,7 @@ export default function SubscriptionPricing() {
         setCurrentPlan(data.data.planType);
       } catch (error) {
         toast.error("Error fetching current plan");
-        // console.info("Error fetching current plan", error);
+        console.info("Error fetching current plan", error);
       }
     };
     fetchCurrentPlan();

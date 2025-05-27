@@ -1,11 +1,6 @@
 "use client";
-import React, { FC, useState } from "react";
-import { SetRemixResType } from ".";
-import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
-import { useForm } from "react-hook-form";
-import { remixFormSchema, RemixFormSchemaType } from "@/schemas/remix-schema";
-import { zodResolver } from "@hookform/resolvers/zod";
+import GIcon from "@/components/g-icon";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -13,28 +8,33 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, Sparkles, Upload } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { cn, fileToBase64 } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import GIcon from "@/components/g-icon";
-import { Slider } from "@/components/ui/slider";
-import { remixFormDataSubmit } from "./request";
+import { remixFormSchema, RemixFormSchemaType } from "@/schemas/remix-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ChevronDown, ChevronUp, Sparkles, Upload } from "lucide-react";
+import { FC, useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { SetRemixResType } from ".";
+import { remixFormDataSubmit } from "./request";
 
 interface RemixSidebarContentProps {
   setData: SetRemixResType;
-  imageUrl?: string;
+  imageUrl?: string | null;
 }
 
 const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
   setData,
   imageUrl,
 }) => {
+  const hasValidUrl = imageUrl !== null;
   const [customPromptOpen, setCustomPromptOpen] = useState<boolean>(true);
   const [imageGuidancesOpen, setImageGuidanceOpen] = useState<boolean>(
-    !(imageUrl != null && imageUrl != "")
+    !hasValidUrl
   );
   const [imageSimilarityOpen, setImageSimilarityOpen] = useState<boolean>(true);
   const [imageBase64, setImageBase64] = useState<string | undefined>(undefined);
@@ -66,7 +66,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
       }
       setData(data);
     } catch (err) {
-      // console.log(err);
+      console.log(err);
 
       setIsSubmitting(false);
       toast.error("Something went wrong", {
@@ -86,13 +86,13 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
       <div className="space-y-2">
         <h2 className="font-bold text-lg">Image to be Remixed</h2>
         <div className="p-2 bg-muted rounded-lg border border-primary/30 max-h-32">
-          {(imageBase64 !== undefined && imageBase64 !== "") ||
-          (imageUrl && imageUrl != "") ? (
-            <Image
+          {(imageBase64 !== undefined && imageBase64 !== "") || hasValidUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
               src={imageBase64 || imageUrl || ""}
               width={45}
               height={45}
-              alt="sdnsaidbi"
+              alt={"Remix Image Preview"}
               className="rounded-sm max-h-full"
             />
           ) : (
@@ -174,7 +174,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
                         type="file"
                         icon={<Upload className="text-primary size-5" />}
                         accept="image/jpeg, image/webp, image/png"
-                        disabled={imageUrl != null && imageUrl !== ""}
+                        disabled={hasValidUrl}
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (file) {
