@@ -25,11 +25,17 @@ import { toast } from "sonner";
 
 interface RemixSidebarContentProps {
   setData: SetRemixResType;
+  imageUrl?: string;
 }
 
-const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData }) => {
+const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
+  setData,
+  imageUrl,
+}) => {
   const [customPromptOpen, setCustomPromptOpen] = useState<boolean>(true);
-  const [imageGuidancesOpen, setImageGuidanceOpen] = useState<boolean>(true);
+  const [imageGuidancesOpen, setImageGuidanceOpen] = useState<boolean>(
+    !(imageUrl != null && imageUrl != "")
+  );
   const [imageSimilarityOpen, setImageSimilarityOpen] = useState<boolean>(true);
   const [imageBase64, setImageBase64] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -40,6 +46,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData }) => {
       customPrompt: "",
       imageSimilarity: 10,
       referenceImage: undefined,
+      imageUrl: imageUrl || null,
     },
   });
 
@@ -79,9 +86,10 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData }) => {
       <div className="space-y-2">
         <h2 className="font-bold text-lg">Image to be Remixed</h2>
         <div className="p-2 bg-muted rounded-lg border border-primary/30 max-h-32">
-          {imageBase64 !== undefined && imageBase64 !== "" ? (
+          {(imageBase64 !== undefined && imageBase64 !== "") ||
+          (imageUrl && imageUrl != "") ? (
             <Image
-              src={imageBase64}
+              src={imageBase64 || imageUrl || ""}
               width={45}
               height={45}
               alt="sdnsaidbi"
@@ -166,6 +174,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData }) => {
                         type="file"
                         icon={<Upload className="text-primary size-5" />}
                         accept="image/jpeg, image/webp, image/png"
+                        disabled={imageUrl != null && imageUrl !== ""}
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (file) {

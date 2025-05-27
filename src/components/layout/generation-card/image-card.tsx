@@ -23,6 +23,7 @@ import GIcon from "../../g-icon";
 import GenerationDetails from "./generation-details";
 import { toast } from "sonner";
 import { useTopLoader } from "nextjs-toploader";
+import Link from "next/link";
 
 interface ImageCardProps {
   id: string;
@@ -68,9 +69,11 @@ const ImageCard = forwardRef<HTMLDivElement, ImageCardProps>(
           </Button>
         </div>
 
-        <Button className="absolute bottom-2 pointer-fine:hidden pointer-coarse:block group-focus:block group-hover:block w-[90%] left-1/2 -translate-x-1/2">
-          Remix
-        </Button>
+        <Link href={`/remix-image/remix?imageUrl=${imageSrc}`}>
+          <Button className="absolute bottom-2 pointer-fine:hidden pointer-coarse:block group-focus:block group-hover:block w-[90%] left-1/2 -translate-x-1/2">
+            Remix
+          </Button>
+        </Link>
       </div>
     );
   }

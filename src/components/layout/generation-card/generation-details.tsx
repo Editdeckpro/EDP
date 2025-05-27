@@ -1,17 +1,17 @@
 "use client";
 import GIcon from "@/components/g-icon";
 import { Button } from "@/components/ui/button";
+import { Carousel } from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { Sparkles } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
-import ImageCarousel, { ImageCarouselRef } from "./image-carousel";
-import { Carousel } from "@/components/ui/carousel";
-import { handleDownload } from "./image-card";
+import { useRouter } from "next/navigation";
 import { useTopLoader } from "nextjs-toploader";
+import React, { useEffect, useRef, useState } from "react";
+import { handleDownload } from "./image-card";
+import ImageCarousel, { ImageCarouselRef } from "./image-carousel";
 
 interface GenerationDetailsProp extends React.ComponentProps<"section"> {
   id: string;
@@ -28,6 +28,7 @@ export default function GenerationDetails({
   const [isDownloading, setIsDownloading] = useState(false);
   const carouselRef = useRef<ImageCarouselRef>(null);
   const topLoader = useTopLoader();
+  const router = useRouter();
 
   useEffect(() => {
     if (!session || !id) return;
@@ -79,6 +80,14 @@ export default function GenerationDetails({
         }
       },
     });
+  }
+
+  function handleRemix() {
+    if (!carouselRef.current || !data) return;
+    const currentIndex = carouselRef.current.getCurrentIndex();
+    const currentImageData = data.generatedImages[currentIndex || 0];
+
+    router.push(`/remix-image/remix?imageUrl=${currentImageData.imagePath}`);
   }
 
   return (
@@ -171,9 +180,11 @@ export default function GenerationDetails({
                 <GIcon size={17} name="download" />
               </Button>
             </div>
-            <Link href={"/remix-image/remix"} className="w-full md:w-auto">
-              <Button className="w-full">Remix Image</Button>
-            </Link>
+            {/* <Link href={"/remix-image/remix"} className="w-full md:w-auto"> */}
+            <Button className="w-full md:w-auto" onClick={handleRemix}>
+              Remix Image
+            </Button>
+            {/* </Link> */}
           </div>
         </div>
       </div>
