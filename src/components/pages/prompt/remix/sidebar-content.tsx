@@ -59,7 +59,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData }) => {
       }
       setData(data);
     } catch (err) {
-      console.log(err);
+      // console.log(err);
 
       setIsSubmitting(false);
       toast.error("Something went wrong", {

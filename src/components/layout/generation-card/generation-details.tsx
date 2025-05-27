@@ -114,7 +114,7 @@ export default function GenerationDetails({
     return;
   }
 
-  console.log(data);
+  // console.log(data);
 
   return (
     <section

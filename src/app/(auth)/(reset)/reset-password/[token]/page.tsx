@@ -48,7 +48,7 @@ const Page: FC<PageProps> = ({ params }) => {
       form.reset();
     } catch (e) {
       const error = e as AxiosError<{ error?: string }>;
-      console.info("Error resetting password", e);
+      // console.info("Error resetting password", e);
       toast.error("Something went wrong.", {
         description: error?.response?.data?.error,
       });

@@ -16,11 +16,11 @@ export default function SubscriptionPricing() {
       try {
         const axios = await GetAxiosWithAuth();
         const data = await axios.get("/subscription");
-        console.log(data);
+        // console.log(data);
         setCurrentPlan(data.data.planType);
       } catch (error) {
         toast.error("Error fetching current plan");
-        console.info("Error fetching current plan", error);
+        // console.info("Error fetching current plan", error);
       }
     };
     fetchCurrentPlan();

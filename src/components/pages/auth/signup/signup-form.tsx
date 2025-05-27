@@ -58,7 +58,7 @@ export default function SignupForm() {
       });
     } catch (e) {
       const error = e as AxiosError;
-      console.log("Error while registering user", e);
+      // console.log("Error while registering user", e);
       toast.error(error.response?.statusText || "Something went wrong!", {
         description: "Please try again after some time",
       });

@@ -23,7 +23,7 @@ export default function ImageCardGrid({
   useEffect(() => {
     function fetchNext() {
       if (inView && hasNextPage && !loading && !error) {
-        console.log("Loading next page");
+        // console.log("Loading next page");
         loadNextPage();
       }
     }

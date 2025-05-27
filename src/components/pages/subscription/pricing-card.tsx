@@ -8,6 +8,11 @@ import { GetAxiosWithAuth } from "@/lib/axios-instance";
 import { useRouter } from "next/navigation";
 import { useTopLoader } from "nextjs-toploader";
 import { toast } from "sonner";
+import {
+  CancelSubscriptionResponse,
+  CreateCheckoutSessionResponse,
+} from "./types";
+import { AxiosError } from "axios";
 
 export type PlanID = "FREE" | "STARTER" | "NEXT_LEVEL";
 export interface PricingCardProps {
@@ -49,15 +54,54 @@ const PricingCard: FC<PricingCardProps> = ({
     setLoading(true);
     try {
       const axios = await GetAxiosWithAuth();
-      const res = await axios.post("subscription/create-checkout-session", {
-        planType: id,
-        interval: billingPeriod,
+      const res = await axios.post<CreateCheckoutSessionResponse>(
+        "subscription/create-checkout-session",
+        {
+          planType: id,
+          interval: billingPeriod,
+        }
+      );
+
+      if (res.data.type === "URL" || res.data.type === "UPGRADE") {
+        router.push(res.data.url);
+        toast.success("Redirecting to checkout page");
+      } else {
+        toast.success(res.data.message, {
+          description: `You are downgrading from ${res.data.downgradeDetails.fromPlan} to ${res.data.downgradeDetails.toPlan}. Effective from ${res.data.downgradeDetails.effectiveDate}.`,
+        });
+        setLoading(false);
+        topLoader.done();
+      }
+      router.refresh();
+    } catch (e) {
+      const error = e as AxiosError<{ error?: string }>;
+      toast.error(error.response?.data.error || "Error changing plan");
+      // // console.info("Error upgrading plan", error);
+      setLoading(false);
+      topLoader.done();
+    }
+  }
+
+  async function cancelPlan() {
+    topLoader.start();
+    setLoading(true);
+
+    try {
+      const axios = await GetAxiosWithAuth();
+      const res = await axios.post<CancelSubscriptionResponse>(
+        "subscription/cancel"
+      );
+
+      toast.success("Plan Canceled successfully!", {
+        description: res.data.message,
       });
-      router.push(res.data.url);
-      toast.success("Redirecting to checkout page");
-    } catch (error) {
-      toast.error("Error upgrading plan");
-      console.info("Error upgrading plan", error);
+      setLoading(false);
+      topLoader.done();
+      router.refresh();
+    } catch (e) {
+      const error = e as AxiosError<{ error?: string }>;
+      toast.error(error.response?.data.error || "Error canceling plan");
+      // // console.info("Error canceling plan", error);
       setLoading(false);
       topLoader.done();
     }
@@ -106,16 +150,24 @@ const PricingCard: FC<PricingCardProps> = ({
         </div>
       )}
 
-      {isCurrentPlan ? (
-        <div className="grid grid-cols-2 gap-3">
-          <Button>Cancel Plan</Button>
-          <Button variant={"secondary"}>Renew Plan</Button>
-        </div>
-      ) : (
-        <Button size={"full"} onClick={upgradePlan} isLoading={loading}>
-          Upgrade Plan
-        </Button>
-      )}
+      {id !== "FREE" &&
+        (isCurrentPlan ? (
+          // <div className="grid grid-cols-2 gap-3">
+          //<Button variant={"secondary"}>Renew Plan</Button>
+          // </div>
+          <Button
+            variant={"destructive"}
+            className="cursor-pointer"
+            onClick={cancelPlan}
+            isLoading={loading}
+          >
+            Cancel Plan
+          </Button>
+        ) : (
+          <Button size={"full"} onClick={upgradePlan} isLoading={loading}>
+            Choose Plan
+          </Button>
+        ))}
     </div>
   );
 };
