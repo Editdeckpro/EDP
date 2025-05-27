@@ -18,11 +18,15 @@ export async function remixFormDataSubmit(
   const accessToken = session.accessToken;
 
   const formData = new FormData();
-  formData.append("image", data.referenceImage); // Image should be a `File` object
+  formData.append("imageUrl", data.imageUrl || ""); // If imageUrl is not provided, it will be an empty string
   formData.append("imgSimilarityPercentage", data.imageSimilarity.toString());
   formData.append("userPrompt", data.customPrompt);
   // This is default to 1
   formData.append("noOfImages", "1");
+
+  if (data.referenceImage) {
+    formData.append("image", data.referenceImage); // Image should be a `File` object
+  }
 
   try {
     const response = await axios.post<RemixImage>(
