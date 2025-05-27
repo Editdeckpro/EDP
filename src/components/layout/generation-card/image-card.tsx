@@ -21,6 +21,8 @@ import Image from "next/image";
 import React, { forwardRef } from "react";
 import GIcon from "../../g-icon";
 import GenerationDetails from "./generation-details";
+import { toast } from "sonner";
+import { useTopLoader } from "nextjs-toploader";
 
 interface ImageCardProps {
   id: string;
@@ -30,6 +32,24 @@ interface ImageCardProps {
 
 const ImageCard = forwardRef<HTMLDivElement, ImageCardProps>(
   ({ imageSrc, imgAlt, id }, ref) => {
+    const [downloading, setDownloading] = React.useState(false);
+    const topLoader = useTopLoader();
+
+    function downloadImage() {
+      handleDownload({
+        imageAlt: imgAlt,
+        imageSrc: imageSrc,
+        setDownloading: (e) => {
+          setDownloading(e);
+          if (e) {
+            topLoader.start();
+          } else {
+            topLoader.done();
+          }
+        },
+      });
+    }
+
     return (
       <div
         ref={ref}
@@ -38,14 +58,13 @@ const ImageCard = forwardRef<HTMLDivElement, ImageCardProps>(
       >
         <DrawerDialogDemo imageSrc={imageSrc} imageAlt={imgAlt} id={id} />
         <div className="absolute flex-col gap-2 right-2 top-2 pointer-fine:hidden pointer-coarse:flex group-focus:flex group-hover:flex transition-all duration-200">
-          <Button size={"icon"} className="rounded-full size-8 bg-[#1B1C1E]">
-            <GIcon size={17} name="draw" />
-          </Button>
-          <Button size={"icon"} className="rounded-full size-8 bg-[#1B1C1E]">
-            <GIcon size={17} name="delete" />
-          </Button>
-          <Button size={"icon"} className="rounded-full size-8 bg-[#1B1C1E]">
-            <GIcon size={17} name="share" />
+          <Button
+            size={"icon"}
+            className="rounded-full size-8 bg-[#1B1C1E]"
+            onClick={downloadImage}
+            disabled={downloading}
+          >
+            <GIcon size={17} name="download" />
           </Button>
         </div>
 
@@ -60,6 +79,43 @@ const ImageCard = forwardRef<HTMLDivElement, ImageCardProps>(
 ImageCard.displayName = "ImageCard"; // Required for forwardRef in dev tools
 
 export default ImageCard;
+
+interface handleDownloadProps {
+  imageSrc: string;
+  imageAlt: string;
+  setDownloading?: (e: boolean) => void;
+}
+
+export const handleDownload = async ({
+  imageSrc,
+  imageAlt,
+  setDownloading,
+}: handleDownloadProps) => {
+  if (setDownloading) {
+    setDownloading(true);
+  }
+
+  try {
+    const response = await fetch(imageSrc);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = imageAlt || "image.jpg";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+    toast.success("Image downloading started!");
+  } catch (error) {
+    console.error("Download failed:", error);
+    toast.error("Failed to download image. Please try again.");
+  } finally {
+    if (setDownloading) {
+      setDownloading(false);
+    }
+  }
+};
 
 function DrawerDialogDemo({
   id,

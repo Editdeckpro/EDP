@@ -1,21 +1,17 @@
 "use client";
 import GIcon from "@/components/g-icon";
 import { Button } from "@/components/ui/button";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { Sparkles } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import ImageCarousel, { ImageCarouselRef } from "./image-carousel";
+import { Carousel } from "@/components/ui/carousel";
+import { handleDownload } from "./image-card";
+import { useTopLoader } from "nextjs-toploader";
 
 interface GenerationDetailsProp extends React.ComponentProps<"section"> {
   id: string;
@@ -29,6 +25,9 @@ export default function GenerationDetails({
   const { data: session } = useSession();
   const [data, setData] = useState<GenerationData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const carouselRef = useRef<ImageCarouselRef>(null);
+  const topLoader = useTopLoader();
 
   useEffect(() => {
     if (!session || !id) return;
@@ -56,65 +55,31 @@ export default function GenerationDetails({
   }, [id, session]);
 
   if (loading) {
-    return (
-      <div className="flex flex-col lg:flex-row gap-6 p-5 overflow-y-scroll md:overflow-y-auto">
-        {/* Left Image Area */}
-        <div className="bg-muted rounded-2xl p-4 flex justify-center items-center w-full lg:w-1/2">
-          <Skeleton className="w-full aspect-square max-w-[400px] rounded-xl" />
-        </div>
-
-        {/* Right Content Area */}
-        <div className="flex flex-col gap-6 w-full lg:w-1/2">
-          {/* Prompt box */}
-          <Skeleton className="w-full h-[100px] rounded-xl" />
-
-          {/* Info grid */}
-          <div className="grid grid-cols-2 gap-4 text-sm sm:text-base">
-            <div>
-              <Skeleton className="w-28 h-4 mb-1" />
-              <Skeleton className="w-40 h-5" />
-            </div>
-            <div>
-              <Skeleton className="w-28 h-4 mb-1" />
-              <Skeleton className="w-40 h-5" />
-            </div>
-            <div>
-              <Skeleton className="w-28 h-4 mb-1" />
-              <Skeleton className="w-40 h-5" />
-            </div>
-            <div>
-              <Skeleton className="w-28 h-4 mb-1" />
-              <Skeleton className="w-40 h-5" />
-            </div>
-            <div>
-              <Skeleton className="w-28 h-4 mb-1" />
-              <Skeleton className="w-40 h-5" />
-            </div>
-            <div>
-              <Skeleton className="w-28 h-4 mb-1" />
-              <Skeleton className="w-40 h-5" />
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center justify-between">
-            <div className="flex gap-4">
-              <Skeleton className="w-10 h-10 rounded-full" />
-              <Skeleton className="w-10 h-10 rounded-full" />
-              <Skeleton className="w-10 h-10 rounded-full" />
-            </div>
-            <Skeleton className="w-[140px] h-10 rounded-md" />
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
   if (data === null) {
     return;
   }
 
-  // console.log(data);
+  function downloadImg() {
+    if (!carouselRef.current || !data) return;
+    const currentIndex = carouselRef.current.getCurrentIndex();
+    const currentImageData = data.generatedImages[currentIndex || 0];
+
+    handleDownload({
+      imageAlt: String(currentImageData.imageGenerationId),
+      imageSrc: currentImageData.imagePath,
+      setDownloading: (e) => {
+        setIsDownloading(e);
+        if (e) {
+          topLoader.start();
+        } else {
+          topLoader.done();
+        }
+      },
+    });
+  }
 
   return (
     <section
@@ -125,24 +90,11 @@ export default function GenerationDetails({
       {...props}
     >
       <Carousel className="relative max-w-2xs">
-        <CarouselContent>
-          {data.generatedImages.map((imgData) => (
-            <CarouselItem key={imgData.createdAt} className="relative">
-              <Image
-                src={imgData.imagePath}
-                alt={String(imgData.imageGenerationId)}
-                width={300}
-                height={300}
-              />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        {data.noOfImages > 1 && (
-          <>
-            <CarouselPrevious />
-            <CarouselNext />
-          </>
-        )}
+        <ImageCarousel
+          ref={carouselRef}
+          images={data.generatedImages}
+          noOfImages={data.noOfImages}
+        />
       </Carousel>
       <div className="flex-1 gap-5 md:gap-0 flex flex-col justify-between h-full w-full md:w-auto">
         <div>
@@ -213,22 +165,10 @@ export default function GenerationDetails({
                 size={"icon"}
                 className="rounded-full size-8 "
                 variant={"outline"}
+                onClick={downloadImg}
+                disabled={isDownloading}
               >
-                <GIcon size={17} name="draw" />
-              </Button>
-              <Button
-                size={"icon"}
-                className="rounded-full size-8 "
-                variant={"outline"}
-              >
-                <GIcon size={17} name="delete" />
-              </Button>
-              <Button
-                size={"icon"}
-                className="rounded-full size-8 "
-                variant={"outline"}
-              >
-                <GIcon size={17} name="share" />
+                <GIcon size={17} name="download" />
               </Button>
             </div>
             <Link href={"/remix-image/remix"} className="w-full md:w-auto">
@@ -241,8 +181,61 @@ export default function GenerationDetails({
   );
 }
 
+const LoadingSkeleton = () => (
+  <div className="flex flex-col lg:flex-row gap-6 p-5 overflow-y-scroll md:overflow-y-auto">
+    {/* Left Image Area */}
+    <div className="bg-muted rounded-2xl p-4 flex justify-center items-center w-full lg:w-1/2">
+      <Skeleton className="w-full aspect-square max-w-[400px] rounded-xl" />
+    </div>
+
+    {/* Right Content Area */}
+    <div className="flex flex-col gap-6 w-full lg:w-1/2">
+      {/* Prompt box */}
+      <Skeleton className="w-full h-[100px] rounded-xl" />
+
+      {/* Info grid */}
+      <div className="grid grid-cols-2 gap-4 text-sm sm:text-base">
+        <div>
+          <Skeleton className="w-28 h-4 mb-1" />
+          <Skeleton className="w-40 h-5" />
+        </div>
+        <div>
+          <Skeleton className="w-28 h-4 mb-1" />
+          <Skeleton className="w-40 h-5" />
+        </div>
+        <div>
+          <Skeleton className="w-28 h-4 mb-1" />
+          <Skeleton className="w-40 h-5" />
+        </div>
+        <div>
+          <Skeleton className="w-28 h-4 mb-1" />
+          <Skeleton className="w-40 h-5" />
+        </div>
+        <div>
+          <Skeleton className="w-28 h-4 mb-1" />
+          <Skeleton className="w-40 h-5" />
+        </div>
+        <div>
+          <Skeleton className="w-28 h-4 mb-1" />
+          <Skeleton className="w-40 h-5" />
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex items-center justify-between">
+        <div className="flex gap-4">
+          <Skeleton className="w-10 h-10 rounded-full" />
+          <Skeleton className="w-10 h-10 rounded-full" />
+          <Skeleton className="w-10 h-10 rounded-full" />
+        </div>
+        <Skeleton className="w-[140px] h-10 rounded-md" />
+      </div>
+    </div>
+  </div>
+);
+
 // Shared GeneratedImage interface
-interface GeneratedImage {
+export interface GeneratedImage {
   id: number;
   imageGenerationId: number;
   imagePath: string;
