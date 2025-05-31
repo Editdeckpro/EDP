@@ -56,6 +56,7 @@ const pricingPlansDetails: Omit<
     id: "FREE",
     title: "Basic Plan",
     price: 0,
+    price_annual: 0,
     features: [],
     color: "primary",
     icon: <StickyNoteIcon color="white" />,
@@ -64,6 +65,7 @@ const pricingPlansDetails: Omit<
     id: "STARTER",
     title: "Professional Plan",
     price: 29,
+    price_annual: 229,
     features: [
       "50 image generations per month",
       "Standard resolution",
@@ -76,6 +78,7 @@ const pricingPlansDetails: Omit<
     id: "NEXT_LEVEL",
     title: "Advanced Plan",
     price: 70,
+    price_annual: 549,
     features: [
       "Unlimited image generations",
       "High resolution output",

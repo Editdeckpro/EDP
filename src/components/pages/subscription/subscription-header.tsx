@@ -47,6 +47,7 @@ const SubscriptionHeader: FC<SubscriptionHeaderProps> = ({
             )}
           >
             Yearly
+            {/* <span className="text-xs">(Save 33%)</span> */}
           </ToggleGroupItem>
         </ToggleGroup>
       </div>

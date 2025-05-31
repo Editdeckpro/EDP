@@ -19,6 +19,7 @@ export interface PricingCardProps {
   id: PlanID;
   title: string;
   price: number;
+  price_annual: number;
   billingPeriod: billingPeriod;
   features: string[];
   isCurrentPlan?: boolean;
@@ -31,19 +32,25 @@ const PricingCard: FC<PricingCardProps> = ({
   billingPeriod,
   features,
   price,
+  price_annual,
   title,
   isCurrentPlan,
   icon: Icon,
   color,
 }) => {
-  const yearlyPrice = price * 12;
-
   const cardBg =
     color === "primary"
       ? "bg-primary"
       : color === "secondary"
       ? "bg-secondary"
       : "bg-accent";
+
+  const cardBorder =
+    color === "primary"
+      ? "border-primary"
+      : color === "secondary"
+      ? "border-secondary"
+      : "border-accent";
 
   const router = useRouter();
   const topLoader = useTopLoader();
@@ -108,7 +115,12 @@ const PricingCard: FC<PricingCardProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-xl p-3 border border-[#dedede] flex flex-col justify-between">
+    <div
+      className={cn(
+        `bg-white rounded-xl p-3 border flex flex-col justify-between`,
+        isCurrentPlan && cardBorder
+      )}
+    >
       <div>
         <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-gray-200/50">
           <div
@@ -125,7 +137,7 @@ const PricingCard: FC<PricingCardProps> = ({
 
         <div className="mb-6">
           <span className="text-4xl font-bold">
-            ${billingPeriod === "monthly" ? price : yearlyPrice}
+            ${billingPeriod === "monthly" ? price : price_annual}
           </span>
           <span className="text-[#6a6c7b]">
             /{billingPeriod === "monthly" ? "Month" : "Year"}
