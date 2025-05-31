@@ -64,8 +64,8 @@ const pricingPlansDetails: Omit<
   {
     id: "STARTER",
     title: "Professional Plan",
-    price: 29,
-    price_annual: 229,
+    price: 27,
+    price_annual: 219,
     features: [
       "50 image generations per month",
       "Standard resolution",
@@ -77,8 +77,8 @@ const pricingPlansDetails: Omit<
   {
     id: "NEXT_LEVEL",
     title: "Advanced Plan",
-    price: 70,
-    price_annual: 549,
+    price: 67,
+    price_annual: 539,
     features: [
       "Unlimited image generations",
       "High resolution output",
