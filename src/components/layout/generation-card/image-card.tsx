@@ -57,7 +57,7 @@ const ImageCard = forwardRef<HTMLDivElement, ImageCardProps>(
         tabIndex={0}
         className="relative aspect-square group overflow-hidden"
       >
-        <DrawerDialogDemo imageSrc={imageSrc} imageAlt={imgAlt} id={id} />
+        <DrawerDialog imageSrc={imageSrc} imageAlt={imgAlt} id={id} />
         <div className="absolute flex-col gap-2 right-2 top-2 pointer-fine:hidden pointer-coarse:flex group-focus:flex group-hover:flex transition-all duration-200">
           <Button
             size={"icon"}
@@ -120,7 +120,7 @@ export const handleDownload = async ({
   }
 };
 
-function DrawerDialogDemo({
+function DrawerDialog({
   id,
   imageSrc,
   imageAlt,

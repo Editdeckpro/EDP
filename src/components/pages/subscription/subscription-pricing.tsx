@@ -79,7 +79,7 @@ const pricingPlansDetails: Omit<
   // },
   {
     id: "STARTER",
-    title: "Professional Plan",
+    title: "Starter",
     price: 27,
     price_annual: 219,
     features: [
@@ -92,7 +92,7 @@ const pricingPlansDetails: Omit<
   },
   {
     id: "NEXT_LEVEL",
-    title: "Advanced Plan",
+    title: "Next level",
     price: 67,
     price_annual: 539,
     features: [
