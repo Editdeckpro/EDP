@@ -6,18 +6,31 @@ import { billingPeriod } from ".";
 import PricingCard, { PlanID, PricingCardProps } from "./pricing-card";
 import SubscriptionHeader from "./subscription-header";
 import { toast } from "sonner";
+import { GetCurrentSubscriptionResponse } from "./types";
 
 export default function SubscriptionPricing() {
   const [billingPeriod, setBillingPeriod] = useState<billingPeriod>("monthly");
-  const [currentPlan, setCurrentPlan] = useState<PlanID>("FREE");
+  const [currentPlan, setCurrentPlan] = useState<{
+    id: PlanID;
+    interval: billingPeriod;
+  }>({
+    id: "FREE",
+    interval: billingPeriod,
+  });
 
   useEffect(() => {
     const fetchCurrentPlan = async () => {
       try {
         const axios = await GetAxiosWithAuth();
-        const data = await axios.get("/subscription");
-        // console.log(data);
-        setCurrentPlan(data.data.planType);
+        const data = await axios.get<GetCurrentSubscriptionResponse>(
+          "/subscription"
+        );
+        console.log(data);
+        setCurrentPlan({
+          id: data.data.planType as PlanID,
+          interval: data.data.interval as billingPeriod,
+        });
+        setBillingPeriod(data.data.interval as billingPeriod);
       } catch (error) {
         toast.error("Error fetching current plan");
         console.info("Error fetching current plan", error);
@@ -40,7 +53,10 @@ export default function SubscriptionPricing() {
             {...card}
             key={card.title}
             billingPeriod={billingPeriod}
-            isCurrentPlan={currentPlan === card.id}
+            isCurrentPlan={
+              currentPlan.id === card.id &&
+              currentPlan.interval === billingPeriod
+            }
           />
         ))}
       </div>
