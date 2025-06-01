@@ -4,7 +4,7 @@ export default function SubscriptionHistory() {
   return (
     <div>
       <h3 className="text-xl font-semibold mb-6">Subscription History</h3>
-      <div className=" rounded-xl overflow-hidden">
+      <div className="rounded-xl overflow-hidden border">
         <table className="w-full">
           <thead className="bg-white rounded-lg border-b border-[#dedede]">
             <tr>

@@ -1,11 +1,11 @@
 "use client";
 import { GetAxiosWithAuth } from "@/lib/axios-instance";
-import { Layers2Icon, Layers3Icon, StickyNoteIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Layers2Icon, Layers3Icon } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { billingPeriod } from ".";
 import PricingCard, { PlanID, PricingCardProps } from "./pricing-card";
 import SubscriptionHeader from "./subscription-header";
-import { toast } from "sonner";
 import { GetCurrentSubscriptionResponse } from "./types";
 
 export default function SubscriptionPricing() {
@@ -18,26 +18,26 @@ export default function SubscriptionPricing() {
     interval: billingPeriod,
   });
 
-  useEffect(() => {
-    const fetchCurrentPlan = async () => {
-      try {
-        const axios = await GetAxiosWithAuth();
-        const data = await axios.get<GetCurrentSubscriptionResponse>(
-          "/subscription"
-        );
-        console.log(data);
-        setCurrentPlan({
-          id: data.data.planType as PlanID,
-          interval: data.data.interval as billingPeriod,
-        });
-        setBillingPeriod(data.data.interval as billingPeriod);
-      } catch (error) {
-        toast.error("Error fetching current plan");
-        console.info("Error fetching current plan", error);
-      }
-    };
-    fetchCurrentPlan();
+  const fetchCurrentPlan = useCallback(async () => {
+    try {
+      const axios = await GetAxiosWithAuth();
+      const data = await axios.get<GetCurrentSubscriptionResponse>(
+        "/subscription"
+      );
+      setCurrentPlan({
+        id: data.data.planType as PlanID,
+        interval: data.data.interval as billingPeriod,
+      });
+      setBillingPeriod(data.data.interval as billingPeriod);
+    } catch (error) {
+      toast.error("Error fetching current plan");
+      console.info("Error fetching current plan", error);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchCurrentPlan();
+  }, [fetchCurrentPlan]);
 
   return (
     <>
@@ -68,22 +68,22 @@ const pricingPlansDetails: Omit<
   PricingCardProps,
   "billingPeriod" | "isCurrentPlan"
 >[] = [
-  {
-    id: "FREE",
-    title: "Basic Plan",
-    price: 0,
-    price_annual: 0,
-    features: [],
-    color: "primary",
-    icon: <StickyNoteIcon color="white" />,
-  },
+  // {
+  //   id: "FREE",
+  //   title: "Basic Plan",
+  //   price: 0,
+  //   price_annual: 0,
+  //   features: [],
+  //   color: "primary",
+  //   icon: <StickyNoteIcon color="white" />,
+  // },
   {
     id: "STARTER",
     title: "Professional Plan",
     price: 27,
     price_annual: 219,
     features: [
-      "50 image generations per month",
+      "5 image generations per month",
       "Standard resolution",
       "Basic support",
     ],

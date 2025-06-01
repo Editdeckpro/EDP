@@ -1,6 +1,6 @@
 "use client";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import SubscriptionHistory from "./subscription-history";
 import SubscriptionPricing from "./subscription-pricing";
@@ -16,10 +16,12 @@ export default function SubscriptionPage() {
         <SubscriptionPricing />
         <SubscriptionHistory />
       </section>
+      {/* Mobile: use Tabs only for state UI, not for rendering content */}
       <Tabs
         defaultValue="pricing"
-        className="block sm:hidden"
+        value={tabRef}
         onValueChange={(val) => setTabRef(val as "pricing" | "history")}
+        className="block sm:hidden"
       >
         <div className="mb-10">
           <TabsList className="w-full bg-transparent">
@@ -40,23 +42,27 @@ export default function SubscriptionPage() {
           <div className="flex overflow-hidden">
             <Separator
               className={`!h-[2px] max-w-1/2 ${
-                tabRef == "pricing" ? "bg-primary" : "bg-muted"
+                tabRef === "pricing" ? "bg-primary" : "bg-muted"
               }`}
             />
             <Separator
               className={`!h-[2px] max-w-1/2 ${
-                tabRef == "history" ? "bg-primary" : "bg-muted"
+                tabRef === "history" ? "bg-primary" : "bg-muted"
               }`}
             />
           </div>
         </div>
-        <TabsContent value="pricing">
-          <SubscriptionPricing />
-        </TabsContent>
-        <TabsContent value="history">
-          <SubscriptionHistory />
-        </TabsContent>
       </Tabs>
+
+      {/* Render both, control visibility */}
+      <div className="block sm:hidden">
+        <div className={tabRef === "pricing" ? "block" : "hidden"}>
+          <SubscriptionPricing />
+        </div>
+        <div className={tabRef === "history" ? "block" : "hidden"}>
+          <SubscriptionHistory />
+        </div>
+      </div>
     </>
   );
 }
