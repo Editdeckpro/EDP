@@ -1,10 +1,10 @@
 import { authOptions } from "@/auth-guard";
 import ChangePasswordDialog from "@/components/pages/profile/change-password-dialog";
-import DeleteAccountDialog from "@/components/pages/profile/delete-account-dialog";
 import { Button } from "@/components/ui/button";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
 import Link from "next/link";
+// import DeleteAccountDialog from "@/components/pages/profile/delete-account-dialog";
 
 export default async function Page() {
   const session = await getServerSession(authOptions);
@@ -19,19 +19,22 @@ export default async function Page() {
         <div className="flex md:items-center md:justify-between flex-col md:flex-row gap-4">
           <div className="flex flex-col xs:flex-row gap-3">
             <Image
-              src={"/images/pfp.jpg"}
+              src={session.user.profileImage || "/images/pfp.jpg"}
               width={75}
               height={75}
               alt="User Profile Pic"
               className="rounded-xl aspect-square"
             />
             <div className="-space-y-1">
-              <h1 className="text-2xl font-bold">John Smith</h1>
+              <h1 className="text-2xl font-bold">
+                <span>{session.user.firstName}</span>
+                <span> {session.user.lastName}</span>
+              </h1>
               <h2 className="font-medium text-primary">
-                {session.user?.username}
+                {session.user.username}
               </h2>
               <h3 className="text-muted-foreground break-words">
-                emailadress123@gmail.com
+                {session.user.email}
               </h3>
             </div>
           </div>
@@ -39,9 +42,9 @@ export default async function Page() {
             <Button className="w-full md:w-auto">Edit Profile</Button>
           </Link>
         </div>
-        <div className="flex gap-2 flex-col sm:flex-row">
+        <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
           <ChangePasswordDialog />
-          <DeleteAccountDialog />
+          {/* <DeleteAccountDialog /> */}
         </div>
       </section>
     </section>

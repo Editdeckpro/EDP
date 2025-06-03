@@ -25,7 +25,7 @@ export interface SessionUser {
   lastName: string;
   email: string;
   username: string;
-  image: string;
+  profileImage?: string;
   subscription: {
     planType: string;
     status: string;

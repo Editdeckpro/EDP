@@ -46,7 +46,7 @@ const ProfileDropdown: FC<ProfileDropdownProps> = ({ isMobile = false }) => {
           )}
         >
           <Image
-            src={"/images/pfp.jpg"}
+            src={session.data.user.profileImage || "/images/pfp.jpg"}
             alt={`${session.data.user.username}'s profile picture`}
             width={42}
             height={42}
@@ -62,9 +62,9 @@ const ProfileDropdown: FC<ProfileDropdownProps> = ({ isMobile = false }) => {
       <DropdownMenuContent>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Link href={"/profile"}>Profile</Link>
-        </DropdownMenuItem>
+        <Link href={"/profile"}>
+          <DropdownMenuItem>Profile</DropdownMenuItem>
+        </Link>
         <DropdownMenuItem variant="destructive" onClick={() => signOut()}>
           Logout
         </DropdownMenuItem>

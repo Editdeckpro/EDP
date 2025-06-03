@@ -1,23 +1,24 @@
 "use client";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
-import SubscriptionHistory from "./subscription-history";
+// import { Separator } from "@/components/ui/separator";
+// import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { useState } from "react";
+// import SubscriptionHistory from "./subscription-history";
 import SubscriptionPricing from "./subscription-pricing";
 
 export type billingPeriod = "monthly" | "yearly";
 
 export default function SubscriptionPage() {
-  const [tabRef, setTabRef] = useState<"pricing" | "history">("pricing");
+  // const [tabRef, setTabRef] = useState<"pricing" | "history">("pricing");
 
   return (
     <>
-      <section className="space-y-5 hidden sm:block">
+      {/* <section className="space-y-5 hidden sm:block"> */}
+      <section className="space-y-5">
         <SubscriptionPricing />
-        <SubscriptionHistory />
+        {/* <SubscriptionHistory /> */}
       </section>
-      {/* Mobile: use Tabs only for state UI, not for rendering content */}
-      <Tabs
+
+      {/* <Tabs
         defaultValue="pricing"
         value={tabRef}
         onValueChange={(val) => setTabRef(val as "pricing" | "history")}
@@ -52,17 +53,16 @@ export default function SubscriptionPage() {
             />
           </div>
         </div>
-      </Tabs>
+      </Tabs> */}
 
-      {/* Render both, control visibility */}
-      <div className="block sm:hidden">
+      {/* <div className="block sm:hidden">
         <div className={tabRef === "pricing" ? "block" : "hidden"}>
           <SubscriptionPricing />
         </div>
         <div className={tabRef === "history" ? "block" : "hidden"}>
           <SubscriptionHistory />
         </div>
-      </div>
+      </div> */}
     </>
   );
 }

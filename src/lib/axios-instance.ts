@@ -1,15 +1,21 @@
+"use server";
+import { authOptions } from "@/auth-guard";
 import axios from "axios";
-import { getSession } from "next-auth/react";
+import { getServerSession } from "next-auth";
 
 export const axiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_BE_URL}/`,
 });
 
 export async function GetAxiosWithAuth(token?: string) {
-  const session = await getSession();
-  const accessToken = session?.accessToken || token;
+  let accessToken = token;
 
-  if (!accessToken || accessToken === undefined) {
+  if (!accessToken) {
+    const session = await getServerSession(authOptions);
+    accessToken = session?.accessToken as string | undefined;
+  }
+
+  if (!accessToken) {
     throw new Error("User is not authenticated");
   }
 
