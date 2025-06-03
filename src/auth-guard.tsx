@@ -6,7 +6,8 @@ import { AdapterUser } from "next-auth/adapters";
 import Credentials from "next-auth/providers/credentials";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
-import { axiosInstance } from "./lib/axios-instance";
+import { axiosInstance, GetAxiosWithAuth } from "./lib/axios-instance";
+import { SessionUser } from "@type/next-auth";
 
 interface DecodedJWT extends JwtPayload {
   username: string;
@@ -57,8 +58,27 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
+      const accessToken = token.accessToken as string;
+      const axios = await GetAxiosWithAuth(accessToken);
+      const { data } = await axios.get<SessionUser>("user");
+
+      session.user = {
+        id: data.id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        username: data.username,
+        image: data.image,
+        subscription: {
+          planType: data.subscription.planType,
+          status: data.subscription.status,
+          interval: data.subscription.interval,
+          currentPeriodEnd: data.subscription.currentPeriodEnd,
+          cancelAtPeriodEnd: data.subscription.cancelAtPeriodEnd,
+          features: data.subscription.features,
+        },
+      };
       session.accessToken = token.accessToken as string;
-      session.user.username = token.username as string;
       return session;
     },
   },

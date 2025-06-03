@@ -5,17 +5,18 @@ export const axiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_BE_URL}/`,
 });
 
-export async function GetAxiosWithAuth() {
+export async function GetAxiosWithAuth(token?: string) {
   const session = await getSession();
+  const accessToken = session?.accessToken || token;
 
-  if (!session?.accessToken) {
-    throw new Error("No access token found in session");
+  if (!accessToken || accessToken === undefined) {
+    throw new Error("User is not authenticated");
   }
 
   return axios.create({
     baseURL: `${process.env.NEXT_PUBLIC_BE_URL}/api/`,
     headers: {
-      Authorization: `Bearer ${session.accessToken}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 }

@@ -1,43 +1,43 @@
 "use client";
-import { GetAxiosWithAuth } from "@/lib/axios-instance";
 import { Layers2Icon, Layers3Icon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
 import { billingPeriod } from ".";
-import PricingCard, { PlanID, PricingCardProps } from "./pricing-card";
+import PricingCard, { PricingCardProps } from "./pricing-card";
 import SubscriptionHeader from "./subscription-header";
-import { GetCurrentSubscriptionResponse } from "./types";
 
 export default function SubscriptionPricing() {
+  const { data, status } = useSession();
+
   const [billingPeriod, setBillingPeriod] = useState<billingPeriod>("monthly");
-  const [currentPlan, setCurrentPlan] = useState<{
-    id: PlanID;
-    interval: billingPeriod;
-  }>({
-    id: "FREE",
-    interval: billingPeriod,
-  });
+  // const [currentPlan, setCurrentPlan] = useState<{
+  //   id: PlanID;
+  //   interval: billingPeriod;
+  // }>({
+  //   id: "FREE",
+  //   interval: billingPeriod,
+  // });
 
-  const fetchCurrentPlan = useCallback(async () => {
-    try {
-      const axios = await GetAxiosWithAuth();
-      const data = await axios.get<GetCurrentSubscriptionResponse>(
-        "/subscription"
-      );
-      setCurrentPlan({
-        id: data.data.planType as PlanID,
-        interval: data.data.interval as billingPeriod,
-      });
-      setBillingPeriod(data.data.interval as billingPeriod);
-    } catch (error) {
-      toast.error("Error fetching current plan");
-      console.info("Error fetching current plan", error);
-    }
-  }, []);
+  // const fetchCurrentPlan = useCallback(async () => {
+  //   try {
+  //     const axios = await GetAxiosWithAuth();
+  //     const data = await axios.get<GetCurrentSubscriptionResponse>(
+  //       "/subscription"
+  //     );
+  //     setCurrentPlan({
+  //       id: data.data.planType as PlanID,
+  //       interval: data.data.interval as billingPeriod,
+  //     });
+  //     setBillingPeriod(data.data.interval as billingPeriod);
+  //   } catch (error) {
+  //     toast.error("Error fetching current plan");
+  //     console.info("Error fetching current plan", error);
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    fetchCurrentPlan();
-  }, [fetchCurrentPlan]);
+  // useEffect(() => {
+  //   fetchCurrentPlan();
+  // }, [fetchCurrentPlan]);
 
   return (
     <>
@@ -53,9 +53,10 @@ export default function SubscriptionPricing() {
             {...card}
             key={card.title}
             billingPeriod={billingPeriod}
+            isLoading={status != "authenticated"}
             isCurrentPlan={
-              currentPlan.id === card.id &&
-              currentPlan.interval === billingPeriod
+              data?.user.subscription.planType === card.id &&
+              data?.user.subscription.interval === billingPeriod
             }
           />
         ))}
@@ -66,7 +67,7 @@ export default function SubscriptionPricing() {
 
 const pricingPlansDetails: Omit<
   PricingCardProps,
-  "billingPeriod" | "isCurrentPlan"
+  "billingPeriod" | "isCurrentPlan" | "isLoading"
 >[] = [
   // {
   //   id: "FREE",

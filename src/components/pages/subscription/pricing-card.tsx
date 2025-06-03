@@ -20,11 +20,12 @@ export interface PricingCardProps {
   title: string;
   price: number;
   price_annual: number;
-  billingPeriod: billingPeriod;
   features: string[];
-  isCurrentPlan?: boolean;
+  billingPeriod: billingPeriod;
   color: "primary" | "secondary" | "blue";
   icon: React.ReactNode;
+  isLoading: boolean;
+  isCurrentPlan: boolean;
 }
 
 const PricingCard: FC<PricingCardProps> = ({
@@ -37,6 +38,7 @@ const PricingCard: FC<PricingCardProps> = ({
   isCurrentPlan,
   icon: Icon,
   color,
+  isLoading,
 }) => {
   const cardBg =
     color === "primary"
@@ -172,11 +174,17 @@ const PricingCard: FC<PricingCardProps> = ({
             className="cursor-pointer"
             onClick={cancelPlan}
             isLoading={loading}
+            disabled={loading || isLoading}
           >
             Cancel Plan
           </Button>
         ) : (
-          <Button size={"full"} onClick={upgradePlan} isLoading={loading}>
+          <Button
+            size={"full"}
+            onClick={upgradePlan}
+            isLoading={loading}
+            disabled={loading || isLoading}
+          >
             Choose Plan
           </Button>
         ))}

@@ -15,11 +15,23 @@ declare module "next-auth" {
 
   interface Session {
     accessToken: string;
-    user: {
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      username: string;
-    };
+    user: SessionUser;
   }
+}
+
+export interface SessionUser {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  image: string;
+  subscription: {
+    planType: string;
+    status: string;
+    interval: "monthly" | "yearly";
+    currentPeriodEnd: string;
+    cancelAtPeriodEnd: boolean;
+    features: string[];
+  };
 }
