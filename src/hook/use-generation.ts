@@ -1,8 +1,7 @@
 "use client";
-import axios, { AxiosError } from "axios";
-import { useSession } from "next-auth/react";
+import { GetAxiosWithAuth } from "@/lib/axios-instance";
+import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 export type GenerationType = "custom" | "filter" | "remix";
 
@@ -40,38 +39,25 @@ export function useGenerations({
   const [loading, setLoading] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { data: session, status } = useSession();
-  const router = useRouter();
 
   // ✅ Triggered ONLY when `page` changes
   useEffect(() => {
     const fetchGenerations = async () => {
-      // If user is not authenticated, redirect to login
-      if (status === "unauthenticated") {
-        router.replace("/login");
-        return;
-      }
-
       // Prevent API call if loading, or there's no next page to fetch
-      if (loading || !hasNextPage || status === "loading") return;
+      if (loading || !hasNextPage) return;
 
       setLoading(true);
       setError(null); // Reset any previous errors
 
       try {
-        const res = await axios.get<ApiResponse>(
-          `${process.env.NEXT_PUBLIC_BE_URL}/api/generations`,
-          {
-            params: {
-              page,
-              limit,
-              ...(generationType ? { generationType } : {}),
-            },
-            headers: {
-              Authorization: `Bearer ${session?.accessToken}`,
-            },
-          }
-        );
+        const axios = await GetAxiosWithAuth();
+        const res = await axios.get<ApiResponse>(`generations`, {
+          params: {
+            page,
+            limit,
+            ...(generationType ? { generationType } : {}),
+          },
+        });
 
         setGenerations((prev) => [...prev, ...res.data.data]);
         setHasNextPage(res.data.pagination.hasNextPage);
@@ -92,7 +78,7 @@ export function useGenerations({
 
     fetchGenerations();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, generationType, limit, status, error]);
+  }, [page, generationType, limit, error]);
 
   const loadNextPage = () => {
     if (!loading && hasNextPage) {

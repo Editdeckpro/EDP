@@ -1,5 +1,5 @@
 "use server";
-import { GetAxiosWithAuth } from "@/lib/axios-instance";
+import GetServerAxiosWithAuth from "@/lib/axios-instance-server";
 import { ProfileFormType } from "@/schemas/edit-profile-schema";
 import { AxiosError } from "axios";
 
@@ -22,12 +22,12 @@ export async function editFormDataSubmit(data: ProfileFormType) {
   }
 
   try {
-    const axios = await GetAxiosWithAuth();
+    const axios = await GetServerAxiosWithAuth();
     const response = await axios.put(`user`, formData);
     return response.data;
   } catch (error) {
     const e = error as AxiosError<{ error: string }>;
-    console.error("API request failed:", e.response?.data);
+    console.error("API request failed:", e);
     throw new Error(e.response?.data.error || "Something went wrong!");
   }
 }

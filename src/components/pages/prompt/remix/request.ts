@@ -1,22 +1,12 @@
 "use server";
+import GetServerAxiosWithAuth from "@/lib/axios-instance-server";
 import { RemixFormSchemaType } from "@/schemas/remix-schema";
 import { RemixImage } from "@type/api/generate.type";
-import axios, { AxiosError } from "axios";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth-guard";
-import { redirect } from "next/navigation";
+import { AxiosError } from "axios";
 
 export async function remixFormDataSubmit(
   data: RemixFormSchemaType
 ): Promise<RemixImage | "error"> {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect("/login");
-  }
-
-  const accessToken = session.accessToken;
-
   const formData = new FormData();
   formData.append("imageUrl", data.imageUrl || ""); // If imageUrl is not provided, it will be an empty string
   formData.append("imgSimilarityPercentage", data.imageSimilarity.toString());
@@ -29,14 +19,10 @@ export async function remixFormDataSubmit(
   }
 
   try {
+    const axios = await GetServerAxiosWithAuth();
     const response = await axios.post<RemixImage>(
-      `${process.env.NEXT_PUBLIC_BE_URL}/api/generations/remix`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
+      `generations/remix`,
+      formData
     );
     // console.log(response.data);
 

@@ -10,17 +10,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { FormPasswordField } from "@/components/ui/password-input";
+import { axiosInstance } from "@/lib/axios-instance";
 import {
   signupFormSchema,
   SignupFormSchemaType,
 } from "@/schemas/signup-form-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import axios, { AxiosError } from "axios";
-import { toast } from "sonner";
+import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useTopLoader } from "nextjs-toploader";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 export default function SignupForm() {
   const router = useRouter();
@@ -42,10 +43,7 @@ export default function SignupForm() {
     setLoading(true);
     topLoader.start();
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_BE_URL}/auth/register`,
-        values
-      );
+      await axiosInstance.post(`auth/register`, values);
 
       toast.success("Registration successful!", {
         description: "You can now login",

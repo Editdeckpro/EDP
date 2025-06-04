@@ -1,40 +1,28 @@
 "use server";
-
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth-guard";
-import { redirect } from "next/navigation";
+import GetServerAxiosWithAuth from "@/lib/axios-instance-server";
 import { CustomFormSchemaType } from "@/schemas/custom-schema";
-import axios from "axios";
+import { GenerateFilterFormSchemaType } from "@/schemas/filter-schema";
 import {
   CustomGeneratedImage,
   FilterGeneratedImage,
   RequestFilterGeneratedImage,
 } from "@type/api/generate.type";
-import { GenerateFilterFormSchemaType } from "@/schemas/filter-schema";
 
 export async function customFormDataSubmit(
   data: CustomFormSchemaType
 ): Promise<CustomGeneratedImage | "error"> {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect("/login");
-  }
-
-  const accessToken = session.accessToken;
-
   const requestData = {
     userPrompt: data.customPrompt,
     noOfImages: data.numberOfImages,
   };
 
   try {
+    const axios = await GetServerAxiosWithAuth();
     const response = await axios.post<CustomGeneratedImage>(
-      `${process.env.NEXT_PUBLIC_BE_URL}/api/generations/custom`,
+      `generations/custom`,
       { ...requestData },
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
       }
@@ -50,14 +38,6 @@ export async function customFormDataSubmit(
 export async function filterFormDataSubmit(
   data: GenerateFilterFormSchemaType
 ): Promise<FilterGeneratedImage | "error"> {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect("/login");
-  }
-
-  const accessToken = session.accessToken;
-
   const requestData: RequestFilterGeneratedImage = {
     artistName: data.artistName,
     colorPallete: data.colorPalette,
@@ -70,12 +50,12 @@ export async function filterFormDataSubmit(
   };
 
   try {
+    const axios = await GetServerAxiosWithAuth();
     const response = await axios.post<FilterGeneratedImage>(
-      `${process.env.NEXT_PUBLIC_BE_URL}/api/generations/filter`,
+      `generations/filter`,
       { ...requestData },
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
       }

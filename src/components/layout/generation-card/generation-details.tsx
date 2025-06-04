@@ -3,8 +3,8 @@ import GIcon from "@/components/g-icon";
 import { Button } from "@/components/ui/button";
 import { Carousel } from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
+import { GetAxiosWithAuth } from "@/lib/axios-instance";
 import { cn } from "@/lib/utils";
-import axios from "axios";
 import { Sparkles } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -35,15 +35,8 @@ export default function GenerationDetails({
 
     const fetchData = async () => {
       try {
-        const token = session?.accessToken;
-        const res = await axios.get<GenerationData>(
-          `${process.env.NEXT_PUBLIC_BE_URL}/api/generations/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const axios = await GetAxiosWithAuth();
+        const res = await axios.get<GenerationData>(`generations/${id}`);
         setData(res.data);
       } catch (error) {
         console.error("Failed to fetch data", error);
