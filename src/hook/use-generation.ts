@@ -2,6 +2,7 @@
 import { GetAxiosWithAuth } from "@/lib/axios-instance";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation"; // <-- Add this
 
 export type GenerationType = "custom" | "filter" | "remix";
 
@@ -40,14 +41,24 @@ export function useGenerations({
   const [hasNextPage, setHasNextPage] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ Triggered ONLY when `page` changes
+  const searchParams = useSearchParams();
+  const search = searchParams.get("search") || "";
+  const sortBy = searchParams.get("sortBy") || "";
+  const searchParamsString = searchParams.toString();
+
+  // Reset page and generations when search or sortBy changes
+  useEffect(() => {
+    setPage(1);
+    setGenerations([]);
+    setHasNextPage(true);
+  }, [searchParamsString]);
+
   useEffect(() => {
     const fetchGenerations = async () => {
-      // Prevent API call if loading, or there's no next page to fetch
       if (loading || !hasNextPage) return;
 
       setLoading(true);
-      setError(null); // Reset any previous errors
+      setError(null);
 
       try {
         const axios = await GetAxiosWithAuth();
@@ -56,12 +67,16 @@ export function useGenerations({
             page,
             limit,
             ...(generationType ? { generationType } : {}),
+            ...(search ? { search } : {}),
+            ...(sortBy ? { sort: sortBy } : {}),
           },
         });
 
-        setGenerations((prev) => [...prev, ...res.data.data]);
+        setGenerations((prev) =>
+          page === 1 ? res.data.data : [...prev, ...res.data.data]
+        );
         setHasNextPage(res.data.pagination.hasNextPage);
-        setError(null); // Clear previous errors
+        setError(null);
       } catch (e) {
         const err = e as AxiosError<{ message: string }>;
         setError(err.response?.data?.message || err.message || "Unknown error");
@@ -70,15 +85,22 @@ export function useGenerations({
       }
     };
 
-    // Avoid calling the API again if there's an error
     if (error) {
       console.error("API Error:", error);
       return;
     }
 
     fetchGenerations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, generationType, limit, error]);
+  }, [
+    page,
+    generationType,
+    limit,
+    search,
+    sortBy,
+    error,
+    loading,
+    hasNextPage,
+  ]);
 
   const loadNextPage = () => {
     if (!loading && hasNextPage) {

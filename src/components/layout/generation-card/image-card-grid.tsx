@@ -52,6 +52,16 @@ export default function ImageCardGrid({
           <LoaderCircle className="mx-auto text-primary/50 animate-spin" />
         )}
       </div>
+      {generations.length === 0 && !loading && (
+        <div className="flex flex-col gap-2 items-center justify-center">
+          <Image
+            src={"/images/undraw_notfound.svg"}
+            width={200}
+            height={200}
+            alt=""
+          />
+        </div>
+      )}
       {error && (
         <div className="flex flex-col gap-2 items-center justify-center">
           <Image
