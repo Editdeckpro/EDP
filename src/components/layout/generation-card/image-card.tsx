@@ -136,7 +136,15 @@ function DrawerDialog({
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Image src={imageSrc} fill alt={imageAlt} className="rounded-md" />
+          <Image
+            src={imageSrc}
+            fill
+            alt={imageAlt}
+            className="rounded-md"
+            loading="lazy"
+            placeholder="blur"
+            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNlZWUiLz48L3N2Zz4="
+          />
         </DialogTrigger>
         <DialogContent className="min-w-3xl">
           {/* For accessability */}

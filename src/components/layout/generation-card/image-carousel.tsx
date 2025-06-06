@@ -8,7 +8,7 @@ import {
   useCarousel,
 } from "@/components/ui/carousel";
 import Image from "next/image";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useImperativeHandle } from "react";
 import { GeneratedImage } from "./generation-details";
 
 interface ImageCarouselProps {
@@ -20,16 +20,9 @@ export interface ImageCarouselRef {
   getCurrentIndex: () => number | undefined;
 }
 
-// Placeholder image URL (replace with your own if needed)
-const PLACEHOLDER_IMAGE = "/placeholder.png";
-
 const ImageCarousel = forwardRef<ImageCarouselRef, ImageCarouselProps>(
   ({ images, noOfImages }, ref) => {
     const { api } = useCarousel();
-    // Track loaded state for each image
-    const [loaded, setLoaded] = useState<boolean[]>(() =>
-      images.map(() => false)
-    );
 
     useImperativeHandle(
       ref,
@@ -42,39 +35,21 @@ const ImageCarousel = forwardRef<ImageCarouselRef, ImageCarouselProps>(
       [api]
     );
 
-    const handleLoad = (idx: number) => {
-      setLoaded((prev) => {
-        const next = [...prev];
-        next[idx] = true;
-        return next;
-      });
-    };
-
     return (
       <>
         <CarouselContent>
-          {images.map((imgData, idx) => (
+          {images.map((imgData) => (
             <CarouselItem key={imgData.createdAt} className="relative">
-              {!loaded[idx] && (
-                <Image
-                  src={PLACEHOLDER_IMAGE}
-                  alt="Loading..."
-                  width={300}
-                  height={300}
-                  className="absolute inset-0 z-0"
-                  style={{ objectFit: "cover" }}
-                />
-              )}
               <Image
                 src={imgData.imagePath}
                 alt={String(imgData.imageGenerationId)}
                 width={300}
                 height={300}
-                className={`transition-opacity duration-300 ${
-                  loaded[idx] ? "opacity-100" : "opacity-0"
-                }`}
-                onLoad={() => handleLoad(idx)}
+                className={`transition-opacity duration-300`}
                 style={{ objectFit: "cover" }}
+                loading="lazy"
+                placeholder="blur"
+                blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNlZWUiLz48L3N2Zz4="
               />
             </CarouselItem>
           ))}
