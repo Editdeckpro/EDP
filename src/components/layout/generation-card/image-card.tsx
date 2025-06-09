@@ -67,6 +67,11 @@ const ImageCard = forwardRef<HTMLDivElement, ImageCardProps>(
           >
             <GIcon size={17} name="download" />
           </Button>
+          <Link href={`/editor?imageUrl=${imageSrc}`}>
+            <Button size={"icon"} className="rounded-full size-8 bg-[#1B1C1E]">
+              <GIcon size={17} name="edit" />
+            </Button>
+          </Link>
         </div>
 
         <Link href={`/remix-image/remix?imageUrl=${imageSrc}`}>

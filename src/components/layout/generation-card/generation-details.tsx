@@ -12,6 +12,7 @@ import { useTopLoader } from "nextjs-toploader";
 import React, { useEffect, useRef, useState } from "react";
 import { handleDownload } from "./image-card";
 import ImageCarousel, { ImageCarouselRef } from "./image-carousel";
+import Link from "next/link";
 
 interface GenerationDetailsProp extends React.ComponentProps<"section"> {
   id: string;
@@ -172,6 +173,17 @@ export default function GenerationDetails({
               >
                 <GIcon size={17} name="download" />
               </Button>
+              <Link
+                href={`/editor?imageUrl=${data.generatedImages[0].imagePath}`}
+              >
+                <Button
+                  size={"icon"}
+                  className="rounded-full size-8 "
+                  variant={"outline"}
+                >
+                  <GIcon size={17} name="edit" />
+                </Button>
+              </Link>
             </div>
             {/* <Link href={"/remix-image/remix"} className="w-full md:w-auto"> */}
             <Button className="w-full md:w-auto" onClick={handleRemix}>
