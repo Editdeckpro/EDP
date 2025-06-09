@@ -69,6 +69,7 @@ export const authOptions: NextAuthOptions = {
         email: data.email,
         username: data.username,
         profileImage: data.profileImage,
+        credits: data.credits,
         subscription: {
           planType: data.subscription.planType,
           status: data.subscription.status,

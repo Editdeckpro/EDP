@@ -36,7 +36,9 @@ export default function Remix() {
       <section className="p-5 space-y-5  w-full">
         <DashboardHeader type="prompt" />
         <PromptMobileHeader
-          SidebarContent={<RemixSidebarContent setData={setPrompt} />}
+          SidebarContent={
+            <RemixSidebarContent setData={setPrompt} imageUrl={validUrl} />
+          }
         />
         <RemixPage data={prompt} />
       </section>

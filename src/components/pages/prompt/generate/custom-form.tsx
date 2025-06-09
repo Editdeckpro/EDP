@@ -22,6 +22,7 @@ import { useForm } from "react-hook-form";
 import { SetGenerateResType } from ".";
 import { customFormDataSubmit } from "./request";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 interface CustomFormProps {
   setData: SetGenerateResType;
@@ -31,6 +32,7 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
   const [customPromptOpen, setCustomPromptOpen] = useState(true);
   const [otherSettingsOpen, setOtherSettingsOpen] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { update } = useSession();
 
   const form = useForm<CustomFormSchemaType>({
     resolver: zodResolver(customFormSchema),
@@ -54,6 +56,8 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
         });
         form.reset();
         return;
+      } else {
+        update();
       }
       setData(data);
     } catch (err) {

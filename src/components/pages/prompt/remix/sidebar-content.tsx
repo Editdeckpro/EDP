@@ -21,6 +21,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { SetRemixResType } from ".";
 import { remixFormDataSubmit } from "./request";
+import { useSession } from "next-auth/react";
 
 interface RemixSidebarContentProps {
   setData: SetRemixResType;
@@ -39,6 +40,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
   const [imageSimilarityOpen, setImageSimilarityOpen] = useState<boolean>(true);
   const [imageBase64, setImageBase64] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { update } = useSession();
 
   const form = useForm<RemixFormSchemaType>({
     resolver: zodResolver(remixFormSchema),
@@ -63,6 +65,8 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
         });
         form.reset();
         return;
+      } else {
+        update();
       }
       setData(data);
     } catch (err) {
@@ -86,10 +90,13 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
       <div className="space-y-2">
         <h2 className="font-bold text-lg">Image to be Remixed</h2>
         <div className="p-2 bg-muted rounded-lg border border-primary/30 max-h-32">
-          {(imageBase64 !== undefined && imageBase64 !== "") || hasValidUrl ? (
+          {(imageBase64 !== undefined &&
+            imageBase64 !== "" &&
+            imageUrl != "") ||
+          hasValidUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={imageBase64 || imageUrl || ""}
+              src={imageBase64 || imageUrl || undefined}
               width={45}
               height={45}
               alt={"Remix Image Preview"}

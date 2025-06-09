@@ -7,6 +7,8 @@ import GIcon from "../g-icon";
 import ProfileDropdown from "./profile-dropdown";
 import { MobileNavSheet } from "./sidebar";
 import { sidebarSections } from "./sidebar-content";
+import { useSession } from "next-auth/react";
+import { Skeleton } from "../ui/skeleton";
 
 interface HeaderProps {
   type?: "prompt" | "nav";
@@ -15,6 +17,7 @@ interface HeaderProps {
 const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
   const pathname = usePathname();
   const router = useRouter();
+  const { status, data } = useSession();
 
   // Split the path into parts
   const pathParts = pathname.split("/").filter(Boolean);
@@ -99,7 +102,15 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
                 Credits Remained
               </div>
               <div className="font-semibold text-xs leading-tight text-primary">
-                21,465
+                {status === "authenticated" && data?.user ? (
+                  data.user.credits < 0 ? (
+                    "Unlimited"
+                  ) : (
+                    data.user.credits.toLocaleString()
+                  )
+                ) : (
+                  <Skeleton className="w-16 h-3" />
+                )}
               </div>
             </div>
           </div>
@@ -146,7 +157,17 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
                 {/* Credits below on mobile */}
                 <div className="text-xs text-gray-500">
                   Credit Remained:{" "}
-                  <span className="font-bold text-primary">21,465</span>
+                  <span className="font-bold text-primary">
+                    {status === "authenticated" && data?.user ? (
+                      data.user.credits < 0 ? (
+                        "Unlimited"
+                      ) : (
+                        data.user.credits.toLocaleString()
+                      )
+                    ) : (
+                      <Skeleton className="w-16 h-3" />
+                    )}
+                  </span>
                 </div>
               </div>
             </div>

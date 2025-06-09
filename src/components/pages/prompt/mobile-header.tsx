@@ -16,6 +16,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useSession } from "next-auth/react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PromptMobileHeaderProps {
   SidebarContent: ReactNode;
@@ -24,6 +26,7 @@ interface PromptMobileHeaderProps {
 const PromptMobileHeader = ({ SidebarContent }: PromptMobileHeaderProps) => {
   const pathname = usePathname();
   const pathParts = pathname.split("/").filter(Boolean);
+  const { status, data } = useSession();
 
   const breadcrumbs = pathParts.map((part, index) => {
     const linkPath = "/" + pathParts.slice(0, index + 1).join("/");
@@ -74,7 +77,17 @@ const PromptMobileHeader = ({ SidebarContent }: PromptMobileHeaderProps) => {
             </div>
             <div className="text-xs text-gray-500">
               Credit Remained:{" "}
-              <span className="font-bold text-primary">21,465</span>
+              <span className="font-bold text-primary">
+                {status === "authenticated" && data?.user ? (
+                  data.user.credits < 0 ? (
+                    "Unlimited"
+                  ) : (
+                    data.user.credits.toLocaleString()
+                  )
+                ) : (
+                  <Skeleton className="w-16 h-3" />
+                )}
+              </span>
             </div>
           </div>
         </div>

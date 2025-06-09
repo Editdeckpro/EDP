@@ -24,14 +24,15 @@ import {
   SquareMousePointer,
   UserRound,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { SetGenerateResType } from ".";
 import ColorPaletteModal from "./modals/colors-modal";
 import MoodModal from "./modals/mood-modal";
 import VisualStyleModal from "./modals/visual-modal";
 import { filterFormDataSubmit } from "./request";
-import { toast } from "sonner";
 
 interface GenerateFilterFormProps {
   setData: SetGenerateResType;
@@ -42,6 +43,7 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
   const [otherSettingsOpen, setOtherSettingsOpen] = useState<boolean>(true);
   const [styleOpen, setStyleOpen] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { update } = useSession();
 
   const form = useForm<GenerateFilterFormSchemaType>({
     resolver: zodResolver(generateFilterFormSchema),
@@ -71,6 +73,8 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
         });
         form.reset();
         return;
+      } else {
+        update(); // Update session to refresh user data
       }
       setData(data);
       return;
