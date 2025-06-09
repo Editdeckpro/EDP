@@ -5,7 +5,6 @@ import {
   FilterGeneratedImage,
 } from "@type/api/generate.type";
 import { Dispatch, SetStateAction, useState } from "react";
-import PromptMobileHeader from "../mobile-header";
 import PromptSidebar from "../sidebar";
 import GeneratePage from "./generate-page";
 import GenerateSidebarContent from "./sidebar-content";
@@ -30,11 +29,14 @@ export default function Generate() {
         </PromptSidebar>
       </section>
       <section className="p-5 space-y-5  w-full">
-        <DashboardHeader type="prompt" />
-        <PromptMobileHeader
+        {/* <PromptMobileHeader
           SidebarContent={<GenerateSidebarContent setData={setPrompt} />}
-        />
+        /> */}
+        <DashboardHeader />
         <GeneratePage data={prompt} />
+        <section className="max-w-2xl block lg:hidden">
+          <GenerateSidebarContent setData={setPrompt} />
+        </section>
       </section>
     </section>
   );

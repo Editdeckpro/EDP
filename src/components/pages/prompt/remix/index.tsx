@@ -1,12 +1,11 @@
 "use client";
 import DashboardHeader from "@/components/layout/header";
-import { Dispatch, SetStateAction, useState } from "react";
-import PromptMobileHeader from "../mobile-header";
-import PromptSidebar from "../sidebar";
-import RemixSidebarContent from "./sidebar-content";
 import { RemixImage } from "@type/api/generate.type";
-import RemixPage from "./remix-page";
 import { useSearchParams } from "next/navigation";
+import { Dispatch, SetStateAction, useState } from "react";
+import PromptSidebar from "../sidebar";
+import RemixPage from "./remix-page";
+import RemixSidebarContent from "./sidebar-content";
 
 export type RemixResType = RemixImage | null | "loading";
 export type SetRemixResType = Dispatch<SetStateAction<RemixResType | null>>;
@@ -33,14 +32,18 @@ export default function Remix() {
           <RemixSidebarContent setData={setPrompt} imageUrl={validUrl} />
         </PromptSidebar>
       </section>
+
       <section className="p-5 space-y-5  w-full">
-        <DashboardHeader type="prompt" />
-        <PromptMobileHeader
+        <DashboardHeader />
+        {/* <PromptMobileHeader
           SidebarContent={
             <RemixSidebarContent setData={setPrompt} imageUrl={validUrl} />
           }
-        />
+        /> */}
         <RemixPage data={prompt} />
+        <section className="max-w-2xl block lg:hidden">
+          <RemixSidebarContent setData={setPrompt} imageUrl={validUrl} />
+        </section>
       </section>
     </section>
   );
