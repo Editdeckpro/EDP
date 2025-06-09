@@ -32,7 +32,7 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
   const [customPromptOpen, setCustomPromptOpen] = useState(true);
   const [otherSettingsOpen, setOtherSettingsOpen] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const { update } = useSession();
+  const { data, status, update } = useSession();
 
   const form = useForm<CustomFormSchemaType>({
     resolver: zodResolver(customFormSchema),
@@ -44,6 +44,12 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
   });
 
   async function onSubmit(values: CustomFormSchemaType) {
+    if (data?.user.credits === 0) {
+      toast.error("Please upgrade your plan to generate images", {
+        description: "You have no credits left",
+      });
+      return;
+    }
     try {
       setIsSubmitting(true);
       setData("loading");
@@ -188,8 +194,23 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
           )}
         </div>
 
-        <Button type="submit" className="w-full" isLoading={isSubmitting}>
-          Generate Images <GIcon>wand_stars</GIcon>
+        <Button
+          type="submit"
+          className="w-full"
+          isLoading={isSubmitting}
+          disabled={
+            isSubmitting ||
+            status !== "authenticated" ||
+            data.user.credits === 0
+          }
+        >
+          {data?.user.credits === 0 ? (
+            "Please upgrade plan"
+          ) : (
+            <>
+              Generate Images <GIcon>wand_stars</GIcon>
+            </>
+          )}
         </Button>
       </form>
     </Form>

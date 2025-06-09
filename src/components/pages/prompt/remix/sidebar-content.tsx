@@ -40,7 +40,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
   const [imageSimilarityOpen, setImageSimilarityOpen] = useState<boolean>(true);
   const [imageBase64, setImageBase64] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const { update } = useSession();
+  const { status, data, update } = useSession();
 
   const form = useForm<RemixFormSchemaType>({
     resolver: zodResolver(remixFormSchema),
@@ -53,6 +53,12 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
   });
 
   async function onSubmit(values: RemixFormSchemaType) {
+    if (data?.user.credits === 0) {
+      toast.error("Please upgrade your plan to generate images", {
+        description: "You have no credits left",
+      });
+      return;
+    }
     try {
       setIsSubmitting(true);
       setData("loading");
@@ -240,8 +246,23 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
             )}
           </div>
 
-          <Button type="submit" className="w-full" isLoading={isSubmitting}>
-            Remix Image <GIcon>wand_stars</GIcon>
+          <Button
+            type="submit"
+            className="w-full"
+            isLoading={isSubmitting}
+            disabled={
+              isSubmitting ||
+              status !== "authenticated" ||
+              data.user.credits === 0
+            }
+          >
+            {data?.user.credits === 0 ? (
+              "Please upgrade plan"
+            ) : (
+              <>
+                Remix Image <GIcon>wand_stars</GIcon>
+              </>
+            )}
           </Button>
         </form>
       </Form>

@@ -29,12 +29,12 @@ export default function SortByDropdown() {
 
   return (
     <Select onValueChange={handleChange} value={value}>
-      <SelectTrigger className="w-[93px]">
+      <SelectTrigger className="w-[100px]">
         <SelectValue placeholder="Sort By" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="asc">Asc</SelectItem>
-        <SelectItem value="desc">Desc</SelectItem>
+        <SelectItem value="asc">Oldest</SelectItem>
+        <SelectItem value="desc">Newest</SelectItem>
       </SelectContent>
     </Select>
   );

@@ -43,7 +43,7 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
   const [otherSettingsOpen, setOtherSettingsOpen] = useState<boolean>(true);
   const [styleOpen, setStyleOpen] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const { update } = useSession();
+  const { data, status, update } = useSession();
 
   const form = useForm<GenerateFilterFormSchemaType>({
     resolver: zodResolver(generateFilterFormSchema),
@@ -61,6 +61,13 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
   });
 
   async function onSubmit(values: GenerateFilterFormSchemaType) {
+    if (data?.user.credits === 0) {
+      toast.error("Please upgrade your plan to generate images", {
+        description: "You have no credits left",
+      });
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       setData("loading");
@@ -327,8 +334,23 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
           )}
         </div>
 
-        <Button type="submit" className="w-full" isLoading={isSubmitting}>
-          Generate Images <GIcon>wand_stars</GIcon>
+        <Button
+          type="submit"
+          className="w-full"
+          isLoading={isSubmitting}
+          disabled={
+            isSubmitting ||
+            status !== "authenticated" ||
+            data.user.credits === 0
+          }
+        >
+          {data?.user.credits === 0 ? (
+            "Please upgrade plan"
+          ) : (
+            <>
+              Generate Images <GIcon>wand_stars</GIcon>
+            </>
+          )}
         </Button>
       </form>
     </Form>
