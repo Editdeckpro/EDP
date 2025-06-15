@@ -21,7 +21,7 @@ export default function Page() {
         </Link>
       </div>
 
-      <ImageCardGrid generationType="custom" />
+      <ImageCardGrid generationType="custom,filter" />
     </section>
   );
 }

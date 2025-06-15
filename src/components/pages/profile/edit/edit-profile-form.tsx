@@ -20,8 +20,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { editFormDataSubmit } from "./request";
+import { Session } from "next-auth";
 
-export default function EditProfileForm() {
+export default function EditProfileForm({ session }: { session: Session }) {
   const { data, update } = useSession();
   const [imageBase64, setImageBase64] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -29,10 +30,10 @@ export default function EditProfileForm() {
   const form = useForm<ProfileFormType>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      username: "",
-      email: "",
+      firstName: session.user.firstName,
+      lastName: session.user.lastName,
+      username: session.user.username,
+      email: session.user.email,
       image: undefined,
     },
   });

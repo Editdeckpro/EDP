@@ -14,8 +14,9 @@ export default async function Page() {
   }
 
   return (
-    <section>
-      <section className="p-4 rounded-lg border border-primary/30 bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-5">
+    <main>
+      <section className="p-4 rounded-lg border border-primary/30 bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-5 relative">
+        <div className="block bg-[#3E4EBA]/30 absolute -top-20 -left-20 w-52 h-52 rounded-full blur-3xl -z-10" />
         <div className="flex md:items-center md:justify-between flex-col md:flex-row gap-4">
           <div className="flex flex-col xs:flex-row gap-3">
             <Image
@@ -47,6 +48,6 @@ export default async function Page() {
           {/* <DeleteAccountDialog /> */}
         </div>
       </section>
-    </section>
+    </main>
   );
 }

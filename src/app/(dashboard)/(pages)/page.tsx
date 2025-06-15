@@ -27,7 +27,7 @@ export default function Page() {
           btnLink="/remix-image/remix"
         />
       </div>
-      <ImageCardGrid />
+      <ImageCardGrid generationType="custom,filter" />
       {/* <ImageGridPagination /> */}
     </section>
   );

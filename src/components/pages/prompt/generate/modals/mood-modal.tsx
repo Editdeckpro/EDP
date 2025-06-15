@@ -17,14 +17,27 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/hook/use-media-querry";
+import { cn } from "@/lib/utils";
 import { ChevronRight, SmilePlus } from "lucide-react";
-import Image from "next/image";
 import { FC, useState } from "react";
 
-const visualStyles = new Array(15).fill(0).map((_, i) => ({
-  name: `mood-${i}`,
-  src: "/images/visual-style.png", // Replace with your actual image path
-}));
+const visualStyles = [
+  { name: "Whimsical", src: "/images/visual-style.png" },
+  { name: "Serene", src: "/images/visual-style.png" },
+  { name: "Melancholic", src: "/images/visual-style.png" },
+  { name: "Epic", src: "/images/visual-style.png" },
+  { name: "Surreal", src: "/images/visual-style.png" },
+  { name: "Dramatic", src: "/images/visual-style.png" },
+  { name: "Cozy", src: "/images/visual-style.png" },
+  { name: "Ominous", src: "/images/visual-style.png" },
+  { name: "Romantic", src: "/images/visual-style.png" },
+  { name: "Mystical", src: "/images/visual-style.png" },
+  { name: "Uplifting", src: "/images/visual-style.png" },
+  { name: "Gritty", src: "/images/visual-style.png" },
+  { name: "Futuristic", src: "/images/visual-style.png" },
+  { name: "Mournful", src: "/images/visual-style.png" },
+  { name: "Energetic", src: "/images/visual-style.png" },
+];
 
 interface MoodModalProps {
   onSelect: (value: string) => void;
@@ -92,23 +105,25 @@ const VisualGrid = ({ onSelect, setOpen }: VisualGrid) => {
 
   return (
     <>
-      <ul className="grid grid-cols-2 2xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 py-4">
+      {/* <ul className="grid grid-cols-2 2xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 py-4"> */}
+      <ul className="flex flex-wrap gap-4 py-4 overflow-y-scroll md:overflow-y-auto px-2 md:px-1">
         {visualStyles.map((style) => (
           <li
             key={style.name}
             onClick={() => setSelected(style.name)}
-            className={`rounded-md border-2 p-1 cursor-pointer transition ${
-              selected === style.name ? "border-blue-500" : "border-transparent"
-            }`}
+            className={cn(
+              `rounded-md p-2 cursor-pointer transition outline-gray-400 outline-1`,
+              selected === style.name && "outline-2 outline-gray-600"
+            )}
           >
-            <Image
+            {/* <Image
               src={style.src}
               alt={style.name}
               className="rounded-md object-cover aspect-square"
               width={100}
               height={100}
-            />
-            <p className="text-center text-xs mt-1">{style.name}</p>
+            /> */}
+            <p className="text-center text-xs ">{style.name}</p>
           </li>
         ))}
       </ul>

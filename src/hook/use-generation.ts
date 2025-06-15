@@ -4,7 +4,7 @@ import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation"; // <-- Add this
 
-export type GenerationType = "custom" | "filter" | "remix";
+export type GenerationType = "custom" | "filter" | "remix" | "custom,filter";
 
 interface Generation {
   id: string;
