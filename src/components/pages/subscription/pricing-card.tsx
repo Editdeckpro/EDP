@@ -42,6 +42,13 @@ const PricingCard: FC<PricingCardProps> = ({
 }) => {
   const cardBg =
     color === "primary"
+      ? "bg-primary/20"
+      : color === "secondary"
+      ? "bg-secondary/20"
+      : "bg-accent/20";
+
+  const cardIconBg =
+    color === "primary"
       ? "bg-primary"
       : color === "secondary"
       ? "bg-secondary"
@@ -120,15 +127,16 @@ const PricingCard: FC<PricingCardProps> = ({
     <div
       className={cn(
         `bg-white rounded-xl p-3 border flex flex-col justify-between`,
-        isCurrentPlan && cardBorder
+        isCurrentPlan && cardBorder,
+        cardBg
       )}
     >
       <div>
-        <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-gray-200/50">
+        <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-white">
           <div
             className={cn(
               "w-10 h-10 rounded-lg flex items-center justify-center",
-              cardBg
+              cardIconBg
             )}
           >
             {/* <StickyNoteIcon color="white" /> */}

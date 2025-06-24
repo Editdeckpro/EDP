@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
 import { usePathname } from "next/navigation";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export default function SidebarContent() {
   return (
@@ -24,35 +25,24 @@ export default function SidebarContent() {
       {sidebarSections.map(
         (section, i) =>
           section.header != false && (
-            <ul className="space-y-1" key={i}>
+            <div key={i} className="space-y-1">
               {section.header && (
                 <header className="font-bold text-black">
                   {section.header}
                 </header>
               )}
-              {section.links.map((item, idx) => (
-                <li className="pl-2" key={idx}>
-                  <SidebarLinkButton
-                    icon={item.icon}
-                    link={item.link}
-                    text={item.text}
-                    isNew={item.isNew}
-                  />
-                </li>
-              ))}
-            </ul>
+              <ul className="space-y-3">
+                {section.links.map((item, idx) => (
+                  <li className={cn("pl-2")} key={idx}>
+                    <SidebarLinkButton {...item} />
+                  </li>
+                ))}
+              </ul>
+            </div>
           )
       )}
     </>
   );
-}
-
-interface SidebarLinkButtonProp {
-  link: string;
-  text: string;
-  icon: React.ReactNode;
-  className?: string;
-  isNew?: boolean;
 }
 
 const SidebarLinkButton = ({
@@ -60,8 +50,10 @@ const SidebarLinkButton = ({
   link,
   text,
   className,
+  bgClassName,
   isNew = false,
-}: SidebarLinkButtonProp) => {
+  tooltip,
+}: SidebarLink) => {
   const pathname = usePathname();
 
   const isActive = pathname === link; // <- simple matching
@@ -70,30 +62,39 @@ const SidebarLinkButton = ({
 
   return (
     <Link href={link}>
-      <Button
-        variant={isActive ? "default" : "ghost"}
-        size={"full"}
-        className={cn(
-          "flex justify-between items-center font-normal cursor-pointer w-full text-wrap gap-2",
-          isActive ? "" : "hover:bg-gray-200 hover:text-black",
-          className
-        )}
-      >
-        <div className="flex items-center gap-1">
-          {icon}
-          <div className="text-wrap">{text}</div>
-        </div>
-        {isNew && (
-          <span
+      <Tooltip>
+        <TooltipTrigger className="w-full" asChild>
+          <Button
+            variant={isActive ? "default" : "ghost"}
+            size={"full"}
             className={cn(
-              "py-[2px] px-2 bg-[#FF8A3D] rounded-sm text-xs font-semibold",
-              isActive && "bg-white text-black"
+              "flex justify-between items-center font-normal cursor-pointer w-full text-wrap gap-2",
+              isActive ? "" : "hover:bg-gray-200 hover:text-black",
+              className,
+              !isActive && bgClassName
             )}
           >
-            New
-          </span>
-        )}
-      </Button>
+            <div
+              data-active={!isActive}
+              className="flex items-center gap-1 group"
+            >
+              {icon}
+              <div className="text-wrap font-semibold">{text}</div>
+            </div>
+            {isNew && (
+              <span
+                className={cn(
+                  "py-[2px] px-2 bg-[#FF8A3D] rounded-sm text-xs font-semibold",
+                  isActive && "bg-white text-black"
+                )}
+              >
+                New
+              </span>
+            )}
+          </Button>
+        </TooltipTrigger>
+        {tooltip && tooltip != "" && <TooltipContent>{tooltip}</TooltipContent>}
+      </Tooltip>
     </Link>
   );
 };
@@ -103,6 +104,9 @@ type SidebarLink = {
   text: string;
   link: string;
   isNew?: boolean;
+  bgClassName?: string;
+  tooltip?: string;
+  className?: string;
 };
 
 export type SidebarSectionType = {
@@ -125,15 +129,27 @@ export const sidebarSections: SidebarSectionType[] = [
     header: "Tools",
     links: [
       {
-        icon: <GIcon size={22}>wand_stars</GIcon>,
-        text: "Image Generation",
+        icon: (
+          <GIcon size={22} className="group-data-[active=true]:text-primary">
+            wand_stars
+          </GIcon>
+        ),
+        text: "Content Creator",
         link: "/image-generation",
+        bgClassName: "bg-primary/10 hover:bg-primary/10",
+        tooltip: "Convert existing photo to album cover.",
       },
       {
-        icon: <GIcon size={22}>cards_star</GIcon>,
-        text: "Remix Image",
+        icon: (
+          <GIcon size={22} className="group-data-[active=true]:text-secondary">
+            cards_star
+          </GIcon>
+        ),
+        text: "Upload",
         link: "/remix-image",
         isNew: true,
+        bgClassName: "bg-secondary/20 hover:bg-secondary/20",
+        tooltip: "Generate brand-new, customized album cover.",
       },
     ],
   },
@@ -144,6 +160,7 @@ export const sidebarSections: SidebarSectionType[] = [
         icon: <GIcon size={22}>crown</GIcon>,
         text: "Manage Subscription",
         link: "/subscription",
+        bgClassName: "bg-green-600/10 hover:bg-green-600/10",
       },
     ],
   },

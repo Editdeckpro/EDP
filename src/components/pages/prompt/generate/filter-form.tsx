@@ -115,7 +115,7 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {/* Custom Prompt Section */}
+        {/* General Stings Section */}
         <div className="space-y-3">
           <div
             className="flex items-center justify-between cursor-pointer"

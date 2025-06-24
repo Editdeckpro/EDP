@@ -41,7 +41,7 @@ const ImageGridHeader = () => {
             Browse, refine, or relive your recent image generations.
           </span>
         </div>
-        <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
+        <form className="flex gap-2 " onSubmit={(e) => e.preventDefault()}>
           <Input
             icon={<Search />}
             placeholder="Search by prompt"
@@ -49,6 +49,7 @@ const ImageGridHeader = () => {
             name="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="md:min-w-2xs"
           />
           <SortByDropdown />
         </form>

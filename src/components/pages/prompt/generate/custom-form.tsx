@@ -88,7 +88,7 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
             className="flex items-center justify-between cursor-pointer"
             onClick={() => setCustomPromptOpen(!customPromptOpen)}
           >
-            <h3 className="text-lg font-medium">Custom Prompt</h3>
+            <h3 className="text-lg font-medium text-primary">Custom Prompt</h3>
             <Button variant="link" size="icon" type="button">
               {customPromptOpen ? (
                 <ChevronUp size={18} />

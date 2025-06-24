@@ -66,16 +66,99 @@ const RemixPage: FC<RemixPageProps> = ({ data }) => {
         </div>
       </section>
     );
-  else {
+  else
     return (
-      <div className="px-4 py-2 rounded-lg bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-1 items-start md:items-center">
-        <div className="grid grid-cols-1 gap-1 text-center max-w-2xs mx-auto">
-          <div className="relative aspect-square">
-            <Image src={"/images/remix-empty.svg"} fill alt="something" />
-          </div>
+      <div className="space-y-5">
+        <div className="-space-y-2">
+          <h1 className="text-xl sm:text-lg font-bold">
+            Sample Remixed Images
+          </h1>
+          <span className="text-sm text-gray-700">
+            Browse for your image generations references to remix.
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 p-2 bg-white outline rounded-lg outline-gray-200">
+          <Image
+            src={"/images/image-card.png"}
+            width={250}
+            height={250}
+            alt="image-card.png"
+            className="rounded-lg"
+          />
+          <Image
+            src={"/images/image-card.png"}
+            width={250}
+            height={250}
+            alt="image-card.png"
+            className="rounded-lg"
+          />
+          <Image
+            src={"/images/image-card.png"}
+            width={250}
+            height={250}
+            alt="image-card.png"
+            className="rounded-lg"
+          />
+          <Image
+            src={"/images/image-card.png"}
+            width={250}
+            height={250}
+            alt="image-card.png"
+            className="rounded-lg"
+          />
+          <Image
+            src={"/images/image-card.png"}
+            width={250}
+            height={250}
+            alt="image-card.png"
+            className="rounded-lg"
+          />
+          <Image
+            src={"/images/image-card.png"}
+            width={250}
+            height={250}
+            alt="image-card.png"
+            className="rounded-lg"
+          />
+          <Image
+            src={"/images/image-card.png"}
+            width={250}
+            height={250}
+            alt="image-card.png"
+            className="rounded-lg"
+          />
+          <Image
+            src={"/images/image-card.png"}
+            width={250}
+            height={250}
+            alt="image-card.png"
+            className="rounded-lg"
+          />
+          <Image
+            src={"/images/image-card.png"}
+            width={250}
+            height={250}
+            alt="image-card.png"
+            className="rounded-lg"
+          />
         </div>
       </div>
     );
-  }
+
+  // Banner with undraw illustration
+  // else {
+  //   return (
+  //     <main>
+  //       <div className="px-4 py-2 rounded-lg bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-1 items-start md:items-center">
+  //         <div className="grid grid-cols-1 gap-1 text-center max-w-2xs mx-auto">
+  //           <div className="relative aspect-square">
+  //             <Image src={"/images/remix-empty.svg"} fill alt="something" />
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </main>
+  //   );
+  // }
 };
 export default RemixPage;
