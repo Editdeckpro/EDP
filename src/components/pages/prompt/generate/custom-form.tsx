@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/form";
 // import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { apiProviderSelect, cn } from "@/lib/utils";
 import {
   customFormSchema,
   CustomFormSchemaType,
@@ -23,6 +23,13 @@ import { SetGenerateResType } from ".";
 import { customFormDataSubmit } from "./request";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CustomFormProps {
   setData: SetGenerateResType;
@@ -31,6 +38,7 @@ interface CustomFormProps {
 const CustomForm: FC<CustomFormProps> = ({ setData }) => {
   const [customPromptOpen, setCustomPromptOpen] = useState(true);
   const [otherSettingsOpen, setOtherSettingsOpen] = useState(true);
+  const [modelOpen, setModelOpen] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { data, status, update } = useSession();
 
@@ -40,6 +48,7 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
       customPrompt: "",
       numberOfImages: 4,
       includeTextInImage: false,
+      apiProvider: "openai",
     },
   });
 
@@ -193,7 +202,46 @@ const CustomForm: FC<CustomFormProps> = ({ setData }) => {
             </div>
           )}
         </div>
+        <div className="space-y-3">
+          <div
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => setModelOpen((v) => !v)}
+          >
+            <h3 className="text-lg font-medium">AI Model</h3>
+            <Button variant="link" size="icon" type="button">
+              {modelOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+            </Button>
+          </div>
 
+          {modelOpen && (
+            <FormField
+              control={form.control}
+              name="apiProvider"
+              render={({ field }) => (
+                <FormItem>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl className="w-full">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a image generation model" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="w-full">
+                      {apiProviderSelect.map((val) => (
+                        <SelectItem key={val.value} value={val.value}>
+                          {val.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+        </div>
         <Button
           type="submit"
           className="w-full"

@@ -13,6 +13,7 @@ export async function remixFormDataSubmit(
   formData.append("userPrompt", data.customPrompt);
   // This is default to 1
   formData.append("noOfImages", "1");
+  formData.append("apiProvider", data.apiProvider || "openai");
 
   if (data.referenceImage) {
     formData.append("image", data.referenceImage); // Image should be a `File` object

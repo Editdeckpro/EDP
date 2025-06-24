@@ -1,3 +1,4 @@
+import { apiProviders } from "@/lib/utils";
 import { z } from "zod";
 
 export const customFormSchema = z.object({
@@ -6,6 +7,7 @@ export const customFormSchema = z.object({
   }),
   numberOfImages: z.number().min(1).max(4),
   includeTextInImage: z.boolean(),
+  apiProvider: z.enum(apiProviders),
 });
 
 export type CustomFormSchemaType = z.infer<typeof customFormSchema>;

@@ -33,3 +33,9 @@ export function fileToBase64(file: File): Promise<string> {
     reader.readAsDataURL(file); // Reads the file as Base64
   });
 }
+
+export const apiProviders = ["ideogram", "openai"] as const;
+export const apiProviderSelect = [
+  { name: "Ideogram", value: "ideogram" },
+  { name: "OpenAI", value: "openai" },
+] as const;

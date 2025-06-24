@@ -33,6 +33,14 @@ import ColorPaletteModal from "./modals/colors-modal";
 import MoodModal from "./modals/mood-modal";
 import VisualStyleModal from "./modals/visual-modal";
 import { filterFormDataSubmit } from "./request";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { apiProviderSelect } from "@/lib/utils";
 
 interface GenerateFilterFormProps {
   setData: SetGenerateResType;
@@ -41,6 +49,7 @@ interface GenerateFilterFormProps {
 const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
   const [generalSettingOpen, setGeneralSettingOpen] = useState<boolean>(true);
   const [otherSettingsOpen, setOtherSettingsOpen] = useState<boolean>(true);
+  const [modelOpen, setModelOpen] = useState<boolean>(true);
   const [styleOpen, setStyleOpen] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { data, status, update } = useSession();
@@ -57,6 +66,7 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
       numberOfImages: 1,
       visualStyles: "",
       elements: "",
+      apiProvider: "openai",
     },
   });
 
@@ -331,6 +341,46 @@ const GenerateFilterForm: FC<GenerateFilterFormProps> = ({ setData }) => {
                 />
               </div> */}
             </div>
+          )}
+        </div>
+        <div className="space-y-3">
+          <div
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => setModelOpen((v) => !v)}
+          >
+            <h3 className="text-lg font-medium">AI Model</h3>
+            <Button variant="link" size="icon" type="button">
+              {modelOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+            </Button>
+          </div>
+
+          {modelOpen && (
+            <FormField
+              control={form.control}
+              name="apiProvider"
+              render={({ field }) => (
+                <FormItem>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl className="w-full">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a image generation model" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="w-full">
+                      {apiProviderSelect.map((val) => (
+                        <SelectItem key={val.value} value={val.value}>
+                          {val.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
         </div>
 

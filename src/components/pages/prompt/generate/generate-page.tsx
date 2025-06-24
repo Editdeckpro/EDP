@@ -1,5 +1,4 @@
 import ImageCard from "@/components/layout/generation-card/image-card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sparkles } from "lucide-react";
 import Image from "next/image";
@@ -56,9 +55,9 @@ const DataResult = ({ data }: GeneratePageProps) => {
               Browse, refine, or relive your image generations.
             </p>
           </div>
-          <Button variant={"secondary"} size={"sm"}>
+          {/* <Button variant={"secondary"} size={"sm"}>
             Generate Again <Sparkles />
-          </Button>
+          </Button> */}
         </div>
 
         <div className="px-4 py-2 rounded-lg bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-3 items-start md:items-center">

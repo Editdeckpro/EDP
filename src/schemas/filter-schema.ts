@@ -1,3 +1,4 @@
+import { apiProviders } from "@/lib/utils";
 import { z } from "zod";
 
 export const generateFilterFormSchema = z.object({
@@ -14,6 +15,7 @@ export const generateFilterFormSchema = z.object({
 
   numberOfImages: z.number().min(1).max(4),
   includeTextInImage: z.boolean(),
+  apiProvider: z.enum(apiProviders),
 });
 
 export type GenerateFilterFormSchemaType = z.infer<

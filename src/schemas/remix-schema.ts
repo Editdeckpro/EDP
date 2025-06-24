@@ -1,3 +1,4 @@
+import { apiProviders } from "@/lib/utils";
 import { z } from "zod";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -26,6 +27,7 @@ export const remixFormSchema = z
       .max(100, "Similarity cannot exceed 100%"),
 
     imageUrl: z.string().url().nullable().optional(),
+    apiProvider: z.enum(apiProviders),
   })
   .refine(
     (data) => {
