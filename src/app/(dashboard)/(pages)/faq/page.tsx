@@ -8,8 +8,18 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
-const faqData = [
+interface faqData {
+  title: string;
+  questions: {
+    question: string;
+    answer: string;
+  }[];
+}
+
+const faqData: faqData[] = [
   {
     title: "General Questions",
     questions: [
@@ -134,6 +144,25 @@ export default function Page() {
           )}
         </div>
       ))}
+      <Separator className="my-8" />
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value={`item-special`}>
+          <AccordionTrigger>Still Have Questions?</AccordionTrigger>
+          <AccordionContent>
+            Our team is here to help! Contact us anytime at{" "}
+            <a
+              className="underline text-primary"
+              href="mailto:contact@editdeckpro.com"
+            >
+              contact@editdeckpro.com
+            </a>{" "}
+            or via live chat.
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+      <Link href={"/subscription"}>
+        <Button>Get Started Now</Button>
+      </Link>
     </div>
   );
 }
