@@ -25,7 +25,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
           <div className="flex justify-center">
             <Image
               src="/images/logo.jpg"
-              alt="Cybernetic tiger in a field of red flowers"
+              alt="edit deck pro logo.png"
               className="object-cover"
               priority
               width={150}

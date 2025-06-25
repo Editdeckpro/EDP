@@ -16,9 +16,10 @@ export default function SidebarContent() {
         src={"/images/logo.jpg"}
         width={110}
         height={110}
-        alt="logo"
+        alt="edit deck pro logo.png"
         priority
         fetchPriority="high"
+        className="mx-auto"
       />
       <Separator />
 
@@ -137,7 +138,7 @@ export const sidebarSections: SidebarSectionType[] = [
         text: "Content Creator",
         link: "/image-generation",
         bgClassName: "bg-primary/10 hover:bg-primary/10",
-        tooltip: "Convert existing photo to album cover.",
+        tooltip: "Generate brand-new, customized album cover.",
       },
       {
         icon: (
@@ -149,7 +150,7 @@ export const sidebarSections: SidebarSectionType[] = [
         link: "/remix-image",
         isNew: true,
         bgClassName: "bg-secondary/20 hover:bg-secondary/20",
-        tooltip: "Generate brand-new, customized album cover.",
+        tooltip: "Convert existing photo to album cover.",
       },
     ],
   },
