@@ -1,5 +1,5 @@
 "use client";
-import { Layers2Icon, Layers3Icon } from "lucide-react";
+import { Layers2Icon, Layers3Icon, StickyNoteIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { billingPeriod } from ".";
@@ -70,15 +70,6 @@ const pricingPlansDetails: Omit<
   PricingCardProps,
   "billingPeriod" | "isCurrentPlan" | "isLoading"
 >[] = [
-  // {
-  //   id: "FREE",
-  //   title: "Basic Plan",
-  //   price: 0,
-  //   price_annual: 0,
-  //   features: [],
-  //   color: "primary",
-  //   icon: <StickyNoteIcon color="white" />,
-  // },
   {
     id: "STARTER",
     title: "Starter",
@@ -90,7 +81,7 @@ const pricingPlansDetails: Omit<
       "Basic support",
     ],
     color: "secondary",
-    icon: <Layers2Icon color="white" />,
+    icon: <StickyNoteIcon color="white" />,
   },
   {
     id: "NEXT_LEVEL",
@@ -103,6 +94,19 @@ const pricingPlansDetails: Omit<
       "Advanced customization options",
     ],
     color: "blue",
+    icon: <Layers2Icon color="white" />,
+  },
+  {
+    id: "PRO_STUDIO",
+    title: "Pro Studio",
+    price: 119,
+    price_annual: 971,
+    features: [
+      "Unlimited HD Image Generations",
+      "Priority Support & Account Manager",
+      "Team Collaboration & User Management",
+    ],
+    color: "primary",
     icon: <Layers3Icon color="white" />,
   },
 ];
