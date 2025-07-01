@@ -9,7 +9,11 @@ import { Separator } from "../ui/separator";
 import { usePathname } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
-export default function SidebarContent() {
+interface SidebarContent {
+  target?: React.HTMLAttributeAnchorTarget;
+}
+
+export default function SidebarContent({ target }: SidebarContent) {
   return (
     <>
       <Image
@@ -35,7 +39,7 @@ export default function SidebarContent() {
               <ul className="space-y-3">
                 {section.links.map((item, idx) => (
                   <li className={cn("pl-2")} key={idx}>
-                    <SidebarLinkButton {...item} />
+                    <SidebarLinkButton {...item} target={target} />
                   </li>
                 ))}
               </ul>
@@ -54,6 +58,7 @@ const SidebarLinkButton = ({
   bgClassName,
   isNew = false,
   tooltip,
+  target,
 }: SidebarLink) => {
   const pathname = usePathname();
 
@@ -62,7 +67,7 @@ const SidebarLinkButton = ({
   // const isActive = pathname.startsWith(link);
 
   return (
-    <Link href={link}>
+    <Link href={link} target={target}>
       <Tooltip>
         <TooltipTrigger className="w-full" asChild>
           <Button
@@ -108,6 +113,7 @@ type SidebarLink = {
   bgClassName?: string;
   tooltip?: string;
   className?: string;
+  target?: React.HTMLAttributeAnchorTarget;
 };
 
 export type SidebarSectionType = {

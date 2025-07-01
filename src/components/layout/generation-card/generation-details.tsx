@@ -174,7 +174,7 @@ export default function GenerationDetails({
                 <GIcon size={17} name="download" />
               </Button>
               <Link
-                href={`/editor?imageUrl=${data.generatedImages[0].imagePath}`}
+                href={`${process.env.NEXT_PUBLIC_EDITOR_URL}?url=${data.generatedImages[0].imagePath}`}
               >
                 <Button
                   size={"icon"}
