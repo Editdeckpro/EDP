@@ -13,16 +13,23 @@ import GIcon from "../g-icon";
 import { Button } from "../ui/button";
 import SidebarContent from "./sidebar-content";
 
-const Sidebar = ({}) => {
+export const SidebarWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
-      <aside className="p-5 bg-white border w-full rounded-3xl min-h-dvh space-y-5 text-sm text-gray-700 font-medium sticky top-3">
-        <SidebarContent />
+      <aside className="p-5 bg-white border w-full rounded-3xl space-y-5 text-sm text-gray-700 font-medium max-w-sm sticky top-5 min-h-[94dvh] max-h-[95dvh] overflow-y-scroll">
+        {children}
       </aside>
     </>
   );
 };
-export default Sidebar;
+
+export default function Sidebar() {
+  return (
+    <SidebarWrapper>
+      <SidebarContent />
+    </SidebarWrapper>
+  );
+}
 
 // This will be used in the header file for responsive layout
 export const MobileNavSheet = () => {
