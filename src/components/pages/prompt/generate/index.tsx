@@ -2,7 +2,7 @@
 import DashboardHeader from "@/components/layout/header";
 import {
   CustomGeneratedImage,
-  FilterGeneratedImage,
+  GeneratedImageRes,
 } from "@type/api/generate.type";
 import { Dispatch, SetStateAction, useState } from "react";
 import PromptSidebar from "../sidebar";
@@ -11,7 +11,7 @@ import GenerateSidebarContent from "./sidebar-content";
 
 export type GenerateResType =
   | CustomGeneratedImage
-  | FilterGeneratedImage
+  | GeneratedImageRes
   | null
   | "loading";
 export type SetGenerateResType = Dispatch<
@@ -19,7 +19,7 @@ export type SetGenerateResType = Dispatch<
 >;
 
 export default function Generate() {
-  const [prompt, setPrompt] = useState<GenerateResType>(null);
+  const [data, setData] = useState<GenerateResType>(null);
 
   return (
     <section className="flex flex-col lg:flex-row">
@@ -33,9 +33,9 @@ export default function Generate() {
           SidebarContent={<GenerateSidebarContent setData={setPrompt} />}
         /> */}
         <DashboardHeader />
-        <GeneratePage data={prompt} />
+        <GeneratePage data={data} />
         <section className="max-w-2xl block lg:hidden">
-          <GenerateSidebarContent setData={setPrompt} />
+          <GenerateSidebarContent setData={setData} />
         </section>
       </section>
     </section>

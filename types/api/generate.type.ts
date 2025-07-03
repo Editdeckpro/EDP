@@ -18,7 +18,7 @@ export interface RequestFilterGeneratedImage {
   noOfImages: number;
 }
 
-export interface FilterGeneratedImage {
+export interface GeneratedImageRes {
   imageGenerationId: number;
   // projectName: string;
   // artistName: string;
