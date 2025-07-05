@@ -1,6 +1,5 @@
 // ! This will be dashboard page
 import ImageCardGrid from "@/components/layout/generation-card/image-card-grid";
-// import ImageGridPagination from "@/components/pages/dashboard/image-grid-pagination";
 import PageCta from "@/components/pages/dashboard/page-cta";
 
 export default function Page() {

@@ -79,6 +79,7 @@ const SidebarLinkButton = ({
               className,
               !isActive && bgClassName
             )}
+            tabIndex={-1}
           >
             <div
               data-active={!isActive}

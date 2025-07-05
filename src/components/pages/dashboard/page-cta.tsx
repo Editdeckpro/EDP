@@ -43,19 +43,21 @@ const PageCta: FC<PageCtaProps> = ({
           </p>
         </div>
 
-        <Link href={btnLink}>
-          <Button
-            variant={buttonVariant === "default" ? "default" : "secondary"}
-            className={`mt-4 w-fit ${
-              buttonVariant === "secondary"
-                ? "bg-orange-400 hover:bg-orange-500"
-                : ""
-            }`}
-          >
-            {buttonText}
-            <Sparkles className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
+        <div className="w-fit ">
+          <Link href={btnLink}>
+            <Button
+              variant={buttonVariant === "default" ? "default" : "secondary"}
+              className={`mt-4 w-fit ${
+                buttonVariant === "secondary"
+                  ? "bg-orange-400 hover:bg-orange-500"
+                  : ""
+              }`}
+            >
+              {buttonText}
+              <Sparkles className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="xs-visible relative w-32 h-32 md:w-40 md:h-40 self-center md:self-auto">

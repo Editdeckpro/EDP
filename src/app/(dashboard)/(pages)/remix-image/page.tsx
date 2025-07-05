@@ -13,11 +13,13 @@ export default function Page() {
             Hit &quot;remix&quot; and craft your custom album cover in seconds
           </p>
         </div>
-        <Link href={"/remix-image/remix"}>
-          <Button className="w-full sm:w-auto" variant={"secondary"}>
-            Remix Image <GIcon>wand_stars</GIcon>
-          </Button>
-        </Link>
+        <div className="w-fit">
+          <Link href={"/remix-image/remix"} className="w-fit">
+            <Button className="w-full sm:w-auto" variant={"secondary"}>
+              Remix Image <GIcon>wand_stars</GIcon>
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <ImageCardGrid generationType="remix" />

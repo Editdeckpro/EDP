@@ -14,11 +14,13 @@ export default function Page() {
             seconds.
           </p>
         </div>
-        <Link href={"/image-generation/generate"}>
-          <Button className="w-full sm:w-auto">
-            Generate now <GIcon>wand_stars</GIcon>
-          </Button>
-        </Link>
+        <div className="w-fit">
+          <Link href={"/image-generation/generate"} className="w-fit">
+            <Button className="w-full sm:w-auto">
+              Generate Now <GIcon>wand_stars</GIcon>
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <ImageCardGrid generationType="custom,filter" />
