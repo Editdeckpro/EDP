@@ -16,6 +16,8 @@ export default function Remix() {
   const searchParams = useSearchParams();
   const url = searchParams.get("imageUrl");
   let validUrl: string | null = null;
+  const [base64, setBase64] = useState<string | null>(null);
+
   if (typeof url === "string" && url.trim() !== "") {
     try {
       // Throws if not a valid URL
@@ -31,6 +33,7 @@ export default function Remix() {
       <section className="hidden lg:block p-5 lg:pr-0 min-w-1/4 ">
         <SidebarWrapper>
           <RemixSidebarContent
+            setPageBase64={setBase64}
             setData={setRemixData}
             imageUrl={validUrl}
             setPrompt={setPrompt}
@@ -40,9 +43,14 @@ export default function Remix() {
 
       <section className="p-5 space-y-5  w-full">
         <DashboardHeader />
-        <RemixPage data={remixData} imageSrc={validUrl} prompt={prompt} />
+        <RemixPage
+          data={remixData}
+          imageSrc={validUrl || base64}
+          prompt={prompt}
+        />
         <section className="max-w-2xl block lg:hidden space-y-5">
           <RemixSidebarContent
+            setPageBase64={setBase64}
             setData={setRemixData}
             imageUrl={validUrl}
             setPrompt={setPrompt}

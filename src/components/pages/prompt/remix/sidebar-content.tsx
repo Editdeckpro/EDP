@@ -34,12 +34,14 @@ interface RemixSidebarContentProps {
   setData: SetRemixResType;
   imageUrl?: string | null;
   setPrompt: (e: string) => void;
+  setPageBase64: (e: string) => void;
 }
 
 const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
   setData,
   imageUrl,
   setPrompt,
+  setPageBase64,
 }) => {
   const hasValidUrl = imageUrl !== null;
   const [customPromptOpen, setCustomPromptOpen] = useState<boolean>(true);
@@ -204,7 +206,9 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (file) {
-                            setImageBase64(await fileToBase64(file));
+                            const base64 = await fileToBase64(file);
+                            setImageBase64(base64);
+                            setPageBase64(base64);
                             field.onChange(file); // pass File to RHF
                           }
                         }}
