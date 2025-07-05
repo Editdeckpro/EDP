@@ -54,7 +54,7 @@ const ProfileDropdown: FC<ProfileDropdownProps> = ({ isMobile = false }) => {
           />
           {!isMobile && (
             <span className="text-sm font-medium text-gray-800">
-              {session.data.user.username}
+              {session.data.user.firstName} {session.data.user.lastName || ""}
             </span>
           )}
         </div>

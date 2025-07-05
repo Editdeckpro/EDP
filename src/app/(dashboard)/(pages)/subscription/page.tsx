@@ -20,7 +20,7 @@ function SubscriptionStatusNotifier() {
     const status = searchParams.get("status");
     if (status !== null) {
       if (status === "true") {
-        toast.success("Subscription successful!");
+        toast.success("Subscription successful!", { duration: 5000 });
       } else if (status === "false") {
         toast.error("Subscription failed!");
       }
