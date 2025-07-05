@@ -33,11 +33,13 @@ import { remixFormDataSubmit } from "./request";
 interface RemixSidebarContentProps {
   setData: SetRemixResType;
   imageUrl?: string | null;
+  setPrompt: (e: string) => void;
 }
 
 const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
   setData,
   imageUrl,
+  setPrompt,
 }) => {
   const hasValidUrl = imageUrl !== null;
   const [customPromptOpen, setCustomPromptOpen] = useState<boolean>(true);
@@ -71,6 +73,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
     try {
       setIsSubmitting(true);
       setData("loading");
+      setPrompt(values.customPrompt);
       const data = await remixFormDataSubmit(values);
       setIsSubmitting(false);
 

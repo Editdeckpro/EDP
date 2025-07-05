@@ -11,7 +11,8 @@ export type RemixResType = RemixImage | null | "loading";
 export type SetRemixResType = Dispatch<SetStateAction<RemixResType | null>>;
 
 export default function Remix() {
-  const [prompt, setPrompt] = useState<RemixResType>(null);
+  const [remixData, setRemixData] = useState<RemixResType>(null);
+  const [prompt, setPrompt] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const url = searchParams.get("imageUrl");
   let validUrl: string | null = null;
@@ -29,20 +30,23 @@ export default function Remix() {
     <section className="flex flex-col lg:flex-row">
       <section className="hidden lg:block p-5 lg:pr-0 min-w-1/4 ">
         <SidebarWrapper>
-          <RemixSidebarContent setData={setPrompt} imageUrl={validUrl} />
+          <RemixSidebarContent
+            setData={setRemixData}
+            imageUrl={validUrl}
+            setPrompt={setPrompt}
+          />
         </SidebarWrapper>
       </section>
 
       <section className="p-5 space-y-5  w-full">
         <DashboardHeader />
-        {/* <PromptMobileHeader
-          SidebarContent={
-            <RemixSidebarContent setData={setPrompt} imageUrl={validUrl} />
-          }
-        /> */}
-        <RemixPage data={prompt} />
-        <section className="max-w-2xl block lg:hidden">
-          <RemixSidebarContent setData={setPrompt} imageUrl={validUrl} />
+        <RemixPage data={remixData} imageSrc={validUrl} prompt={prompt} />
+        <section className="max-w-2xl block lg:hidden space-y-5">
+          <RemixSidebarContent
+            setData={setRemixData}
+            imageUrl={validUrl}
+            setPrompt={setPrompt}
+          />
         </section>
       </section>
     </section>

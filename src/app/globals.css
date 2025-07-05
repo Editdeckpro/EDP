@@ -155,6 +155,40 @@
   }
 }
 
+@layer utilities {
+  @keyframes blink-sequence {
+    0%,
+    100% {
+      opacity: 0.2;
+    }
+    12.5% {
+      opacity: 1;
+    }
+    25% {
+      opacity: 0.2;
+    }
+  }
+
+  .blink-part-1 {
+    animation: blink-sequence 2s linear infinite;
+    animation-delay: 0s;
+  }
+
+  .blink-part-2 {
+    animation: blink-sequence 2s linear infinite;
+    animation-delay: 0.25s;
+  }
+
+  .blink-part-3 {
+    animation: blink-sequence 2s linear infinite;
+    animation-delay: 0.5s;
+  }
+
+  .blink-part-4 {
+    animation: blink-sequence 2s linear infinite;
+    animation-delay: 0.75s;
+  }
+}
 /* styles.css */
 .hide-scrollbar {
   scrollbar-width: none; /* Firefox */
