@@ -10,6 +10,7 @@ import { toast } from "sonner";
 
 import React, { FC } from "react";
 import { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
 
 interface PageProps {
   params: Promise<{
@@ -29,6 +30,7 @@ const resetPasswordSchema = z
 type ResetPasswordSchemaType = z.infer<typeof resetPasswordSchema>;
 
 const Page: FC<PageProps> = ({ params }) => {
+  const router = useRouter();
   const form = useForm<ResetPasswordSchemaType>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: { password: "", confirmPassword: "" },
@@ -46,6 +48,7 @@ const Page: FC<PageProps> = ({ params }) => {
       });
       toast.success("Password reset successful!");
       form.reset();
+      router.push("/profile");
     } catch (e) {
       const error = e as AxiosError<{ error?: string }>;
       // console.info("Error resetting password", e);
@@ -65,12 +68,7 @@ const Page: FC<PageProps> = ({ params }) => {
       </div>
       <Form {...form}>
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
-          <FormPasswordField
-            form={form}
-            name="password"
-            label="New Password"
-            placeholder="Enter New Password"
-          />
+          <FormPasswordField form={form} name="password" label="New Password" placeholder="Enter New Password" />
           <FormPasswordField
             form={form}
             name="confirmPassword"
