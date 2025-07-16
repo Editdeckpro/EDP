@@ -35,23 +35,17 @@ const PageCta: FC<PageCtaProps> = ({
     >
       <div className="flex flex-col justify-between">
         <div>
-          <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
-            {title}
-          </h3>
-          <p className="text-white/80 text-sm sm:text-base md:text-lg max-w-xs">
-            {description}
-          </p>
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">{title}</h3>
+          <p className="text-white/80 text-sm sm:text-base md:text-lg max-w-xs">{description}</p>
         </div>
 
-        <div className="w-fit ">
+        <div className="w-full sm:w-fit">
           <Link href={btnLink}>
             <Button
               variant={buttonVariant === "default" ? "default" : "secondary"}
-              className={`mt-4 w-fit ${
-                buttonVariant === "secondary"
-                  ? "bg-orange-400 hover:bg-orange-500"
-                  : ""
-              }`}
+              className={`mt-4 w-full sm:w-fit ${
+                buttonVariant === "secondary" ? "bg-orange-400 hover:bg-orange-500" : ""
+              } text-sm sm:text-base px-3 sm:px-4 sm:py-3`}
             >
               {buttonText}
               <Sparkles className="ml-2 h-4 w-4" />
@@ -61,12 +55,7 @@ const PageCta: FC<PageCtaProps> = ({
       </div>
 
       <div className="xs-visible relative w-32 h-32 md:w-40 md:h-40 self-center md:self-auto">
-        <Image
-          src={imageSrc || "/placeholder.svg"}
-          alt={title}
-          fill
-          className="object-cover rounded-lg"
-        />
+        <Image src={imageSrc || "/placeholder.svg"} alt={title} fill className="object-cover rounded-lg" />
       </div>
     </div>
   );
