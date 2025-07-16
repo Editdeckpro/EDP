@@ -10,11 +10,56 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { ChevronRight, Eye } from "lucide-react";
+import { Form } from "@/components/ui/form";
+import { FormPasswordField } from "@/components/ui/password-input";
+import { axiosInstance } from "@/lib/axios-instance";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AxiosError } from "axios";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const changePasswordSchema = z
+  .object({
+    oldPassword: z.string().min(6, "Old Password must be at least 6 characters"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
+type ChnagePasswordSchemaType = z.infer<typeof changePasswordSchema>;
 
 export default function ChangePasswordDialog() {
+  const [loading, setLoading] = React.useState(false);
+  const form = useForm<ChnagePasswordSchemaType>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: { oldPassword: "", password: "", confirmPassword: "" },
+  });
+
+  async function onSubmit(values: ChnagePasswordSchemaType) {
+    setLoading(true);
+    try {
+      await axiosInstance.post("api/password/change", {
+        oldPassword: values.oldPassword,
+        newPassword: values.confirmPassword,
+      });
+      toast.success("Password chnage successful!");
+      form.reset();
+    } catch (e) {
+      const error = e as AxiosError<{ error?: string }>;
+      // console.info("Error resetting password", e);
+      toast.error("Something went wrong.", {
+        description: error?.response?.data?.error,
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -25,110 +70,36 @@ export default function ChangePasswordDialog() {
       </DialogTrigger>
       <DialogContent className="!max-w-[25rem]">
         <DialogHeader>
-          <DialogTitle className="text-center text-lg md:text-3xl">
-            Change Password
-          </DialogTitle>
-          <DialogDescription className="text-center">
-            Create your new password.
-          </DialogDescription>
+          <DialogTitle className="text-center text-lg md:text-3xl">Change Password</DialogTitle>
+          <DialogDescription className="text-center">Create your new password.</DialogDescription>
         </DialogHeader>
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
-              <label
-                htmlFor="password-old"
-                className="block text-sm font-medium text-foreground"
-              >
-                Old Password
-              </label>
-            </div>
-            <div className="relative">
-              <Input
-                id="password-old"
-                name="password-old"
-                type="password"
-                placeholder="Enter Old Password"
-                className="pr-10"
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground"
-                aria-label="Toggle password visibility"
-              >
-                <Eye className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
+        <Form {...form}>
+          <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+            <FormPasswordField form={form} name="oldPassword" label="Old Password" placeholder="Enter Old Password" />
+            <FormPasswordField form={form} name="password" label="New Password" placeholder="Enter New Password" />
+            <FormPasswordField
+              form={form}
+              name="confirmPassword"
+              label="Confirm Password"
+              placeholder="Confirm Your Password"
+            />
+            <DialogFooter className="mt-5 grid grid-cols-1 sm:grid-cols-2">
+              <DialogClose asChild>
+                <Button
+                  className="cursor-pointer hover:bg-transparent hover:text-primary"
+                  type="button"
+                  variant={"outline"}
+                >
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button className="cursor-pointer" type="submit" isLoading={loading}>
+                Submit
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
 
-          {/* --------- */}
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
-              <label
-                htmlFor="password-new"
-                className="block text-sm font-medium text-foreground"
-              >
-                Enter New Password
-              </label>
-            </div>
-            <div className="relative">
-              <Input
-                id="password-new"
-                name="password-new"
-                type="password"
-                placeholder="Enter New Password"
-                className="pr-10"
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground"
-                aria-label="Toggle password visibility"
-              >
-                <Eye className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-          {/* ---------- */}
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
-              <label
-                htmlFor="password-confirm"
-                className="block text-sm font-medium text-foreground"
-              >
-                Confirm Password
-              </label>
-            </div>
-            <div className="relative">
-              <Input
-                id="password-confirm"
-                name="password-confirm"
-                type="password"
-                placeholder="Confirm Your Password"
-                className="pr-10"
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground"
-                aria-label="Toggle password visibility"
-              >
-                <Eye className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-        <DialogFooter className="mt-5 grid grid-cols-1 sm:grid-cols-2">
-          <DialogClose asChild>
-            <Button
-              className="cursor-pointer"
-              type="button"
-              variant={"outline"}
-            >
-              Cancel
-            </Button>
-          </DialogClose>
-          <Button className="cursor-pointer" type="button">
-            Submit
-          </Button>
-        </DialogFooter>
         <Link href={"/forget"} className="text-center text-secondary underline">
           Forgot Password?
         </Link>
