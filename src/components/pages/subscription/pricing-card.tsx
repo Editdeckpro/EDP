@@ -8,10 +8,7 @@ import { GetAxiosWithAuth } from "@/lib/axios-instance";
 import { useRouter } from "next/navigation";
 import { useTopLoader } from "nextjs-toploader";
 import { toast } from "sonner";
-import {
-  CancelSubscriptionResponse,
-  CreateCheckoutSessionResponse,
-} from "./types";
+import { CancelSubscriptionResponse, CreateCheckoutSessionResponse } from "./types";
 import { AxiosError } from "axios";
 
 export type PlanID = "FREE" | "STARTER" | "NEXT_LEVEL" | "PRO_STUDIO";
@@ -40,26 +37,12 @@ const PricingCard: FC<PricingCardProps> = ({
   color,
   isLoading,
 }) => {
-  const cardBg =
-    color === "primary"
-      ? "bg-primary/20"
-      : color === "secondary"
-      ? "bg-secondary/20"
-      : "bg-accent/20";
+  const cardBg = color === "primary" ? "bg-primary/20" : color === "secondary" ? "bg-secondary/20" : "bg-accent/20";
 
-  const cardIconBg =
-    color === "primary"
-      ? "bg-primary"
-      : color === "secondary"
-      ? "bg-secondary"
-      : "bg-accent";
+  const cardIconBg = color === "primary" ? "bg-primary" : color === "secondary" ? "bg-secondary" : "bg-accent";
 
   const cardBorder =
-    color === "primary"
-      ? "border-primary"
-      : color === "secondary"
-      ? "border-secondary"
-      : "border-accent";
+    color === "primary" ? "border-primary" : color === "secondary" ? "border-secondary" : "border-accent";
 
   const router = useRouter();
   const topLoader = useTopLoader();
@@ -70,13 +53,10 @@ const PricingCard: FC<PricingCardProps> = ({
     setLoading(true);
     try {
       const axios = await GetAxiosWithAuth();
-      const res = await axios.post<CreateCheckoutSessionResponse>(
-        "subscription/create-checkout-session",
-        {
-          planType: id,
-          interval: billingPeriod,
-        }
-      );
+      const res = await axios.post<CreateCheckoutSessionResponse>("subscription/create-checkout-session", {
+        planType: id,
+        interval: billingPeriod,
+      });
 
       if (res.data.type === "URL" || res.data.type === "UPGRADE") {
         router.push(res.data.url);
@@ -104,9 +84,7 @@ const PricingCard: FC<PricingCardProps> = ({
 
     try {
       const axios = await GetAxiosWithAuth();
-      const res = await axios.post<CancelSubscriptionResponse>(
-        "subscription/cancel"
-      );
+      const res = await axios.post<CancelSubscriptionResponse>("subscription/cancel");
 
       toast.success("Plan Canceled successfully!", {
         description: res.data.message,
@@ -133,12 +111,7 @@ const PricingCard: FC<PricingCardProps> = ({
     >
       <div>
         <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-white">
-          <div
-            className={cn(
-              "w-10 h-10 rounded-lg flex items-center justify-center",
-              cardIconBg
-            )}
-          >
+          <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", cardIconBg)}>
             {/* <StickyNoteIcon color="white" /> */}
             {Icon}
           </div>
@@ -146,24 +119,17 @@ const PricingCard: FC<PricingCardProps> = ({
         </div>
 
         <div className="mb-6">
-          <span className="text-4xl font-bold">
-            ${billingPeriod === "monthly" ? price : price_annual}
-          </span>
-          <span className="text-[#6a6c7b]">
-            /{billingPeriod === "monthly" ? "Month" : "Year"}
-          </span>
+          <span className="text-4xl font-bold">${billingPeriod === "monthly" ? price : price_annual}</span>
+          <span className="text-[#6a6c7b]">/{billingPeriod === "monthly" ? "Month" : "Year"}</span>
         </div>
       </div>
 
       {features.length > 0 && (
         <div className="mb-8">
-          <h4 className="font-semibold mb-4">Features Included:</h4>
+          <h4 className="font-semibold mb-4">Includes everything in {title.toLowerCase()} plan:</h4>
           <ul className="space-y-3">
             {features.map((feature) => (
-              <li
-                key={feature}
-                className="flex items-center gap-2 text-[#6a6c7b]"
-              >
+              <li key={feature} className="flex items-center gap-2 text-[#6a6c7b]">
                 <GIcon name="send" className={"text-primary"} size={20} />
                 {feature}
               </li>
@@ -187,13 +153,8 @@ const PricingCard: FC<PricingCardProps> = ({
             Cancel Plan
           </Button>
         ) : (
-          <Button
-            size={"full"}
-            onClick={upgradePlan}
-            isLoading={loading}
-            disabled={loading || isLoading}
-          >
-            Choose Plan
+          <Button size={"full"} onClick={upgradePlan} isLoading={loading} disabled={loading || isLoading}>
+            Get Started Now
           </Button>
         ))}
     </div>

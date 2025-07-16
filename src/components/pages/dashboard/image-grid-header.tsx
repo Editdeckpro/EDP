@@ -32,14 +32,10 @@ const ImageGridHeader = () => {
 
   return (
     <header>
-      <section className="flex justify-between flex-col sm:flex-row gap-3">
+      <section className="flex justify-between flex-col sm:flex-row gap-3 mb-4">
         <div className="-space-y-2">
-          <h1 className="text-xl sm:text-lg font-bold">
-            Recently Generated Images
-          </h1>
-          <span className="text-sm text-gray-700">
-            Browse, refine, or relive your recent image generations.
-          </span>
+          <h1 className="text-xl sm:text-lg font-bold">Recently Generated Images</h1>
+          <span className="text-sm text-gray-700">Browse, refine, or relive your recent image generations.</span>
         </div>
         <form className="flex gap-2 " onSubmit={(e) => e.preventDefault()}>
           <Input
