@@ -15,6 +15,7 @@ export type PlanID = "FREE" | "STARTER" | "NEXT_LEVEL" | "PRO_STUDIO";
 export interface PricingCardProps {
   id: PlanID;
   title: string;
+  description: string;
   price: number;
   price_annual: number;
   features: string[];
@@ -32,6 +33,7 @@ const PricingCard: FC<PricingCardProps> = ({
   price,
   price_annual,
   title,
+  description,
   isCurrentPlan,
   icon: Icon,
   color,
@@ -104,39 +106,41 @@ const PricingCard: FC<PricingCardProps> = ({
   return (
     <div
       className={cn(
-        `bg-white rounded-xl p-3 border flex flex-col justify-between`,
+        `bg-white rounded-xl p-4 border flex flex-col justify-between`,
         isCurrentPlan && cardBorder,
         cardBg
       )}
     >
       <div>
-        <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-white">
-          <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", cardIconBg)}>
-            {/* <StickyNoteIcon color="white" /> */}
-            {Icon}
+        <div>
+          <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-white">
+            <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", cardIconBg)}>
+              {/* <StickyNoteIcon color="white" /> */}
+              {Icon}
+            </div>
+            <h2 className="font-semibold text-lg">{title}</h2>
           </div>
-          <span className="font-semibold text-lg">{title}</span>
+
+          <div className="mb-6">
+            <span className="text-4xl font-bold">${billingPeriod === "monthly" ? price : price_annual}</span>
+            <span className="text-[#6a6c7b]">/{billingPeriod === "monthly" ? "Month" : "Year"}</span>
+          </div>
         </div>
 
-        <div className="mb-6">
-          <span className="text-4xl font-bold">${billingPeriod === "monthly" ? price : price_annual}</span>
-          <span className="text-[#6a6c7b]">/{billingPeriod === "monthly" ? "Month" : "Year"}</span>
-        </div>
+        {features.length > 0 && (
+          <div className="mb-8">
+            <h4 className="font-semibold mb-4">{description}</h4>
+            <ul className="space-y-3">
+              {features.map((feature) => (
+                <li key={feature} className="flex items-center gap-2 text-[#6a6c7b]">
+                  <GIcon name="send" className={"text-primary"} size={20} />
+                  {feature}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
-
-      {features.length > 0 && (
-        <div className="mb-8">
-          <h4 className="font-semibold mb-4">Includes everything in {title.toLowerCase()} plan:</h4>
-          <ul className="space-y-3">
-            {features.map((feature) => (
-              <li key={feature} className="flex items-center gap-2 text-[#6a6c7b]">
-                <GIcon name="send" className={"text-primary"} size={20} />
-                {feature}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
 
       {id !== "FREE" &&
         (isCurrentPlan ? (

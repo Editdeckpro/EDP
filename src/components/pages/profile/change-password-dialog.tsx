@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { FormPasswordField } from "@/components/ui/password-input";
-import { axiosInstance } from "@/lib/axios-instance";
+import { GetAxiosWithAuth } from "@/lib/axios-instance";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
 import { ChevronRight } from "lucide-react";
@@ -36,6 +36,7 @@ type ChnagePasswordSchemaType = z.infer<typeof changePasswordSchema>;
 
 export default function ChangePasswordDialog() {
   const [loading, setLoading] = React.useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
   const form = useForm<ChnagePasswordSchemaType>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: { oldPassword: "", password: "", confirmPassword: "" },
@@ -44,12 +45,14 @@ export default function ChangePasswordDialog() {
   async function onSubmit(values: ChnagePasswordSchemaType) {
     setLoading(true);
     try {
-      await axiosInstance.post("api/password/change", {
+      const axios = await GetAxiosWithAuth();
+      await axios.post("password/change", {
         oldPassword: values.oldPassword,
         newPassword: values.confirmPassword,
       });
       toast.success("Password chnage successful!");
       form.reset();
+      setIsOpen(false);
     } catch (e) {
       const error = e as AxiosError<{ error?: string }>;
       // console.info("Error resetting password", e);
@@ -61,7 +64,7 @@ export default function ChangePasswordDialog() {
     }
   }
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <div className="p-2 rounded-lg bg-white flex justify-between items-center gap-3 w-full text-muted-foreground cursor-pointer">
           Change Password
