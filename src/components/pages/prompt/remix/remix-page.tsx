@@ -25,24 +25,20 @@ interface imagesList {
 
 const imagesList: imagesList[] = [
   {
-    prompt:
-      "1: Lorem ipsum, dolor sit amet consectetur adipisicing elit. Earum sapiente perspiciatis odit accusantium, eaque esse corporis harum aut ad pariatur? Facilis nemo magnam eius recusandae adipisci animi suscipit ipsa eaque.",
-    url: "https://backend.editdeckpro.com/images/image_1748344340680_2.png",
+    prompt: "1: Bold, creative covers designed to make your music stand out.",
+    url: "/images/remix-images/image-1.svg",
   },
   {
-    prompt:
-      "2: ipsum, dolor sit amet consectetur adipisicing elit. Earum sapiente perspiciatis odit accusantium, eaque esse corporis harum aut ad pariatur? Facilis nemo magnam eius recusandae adipisci animi suscipit ipsa eaque.",
-    url: "https://backend.editdeckpro.com/images/image_1750788907846_0.png",
+    prompt: "2: Bold, creative covers designed to make your music stand out.",
+    url: "/images/remix-images/image-2.svg",
   },
   {
-    prompt:
-      "3: dolor sit amet consectetur adipisicing elit. Earum sapiente perspiciatis odit accusantium, eaque esse corporis harum aut ad pariatur? Facilis nemo magnam eius recusandae adipisci animi suscipit ipsa eaque.",
-    url: "https://backend.editdeckpro.com/images/image_1750788909889_3.png",
+    prompt: "3: Bold, creative covers designed to make your music stand out.",
+    url: "/images/remix-images/image-3.svg",
   },
   {
-    prompt:
-      "4: sit amet consectetur adipisicing elit. Earum sapiente perspiciatis odit accusantium, eaque esse corporis harum aut ad pariatur? Facilis nemo magnam eius recusandae adipisci animi suscipit ipsa eaque.",
-    url: "https://backend.editdeckpro.com/images/image_1750788937413_0.png",
+    prompt: "4: Bold, creative covers designed to make your music stand out.",
+    url: "/images/remix-images/image-4.svg",
   },
 ];
 
@@ -52,13 +48,7 @@ const RemixPage: FC<RemixPageProps> = ({ data, imageSrc, prompt }) => {
       <div className="space-y-4">
         <div className="px-4 py-5 rounded-lg bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-3 items-start md:items-center">
           <div className="flex flex-col md:flex-row  items-center gap-10  justify-center">
-            <Image
-              src={imageSrc!}
-              alt={prompt || ""}
-              width={150}
-              height={150}
-              className="rounded-lg"
-            />
+            <Image src={imageSrc!} alt={prompt || ""} width={150} height={150} className="rounded-lg" />
             <svg
               width="108"
               height="108"
@@ -89,12 +79,7 @@ const RemixPage: FC<RemixPageProps> = ({ data, imageSrc, prompt }) => {
               />
             </svg>
             <div className="aspect-square w-52 h-5w-52 sm:w-72 sm:h-72 rounded-xl border border-gray-300 overflow-hidden relative">
-              <Image
-                src={imageSrc!}
-                alt={prompt || ""}
-                fill
-                className="rounded-lg blur-lg"
-              />
+              <Image src={imageSrc!} alt={prompt || ""} fill className="rounded-lg blur-lg" />
             </div>
           </div>
         </div>
@@ -120,12 +105,7 @@ const RemixPage: FC<RemixPageProps> = ({ data, imageSrc, prompt }) => {
 
           <div className="grid grid-cols-1 gap-4 max-w-2xs mx-auto">
             {data.images.map((src, i) => (
-              <ImageCard
-                id={String(data.imageGenerationId)}
-                imageSrc={src}
-                imgAlt={src}
-                key={src + String(i)}
-              />
+              <ImageCard id={String(data.imageGenerationId)} imageSrc={src} imgAlt={src} key={src + String(i)} />
             ))}
           </div>
         </div>
@@ -173,20 +153,19 @@ export const ImageCarouselContent = () => {
         <Sparkles className="text-primary size-5 min-w-4" />
         {imagesList[selectedImageIndex].prompt}
       </div>
-      <div className="grid grid-cols-1 gap-1 text-center max-w-2xs mx-auto">
+      <div className="grid grid-cols-1 gap-1 text-center max-w-full md:max-w-sm mx-auto">
         <div className="relative aspect-square">
           <CarouselContent>
             {imagesList.map((imgData) => (
-              <CarouselItem
-                key={imgData.prompt + imgData.url}
-                className="relative"
-              >
+              <CarouselItem key={imgData.prompt + imgData.url} className="relative">
                 <Image
                   src={imgData.url}
                   alt={String(imgData.prompt)}
-                  width={300}
-                  height={300}
+                  width={700}
+                  height={475}
                   className={`transition-opacity duration-300 rounded-md`}
+                  layout="responsive"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   style={{ objectFit: "cover" }}
                   loading="lazy"
                   placeholder="blur"
