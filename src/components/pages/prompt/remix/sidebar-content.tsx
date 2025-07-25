@@ -1,21 +1,9 @@
 "use client";
 import GIcon from "@/components/g-icon";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,17 +25,10 @@ interface RemixSidebarContentProps {
   setPageBase64: (e: string) => void;
 }
 
-const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
-  setData,
-  imageUrl,
-  setPrompt,
-  setPageBase64,
-}) => {
+const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, setPrompt, setPageBase64 }) => {
   const hasValidUrl = imageUrl !== null;
   const [customPromptOpen, setCustomPromptOpen] = useState<boolean>(true);
-  const [imageGuidancesOpen, setImageGuidanceOpen] = useState<boolean>(
-    !hasValidUrl
-  );
+  const [imageGuidancesOpen, setImageGuidanceOpen] = useState<boolean>(!hasValidUrl);
   const [imageSimilarityOpen, setImageSimilarityOpen] = useState<boolean>(true);
   const [modelOpen, setModelOpen] = useState<boolean>(true);
   const [imageBase64, setImageBase64] = useState<string | undefined>(undefined);
@@ -107,75 +88,8 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
       <h1 className="text-lg font-bold">Remix Image</h1>
       <Separator />
 
-      <div className="space-y-2">
-        <h2 className="font-bold text-lg">Image to be Remixed</h2>
-        <div className="p-2 bg-muted rounded-lg border border-primary/30 max-h-32">
-          {(imageBase64 !== undefined &&
-            imageBase64 !== "" &&
-            imageUrl != "") ||
-          hasValidUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={imageBase64 || imageUrl || undefined}
-              width={45}
-              height={45}
-              alt={"Remix Image Preview"}
-              className="rounded-sm max-h-full"
-            />
-          ) : (
-            <div className="text-center text-muted-foreground font-light">
-              Preview of selected image
-            </div>
-          )}
-        </div>
-      </div>
-
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-3">
-            <div
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => setCustomPromptOpen(!customPromptOpen)}
-            >
-              <h3 className="text-lg font-medium text-primary">
-                Custom Prompt
-              </h3>
-              <Button variant="link" size="icon" type="button">
-                {customPromptOpen ? (
-                  <ChevronUp size={18} />
-                ) : (
-                  <ChevronDown size={18} />
-                )}
-              </Button>
-            </div>
-
-            {customPromptOpen && (
-              <FormField
-                control={form.control}
-                name="customPrompt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="relative">
-                        <Textarea
-                          placeholder="Write custom prompt..."
-                          className={cn(
-                            "min-h-[120px] max-w-full resize-none bg-gray-50 text-gray-600",
-                            field.value === "" && "pl-8"
-                          )}
-                          {...field}
-                        />
-                        {field.value === "" && (
-                          <Sparkles className="text-primary size-4 absolute top-3 left-3" />
-                        )}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-          </div>
           <div className="space-y-3">
             <div
               className="flex items-center justify-between cursor-pointer"
@@ -183,11 +97,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
             >
               <h3 className="text-lg font-medium">Image Guidance</h3>
               <Button variant="link" size="icon" type="button">
-                {imageGuidancesOpen ? (
-                  <ChevronUp size={18} />
-                ) : (
-                  <ChevronDown size={18} />
-                )}
+                {imageGuidancesOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
               </Button>
             </div>
 
@@ -220,39 +130,53 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
               />
             )}
           </div>
+
+          <div className="space-y-2">
+            <h2 className="font-bold text-lg">Image to be Remixed</h2>
+            <div className="p-2 bg-muted rounded-lg border border-primary/30 max-h-32">
+              {(imageBase64 !== undefined && imageBase64 !== "" && imageUrl != "") || hasValidUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={imageBase64 || imageUrl || undefined}
+                  width={45}
+                  height={45}
+                  alt={"Remix Image Preview"}
+                  className="rounded-sm max-h-full"
+                />
+              ) : (
+                <div className="text-center text-muted-foreground font-light">Preview of selected image</div>
+              )}
+            </div>
+          </div>
+
           <div className="space-y-3">
             <div
               className="flex items-center justify-between cursor-pointer"
-              onClick={() => setImageSimilarityOpen(!imageSimilarityOpen)}
+              onClick={() => setCustomPromptOpen(!customPromptOpen)}
             >
-              <h3 className="text-lg font-medium">Image Similarity</h3>
+              <h3 className="text-lg font-medium text-primary">Custom Prompt</h3>
               <Button variant="link" size="icon" type="button">
-                {imageSimilarityOpen ? (
-                  <ChevronUp size={18} />
-                ) : (
-                  <ChevronDown size={18} />
-                )}
+                {customPromptOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
               </Button>
             </div>
 
-            {imageSimilarityOpen && (
+            {customPromptOpen && (
               <FormField
                 control={form.control}
-                name="imageSimilarity"
+                name="customPrompt"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div>
-                        <span className="text-xs font-thin">
-                          {form.getValues("imageSimilarity")}% Similarity
-                        </span>
-                        <Slider
-                          className="mt-2"
-                          value={[field.value]}
-                          onValueChange={(val) => field.onChange(val[0])}
-                          max={100}
-                          step={1}
+                      <div className="relative">
+                        <Textarea
+                          placeholder="Write custom prompt..."
+                          className={cn(
+                            "min-h-[120px] max-w-full resize-none bg-gray-50 text-gray-600",
+                            field.value === "" && "pl-8"
+                          )}
+                          {...field}
                         />
+                        {field.value === "" && <Sparkles className="text-primary size-4 absolute top-3 left-3" />}
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -261,18 +185,12 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
               />
             )}
           </div>
+
           <div className="space-y-3">
-            <div
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => setModelOpen((v) => !v)}
-            >
+            <div className="flex items-center justify-between cursor-pointer" onClick={() => setModelOpen((v) => !v)}>
               <h3 className="text-lg font-medium">AI Model</h3>
               <Button variant="link" size="icon" type="button">
-                {modelOpen ? (
-                  <ChevronUp size={18} />
-                ) : (
-                  <ChevronDown size={18} />
-                )}
+                {modelOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
               </Button>
             </div>
 
@@ -282,10 +200,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
                 name="apiProvider"
                 render={({ field }) => (
                   <FormItem>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl className="w-full">
                         <SelectTrigger>
                           <SelectValue placeholder="Select a image generation model" />
@@ -305,15 +220,50 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({
               />
             )}
           </div>
+
+          {form.watch("apiProvider") === "ideogram" && (
+            <div className="space-y-3 pb-2">
+              <div
+                className="flex items-center justify-between cursor-pointer"
+                onClick={() => setImageSimilarityOpen(!imageSimilarityOpen)}
+              >
+                <h3 className="text-lg font-medium">Image Similarity</h3>
+                <Button variant="link" size="icon" type="button">
+                  {imageSimilarityOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </Button>
+              </div>
+
+              {imageSimilarityOpen && (
+                <FormField
+                  control={form.control}
+                  name="imageSimilarity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div>
+                          <span className="text-xs font-thin">{form.getValues("imageSimilarity")}% Similarity</span>
+                          <Slider
+                            className="mt-2"
+                            value={[field.value]}
+                            onValueChange={(val) => field.onChange(val[0])}
+                            max={100}
+                            step={1}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
+          )}
+
           <Button
             type="submit"
             className="w-full"
             isLoading={isSubmitting}
-            disabled={
-              isSubmitting ||
-              status !== "authenticated" ||
-              data.user.credits === 0
-            }
+            disabled={isSubmitting || status !== "authenticated" || data.user.credits === 0}
           >
             {data?.user.credits === 0 ? (
               "Please upgrade plan"
