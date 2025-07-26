@@ -28,6 +28,7 @@ const elementSuggestions = [
 export default function GenerationForm() {
   const { control, setValue, trigger } = useFormContext<GenerateFormSchemaType>();
   const [customStyles, setCustomStyles] = useState<string[]>([]);
+  const [customMoods, setCustomMoods] = useState<string[]>([]);
   const [sectionsOpen, setSectionsOpen] = useState({
     generalSetting: true,
     otherSettings: true,
@@ -295,7 +296,12 @@ export default function GenerationForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <MoodModal onSelect={handleMoodSelect} value={field.value} />
+                    <MoodModal
+                      onSelect={handleMoodSelect}
+                      value={field.value}
+                      customMoods={customMoods}
+                      setCustomMoods={setCustomMoods}
+                    />
                   </FormControl>
                   <FormMessage />
                   <FormDescription className="font-normal text-xs">

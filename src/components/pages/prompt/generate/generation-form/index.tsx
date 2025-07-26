@@ -145,7 +145,6 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
         <form onSubmit={generateForm.handleSubmit(generateFormSubmit)} className="space-y-4">
           <GenerateForm />
           <button ref={generateFormRef} type="submit" className="hidden" aria-hidden />
-          <Button type="submit">submit</Button>
         </form>
       </Form>
       <Form {...mainForm}>
