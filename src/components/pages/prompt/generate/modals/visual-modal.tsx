@@ -4,10 +4,11 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
 import { useMediaQuery } from "@/hook/use-media-querry";
 import { cn } from "@/lib/utils";
 import { ChevronRight, PaintbrushVertical } from "lucide-react";
-import { FC, useState } from "react";
+import { Dispatch, FC, SetStateAction, useState } from "react";
 
 const visualStyles = [
   { name: "Photo", src: "/images/visual-style.png" },
@@ -32,10 +33,12 @@ const visualStyles = [
 
 interface VisualStyleModalProps {
   onSelect: (value: string[]) => void;
+  customStyles: string[];
+  setCustomStyles: Dispatch<SetStateAction<string[]>>;
   value: string[];
 }
 
-const VisualStyleModal: FC<VisualStyleModalProps> = ({ onSelect, value }) => {
+const VisualStyleModal: FC<VisualStyleModalProps> = ({ onSelect, value, setCustomStyles, customStyles }) => {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -49,7 +52,13 @@ const VisualStyleModal: FC<VisualStyleModalProps> = ({ onSelect, value }) => {
           <DialogHeader>
             <DialogTitle>Select Visual Style</DialogTitle>
           </DialogHeader>
-          <VisualGrid onSelect={onSelect} setOpen={setOpen} value={value} />
+          <VisualGrid
+            onSelect={onSelect}
+            setOpen={setOpen}
+            value={value}
+            setCustomStyles={setCustomStyles}
+            customStyles={customStyles}
+          />
         </DialogContent>
       </Dialog>
     );
@@ -63,7 +72,13 @@ const VisualStyleModal: FC<VisualStyleModalProps> = ({ onSelect, value }) => {
           <DrawerHeader className="text-left">
             <DrawerTitle>Select Visual Style</DrawerTitle>
           </DrawerHeader>
-          <VisualGrid onSelect={onSelect} setOpen={setOpen} value={value} />
+          <VisualGrid
+            onSelect={onSelect}
+            setOpen={setOpen}
+            value={value}
+            setCustomStyles={setCustomStyles}
+            customStyles={customStyles}
+          />
         </DrawerContent>
       </Drawer>
     );
@@ -87,18 +102,28 @@ interface VisualGrid extends VisualStyleModalProps {
   setOpen: (value: boolean) => void;
 }
 
-const VisualGrid = ({ onSelect, setOpen, value }: VisualGrid) => {
+const VisualGrid = ({ onSelect, setOpen, value, setCustomStyles, customStyles }: VisualGrid) => {
   const [selected, setSelected] = useState<string[]>(value);
-  // const MAX_SELECTION = 4;
+  const [customStyle, setCustomStyle] = useState("");
+  const MAX_SELECTION = 4;
+
+  const handleAddCustomStyle = () => {
+    const trimmed = customStyle.trim();
+    if (trimmed !== "" && !customStyles.includes(trimmed) && !visualStyles.find((v) => v.name === trimmed)) {
+      setCustomStyles((prev) => [...prev, trimmed]);
+      setSelected((prev) => (prev.length < MAX_SELECTION ? [...prev, trimmed] : prev));
+      setCustomStyle("");
+    }
+  };
 
   const toggleSelection = (styleName: string) => {
-    if (selected.includes(styleName)) {
-      setSelected(selected.filter((name) => name !== styleName));
-    } else {
-      // if (selected.length < MAX_SELECTION) {
-      setSelected([...selected, styleName]);
-      // }
-    }
+    setSelected((prev) =>
+      prev.includes(styleName)
+        ? prev.filter((s) => s !== styleName)
+        : prev.length < MAX_SELECTION
+        ? [...prev, styleName]
+        : prev
+    );
   };
 
   const handleSelect = () => {
@@ -110,30 +135,52 @@ const VisualGrid = ({ onSelect, setOpen, value }: VisualGrid) => {
 
   return (
     <>
+      {/* Custom Style Input */}
+      <div className="flex items-center gap-2">
+        <Input
+          placeholder="Enter custom style"
+          value={customStyle}
+          onChange={(e) => setCustomStyle(e.target.value)}
+          className="flex-1"
+        />
+        <Button
+          type="button"
+          onClick={handleAddCustomStyle}
+          disabled={
+            customStyle.trim() === "" || selected.includes(customStyle.trim()) || selected.length >= MAX_SELECTION
+          }
+        >
+          Add
+        </Button>
+      </div>
       {/* <ul className="grid grid-cols-2 2xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 py-4"> */}
       <ul className="flex flex-wrap gap-4 py-4 overflow-y-scroll md:overflow-y-auto px-2 md:px-1">
-        {visualStyles.map((style) => (
-          <li
-            key={style.name}
-            onClick={() => toggleSelection(style.name)}
-            className={cn(
-              `rounded-md p-2 outline-1 outline-gray-400 cursor-pointer transition`,
-              selected.includes(style.name) && "outline-gray-600 outline-2 "
-            )}
-          >
-            {/* <Image
+        {[...customStyles, ...visualStyles.map((v) => v.name)].map((style) => {
+          const isNotSelect = selected.length === MAX_SELECTION;
+          return (
+            <li
+              key={style}
+              onClick={() => toggleSelection(style)}
+              className={cn(
+                `rounded-md p-2 outline-1 outline-gray-400 cursor-pointer transition`,
+                isNotSelect ? "cursor-not-allowed" : "cursor-pointer",
+                selected.includes(style) && "outline-gray-600 outline-2 cursor-pointer"
+              )}
+            >
+              {/* <Image
               src={style.src}
               alt={style.name}
               className="rounded-md object-cover aspect-square"
               width={100}
               height={100}
             /> */}
-            <p className="text-center text-xs">{style.name}</p>
-          </li>
-        ))}
+              <p className="text-center text-xs">{style}</p>
+            </li>
+          );
+        })}
       </ul>
-      <Button onClick={handleSelect} disabled={selected.length < 4}>
-        {selected.length >= 4 ? `Selected (${selected.length}/${visualStyles.length})` : "Select styles"}
+      <Button onClick={handleSelect} disabled={selected.length < 1}>
+        {selected.length != 0 ? `Selected (${selected.length}/4)` : "Select styles"}
       </Button>
     </>
   );

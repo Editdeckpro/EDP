@@ -132,7 +132,7 @@ const ColorsGrid = ({ onSelect, setOpen, value }: ColorsGrid) => {
 
   return (
     <>
-      <div className="flex items-center gap-2 mt-2">
+      <div className="flex items-center gap-2 mt-2 mb-2 md:mb-0">
         <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: selected[0] }} />
         <Input
           value={selected[0] || ""}
@@ -149,7 +149,7 @@ const ColorsGrid = ({ onSelect, setOpen, value }: ColorsGrid) => {
         />
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 mb-2 md:mb-0">
         <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: selected[1] }} />
         <Input
           value={selected[1] || ""}
@@ -171,7 +171,7 @@ const ColorsGrid = ({ onSelect, setOpen, value }: ColorsGrid) => {
           const title = selected[0] === color ? "Primary" : selected[1] === color ? "Secondary" : "Click to select";
           const bothSelected = selected[0] && selected[1];
           return (
-            <li key={color}>
+            <li key={color} className="flex items-center justify-center">
               <button
                 type="button"
                 onClick={() => toggleColor(color, title)}

@@ -27,6 +27,7 @@ const elementSuggestions = [
 
 export default function GenerationForm() {
   const { control, setValue, trigger } = useFormContext<GenerateFormSchemaType>();
+  const [customStyles, setCustomStyles] = useState<string[]>([]);
   const [sectionsOpen, setSectionsOpen] = useState({
     generalSetting: true,
     otherSettings: true,
@@ -274,7 +275,12 @@ export default function GenerationForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <VisualStyleModal onSelect={handleVisualStyleSelect} value={field.value} />
+                    <VisualStyleModal
+                      onSelect={handleVisualStyleSelect}
+                      value={field.value}
+                      customStyles={customStyles}
+                      setCustomStyles={setCustomStyles}
+                    />
                   </FormControl>
                   <FormMessage />
                   <FormDescription className="font-normal text-xs">
