@@ -1,25 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useMediaQuery } from "@/hook/use-media-querry";
 import { cn } from "@/lib/utils"; // Optional: to handle class merging
 import { ChevronRight, Palette } from "lucide-react";
 import { FC, useState } from "react";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 
 const colors = [
   "#B71C1C",
@@ -55,8 +43,8 @@ const colors = [
 ];
 
 interface ColorPaletteModalProps {
-  value: string;
-  onSelect: (color: string) => void;
+  value: string[];
+  onSelect: (color: string[]) => void;
 }
 
 const ColorPaletteModal: FC<ColorPaletteModalProps> = ({ value, onSelect }) => {
@@ -95,24 +83,47 @@ const ColorPaletteModal: FC<ColorPaletteModalProps> = ({ value, onSelect }) => {
 
 export default ColorPaletteModal;
 
-const ModalTrigger = ({ value }: { value: string }) => (
+const ModalTrigger = ({ value }: { value: string[] }) => (
   <div className="flex h-10 items-center justify-between rounded-md border border-input bg-white px-3 text-sm text-muted-foreground cursor-pointer">
     <div className="flex gap-2 items-center">
-      <Palette className="text-muted-foreground" />
-      {value != "" ? value : "Color Palette"}
+      <span>
+        <Palette className="text-muted-foreground" />
+      </span>
+      <span>{value.length > 0 ? value.join(", ") : "Color Palette"}</span>
     </div>
     <ChevronRight className="text-muted-foreground size-5" />
   </div>
 );
 
 interface ColorsGrid {
-  onSelect: (value: string) => void;
+  onSelect: (value: string[]) => void;
   setOpen: (value: boolean) => void;
-  value: string;
+  value: string[];
 }
 
 const ColorsGrid = ({ onSelect, setOpen, value }: ColorsGrid) => {
-  const [selected, setSelected] = useState<string>(value);
+  const [selected, setSelected] = useState<string[]>(value);
+
+  const toggleColor = (color: string, title: string) => {
+    setSelected((prev) => {
+      const updated = [...prev];
+
+      if (title === "Primary") {
+        updated[0] = updated[0] === color ? "" : color;
+      } else if (title === "Secondary") {
+        updated[1] = updated[1] === color ? "" : color;
+      } else {
+        // Fill empty slots first
+        if (!updated[0]) {
+          updated[0] = color;
+        } else if (!updated[1]) {
+          updated[1] = color;
+        }
+      }
+
+      return updated;
+    });
+  };
 
   const handleSelect = () => {
     onSelect(selected);
@@ -121,34 +132,60 @@ const ColorsGrid = ({ onSelect, setOpen, value }: ColorsGrid) => {
 
   return (
     <>
-      <div className="flex items-center gap-2">
-        <div
-          className="w-6 h-6 rounded-full border"
-          style={{ backgroundColor: selected }}
-        />
+      <div className="flex items-center gap-2 mt-2">
+        <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: selected[0] }} />
         <Input
-          value={selected}
-          onChange={(e) => setSelected(e.target.value)}
+          value={selected[0] || ""}
+          onChange={(e) =>
+            setSelected((prev) => {
+              const updated = [...prev];
+              updated[0] = e.target.value;
+              return updated;
+            })
+          }
           maxLength={7}
           className="w-full"
-          placeholder="#COLORCODE"
+          placeholder="Primary Color"
+        />
+      </div>
+
+      <div className="flex items-center gap-2">
+        <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: selected[1] }} />
+        <Input
+          value={selected[1] || ""}
+          onChange={(e) =>
+            setSelected((prev) => {
+              const updated = [...prev];
+              updated[1] = e.target.value;
+              return updated;
+            })
+          }
+          maxLength={7}
+          className="w-full"
+          placeholder="Secoundry Color"
         />
       </div>
 
       <ul className="grid grid-cols-2 2xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 py-4 max-h-64 overflow-y-auto">
-        {colors.map((color) => (
-          <li key={color}>
-            <button
-              type="button"
-              onClick={() => setSelected(color)}
-              className={cn(
-                "w-10 h-10 rounded-sm border-2 transition",
-                selected === color ? "border-black" : "border-transparent"
-              )}
-              style={{ backgroundColor: color }}
-            />
-          </li>
-        ))}
+        {colors.map((color) => {
+          const title = selected[0] === color ? "Primary" : selected[1] === color ? "Secondary" : "Click to select";
+          const bothSelected = selected[0] && selected[1];
+          return (
+            <li key={color}>
+              <button
+                type="button"
+                onClick={() => toggleColor(color, title)}
+                className={cn(
+                  "w-10 h-10 rounded-sm border-2 transition",
+                  bothSelected ? "cursor-not-allowed" : "cursor-pointer",
+                  selected.includes(color) ? "border-black cursor-pointer" : "border-transparent"
+                )}
+                style={{ backgroundColor: color }}
+                title={selected[0] === color ? "Primary" : selected[1] === color ? "Secondary" : "Click to select"}
+              />
+            </li>
+          );
+        })}
       </ul>
 
       <Button className="w-full" onClick={handleSelect}>

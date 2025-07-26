@@ -45,7 +45,7 @@ export default function GenerationForm() {
     trigger("visualStyles");
   };
 
-  const handleColorSelect = (color: string) => {
+  const handleColorSelect = (color: string[]) => {
     setValue("colorPalette", color);
     trigger("colorPalette");
   };

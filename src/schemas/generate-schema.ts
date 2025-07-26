@@ -9,7 +9,10 @@ export const generateFormSchema = z.object({
 
   visualStyles: z.array(z.string().min(1)).min(4, { message: "Select at least 4 visual styles" }),
   mood: z.array(z.string().min(1)).min(1, { message: "Select at least 1 mood style" }),
-  colorPalette: z.string().min(1, { message: "Select a color palette" }),
+  colorPalette: z
+    .array(z.string().min(1))
+    .min(1, { message: "Select at least one primary color" })
+    .max(2, { message: "You can select up to two colors primary and secondary" }),
 });
 
 export const mainGenerateFormSchema = z.object({
