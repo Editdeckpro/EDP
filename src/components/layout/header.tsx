@@ -25,13 +25,9 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
   // Get corresponding link titles
   const breadcrumbs = pathParts.map((part, index) => {
     const linkPath = "/" + pathParts.slice(0, index + 1).join("/");
-    const link = sidebarSections
-      .flatMap((section) => section.links)
-      .find((link) => link.link === linkPath);
+    const link = sidebarSections.flatMap((section) => section.links).find((link) => link.link === linkPath);
 
-    const title =
-      link?.text ||
-      part.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()); // fallback to formatted slug
+    const title = link?.text || part.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()); // fallback to formatted slug
 
     return { title, href: linkPath };
   });
@@ -48,9 +44,7 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
 
   // Final Title or Breadcrumb
   const isRoot = breadcrumbs.length === 0;
-  const pageTitle = isRoot
-    ? "Dashboard"
-    : breadcrumbs[breadcrumbs.length - 1].title;
+  const pageTitle = isRoot ? "Dashboard" : breadcrumbs[breadcrumbs.length - 1].title;
 
   return (
     <>
@@ -59,10 +53,7 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
         <div className="flex items-center gap-2">
           {/* Back Button - Show only if more than 1 path part */}
           {breadcrumbs.length > 1 && (
-            <button
-              onClick={handleBack}
-              className="text-primary hover:text-primary/80 transition"
-            >
+            <button onClick={handleBack} className="text-primary hover:text-primary/80 transition cursor-pointer">
               <ChevronLeft className="text-2xl" />
             </button>
           )}
@@ -76,16 +67,12 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
                 <Link
                   href={crumb.href}
                   className={`text-lg font-bold hover:underline ${
-                    index === 0 && breadcrumbs.length != 1
-                      ? "text-muted-foreground"
-                      : "text-black"
+                    index === 0 && breadcrumbs.length != 1 ? "text-muted-foreground" : "text-black"
                   }`}
                 >
                   {crumb.title}
                 </Link>
-                {index < breadcrumbs.length - 1 && (
-                  <span className="text-gray-400">/</span>
-                )}
+                {index < breadcrumbs.length - 1 && <span className="text-gray-400">/</span>}
               </div>
             ))
           )}
@@ -98,9 +85,7 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
               <GIcon name="toll" />
             </div>
             <div className="text-xs">
-              <div className="leading-tight text-gray-600">
-                Credits Remained
-              </div>
+              <div className="leading-tight text-gray-600">Credits Remained</div>
               <div className="font-semibold text-xs leading-tight text-primary">
                 {status === "authenticated" && data?.user ? (
                   data.user.credits < 0 ? (
@@ -131,25 +116,19 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
                 <div className="flex items-center gap-1">
                   {/* Mobile Breadcrumbs or Dashboard */}
                   {isRoot ? (
-                    <h1 className="text-base font-bold text-black">
-                      {pageTitle}
-                    </h1>
+                    <h1 className="text-base font-bold text-black">{pageTitle}</h1>
                   ) : (
                     breadcrumbs.map((crumb, index) => (
                       <React.Fragment key={index}>
                         <Link
                           href={crumb.href}
                           className={`text-sm font-semibold hover:underline ${
-                            index === 0 && breadcrumbs.length != 1
-                              ? "text-muted-foreground"
-                              : "text-black"
+                            index === 0 && breadcrumbs.length != 1 ? "text-muted-foreground" : "text-black"
                           }`}
                         >
                           {crumb.title}
                         </Link>
-                        {index < breadcrumbs.length - 1 && (
-                          <span className="text-gray-400">/</span>
-                        )}
+                        {index < breadcrumbs.length - 1 && <span className="text-gray-400">/</span>}
                       </React.Fragment>
                     ))
                   )}

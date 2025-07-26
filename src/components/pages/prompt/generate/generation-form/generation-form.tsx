@@ -27,6 +27,8 @@ const elementSuggestions = [
 
 export default function GenerationForm() {
   const { control, setValue, trigger } = useFormContext<GenerateFormSchemaType>();
+  const [customStyles, setCustomStyles] = useState<string[]>([]);
+  const [customMoods, setCustomMoods] = useState<string[]>([]);
   const [sectionsOpen, setSectionsOpen] = useState({
     generalSetting: true,
     otherSettings: true,
@@ -40,17 +42,17 @@ export default function GenerationForm() {
     }));
   };
 
-  const handleVisualStyleSelect = (styleName: string) => {
-    setValue("visualStyles", styleName);
+  const handleVisualStyleSelect = (styleNames: string[]) => {
+    setValue("visualStyles", styleNames);
     trigger("visualStyles");
   };
 
-  const handleColorSelect = (color: string) => {
+  const handleColorSelect = (color: string[]) => {
     setValue("colorPalette", color);
     trigger("colorPalette");
   };
 
-  const handleMoodSelect = (mood: string) => {
+  const handleMoodSelect = (mood: string[]) => {
     setValue("mood", mood);
     trigger("mood");
   };
@@ -274,7 +276,12 @@ export default function GenerationForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <VisualStyleModal onSelect={handleVisualStyleSelect} value={field.value} />
+                    <VisualStyleModal
+                      onSelect={handleVisualStyleSelect}
+                      value={field.value}
+                      customStyles={customStyles}
+                      setCustomStyles={setCustomStyles}
+                    />
                   </FormControl>
                   <FormMessage />
                   <FormDescription className="font-normal text-xs">
@@ -289,7 +296,12 @@ export default function GenerationForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <MoodModal onSelect={handleMoodSelect} value={field.value} />
+                    <MoodModal
+                      onSelect={handleMoodSelect}
+                      value={field.value}
+                      customMoods={customMoods}
+                      setCustomMoods={setCustomMoods}
+                    />
                   </FormControl>
                   <FormMessage />
                   <FormDescription className="font-normal text-xs">
