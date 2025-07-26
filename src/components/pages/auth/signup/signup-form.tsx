@@ -17,7 +17,7 @@ import {
 } from "@/schemas/signup-form-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTopLoader } from "nextjs-toploader";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -27,6 +27,8 @@ export default function SignupForm() {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const topLoader = useTopLoader();
+  const searchParams = useSearchParams();
+  const promo = searchParams.get("promo") || "";
   const form = useForm<SignupFormSchemaType>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
@@ -43,7 +45,10 @@ export default function SignupForm() {
     setLoading(true);
     topLoader.start();
     try {
-      await axiosInstance.post(`auth/register`, values);
+      await axiosInstance.post(
+        `auth/register${promo ? `?promo=${encodeURIComponent(promo)}` : ""}`,
+        values,
+      );
 
       toast.success("Registration successful!", {
         description: "You can now login",
