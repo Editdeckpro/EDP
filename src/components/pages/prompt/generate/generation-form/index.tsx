@@ -34,7 +34,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       artistName: "",
       colorPalette: "",
       genre: "",
-      mood: "",
+      mood: [],
       visualStyles: [],
       elements: "",
     },

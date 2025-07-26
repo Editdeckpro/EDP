@@ -50,7 +50,7 @@ export default function GenerationForm() {
     trigger("colorPalette");
   };
 
-  const handleMoodSelect = (mood: string) => {
+  const handleMoodSelect = (mood: string[]) => {
     setValue("mood", mood);
     trigger("mood");
   };

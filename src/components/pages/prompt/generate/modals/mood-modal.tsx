@@ -2,20 +2,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/hook/use-media-querry";
 import { cn } from "@/lib/utils";
 import { ChevronRight, SmilePlus } from "lucide-react";
@@ -40,8 +28,8 @@ const visualStyles = [
 ];
 
 interface MoodModalProps {
-  onSelect: (value: string) => void;
-  value: string;
+  onSelect: (value: string[]) => void;
+  value: string[];
 }
 
 const MoodModal: FC<MoodModalProps> = ({ onSelect, value }) => {
@@ -80,11 +68,13 @@ const MoodModal: FC<MoodModalProps> = ({ onSelect, value }) => {
 
 export default MoodModal;
 
-const ModalTrigger = ({ value }: { value: string }) => (
+const ModalTrigger = ({ value }: { value: string[] }) => (
   <div className="flex h-10 items-center justify-between rounded-md border border-input bg-white px-3 text-sm text-muted-foreground cursor-pointer">
     <div className="flex gap-2 items-center">
-      <SmilePlus className="text-muted-foreground" />
-      {value != "" ? value : "Mood"}
+      <span>
+        <SmilePlus className="text-muted-foreground" />
+      </span>
+      <span className="line-clamp-1 text-left">{value.length > 0 ? value.join(", ") : "Mood"}</span>
     </div>
     <ChevronRight className="text-muted-foreground size-5" />
   </div>
@@ -95,9 +85,18 @@ interface VisualGrid extends MoodModalProps {
 }
 
 const VisualGrid = ({ onSelect, setOpen }: VisualGrid) => {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
+
+  const toggleSelection = (styleName: string) => {
+    if (selected.includes(styleName)) {
+      setSelected(selected.filter((name) => name !== styleName));
+    } else {
+      setSelected([...selected, styleName]);
+    }
+  };
+
   const handleSelect = () => {
-    if (selected) {
+    if (selected.length > 0) {
       onSelect(selected);
       setOpen(false);
     }
@@ -110,10 +109,10 @@ const VisualGrid = ({ onSelect, setOpen }: VisualGrid) => {
         {visualStyles.map((style) => (
           <li
             key={style.name}
-            onClick={() => setSelected(style.name)}
+            onClick={() => toggleSelection(style.name)}
             className={cn(
               `rounded-md p-2 cursor-pointer transition outline-gray-400 outline-1`,
-              selected === style.name && "outline-2 outline-gray-600"
+              selected.includes(style.name) && "outline-2 outline-gray-600"
             )}
           >
             {/* <Image
@@ -127,8 +126,8 @@ const VisualGrid = ({ onSelect, setOpen }: VisualGrid) => {
           </li>
         ))}
       </ul>
-      <Button onClick={handleSelect} disabled={!selected}>
-        Select
+      <Button onClick={handleSelect} disabled={selected.length === 0}>
+        {selected.length > 0 ? `Selected (${selected.length}/${visualStyles.length})` : "Select moods"}
       </Button>
     </>
   );
