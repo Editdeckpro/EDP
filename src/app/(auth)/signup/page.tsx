@@ -1,6 +1,7 @@
 import SocialLogin from "@/components/auth/social-login";
 import SignupForm from "@/components/pages/auth/signup/signup-form";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default function Page() {
   return (
@@ -13,7 +14,9 @@ export default function Page() {
         <p className="text-muted-foreground">Awaken your creative power.</p>
       </div>
 
-      <SignupForm />
+      <Suspense>
+        <SignupForm />
+      </Suspense>
 
       {/* Divider */}
       <div className="relative">
