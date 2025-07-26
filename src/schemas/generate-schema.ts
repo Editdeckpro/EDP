@@ -7,9 +7,7 @@ export const generateFormSchema = z.object({
   genre: z.string().min(1, "Genre is required"),
   elements: z.string().min(1, "Element is required"),
 
-  visualStyles: z.string().min(1, {
-    message: "Select a visual style",
-  }), // Assuming multiple can be selected
+  visualStyles: z.array(z.string().min(1)).min(4, { message: "Select at least 4 visual styles" }),
   mood: z.string().min(1, { message: "Select a mood style" }),
   colorPalette: z.string().min(1, { message: "Select a color palette" }),
 });

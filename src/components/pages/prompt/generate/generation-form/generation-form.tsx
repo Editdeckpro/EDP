@@ -40,8 +40,8 @@ export default function GenerationForm() {
     }));
   };
 
-  const handleVisualStyleSelect = (styleName: string) => {
-    setValue("visualStyles", styleName);
+  const handleVisualStyleSelect = (styleNames: string[]) => {
+    setValue("visualStyles", styleNames);
     trigger("visualStyles");
   };
 

@@ -2,20 +2,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/hook/use-media-querry";
 import { cn } from "@/lib/utils";
 import { ChevronRight, PaintbrushVertical } from "lucide-react";
@@ -43,8 +31,8 @@ const visualStyles = [
 ];
 
 interface VisualStyleModalProps {
-  onSelect: (value: string) => void;
-  value: string;
+  onSelect: (value: string[]) => void;
+  value: string[];
 }
 
 const VisualStyleModal: FC<VisualStyleModalProps> = ({ onSelect, value }) => {
@@ -83,11 +71,13 @@ const VisualStyleModal: FC<VisualStyleModalProps> = ({ onSelect, value }) => {
 
 export default VisualStyleModal;
 
-const ModalTrigger = ({ value }: { value: string }) => (
+const ModalTrigger = ({ value }: { value: string[] }) => (
   <div className="flex h-10 items-center justify-between rounded-md border border-input bg-white px-3 text-sm text-muted-foreground cursor-pointer">
     <div className="flex gap-2 items-center">
-      <PaintbrushVertical className="text-muted-foreground" />
-      {value != "" ? value : "Visual Styles"}
+      <span>
+        <PaintbrushVertical className="text-muted-foreground" />
+      </span>
+      <span className="line-clamp-1 text-left">{value.length > 0 ? value.join(", ") : "Visual Styles"}</span>
     </div>
     <ChevronRight className="text-muted-foreground size-5" />
   </div>
@@ -97,11 +87,23 @@ interface VisualGrid extends VisualStyleModalProps {
   setOpen: (value: boolean) => void;
 }
 
-const VisualGrid = ({ onSelect, setOpen }: VisualGrid) => {
-  const [selected, setSelected] = useState<string | null>(null);
+const VisualGrid = ({ onSelect, setOpen, value }: VisualGrid) => {
+  const [selected, setSelected] = useState<string[]>(value);
+  // const MAX_SELECTION = 4;
+
+  const toggleSelection = (styleName: string) => {
+    if (selected.includes(styleName)) {
+      setSelected(selected.filter((name) => name !== styleName));
+    } else {
+      // if (selected.length < MAX_SELECTION) {
+      setSelected([...selected, styleName]);
+      // }
+    }
+  };
+
   const handleSelect = () => {
-    if (selected) {
-      onSelect(selected);
+    if (selected.length > 0) {
+      onSelect(selected); // Pass array
       setOpen(false);
     }
   };
@@ -113,10 +115,10 @@ const VisualGrid = ({ onSelect, setOpen }: VisualGrid) => {
         {visualStyles.map((style) => (
           <li
             key={style.name}
-            onClick={() => setSelected(style.name)}
+            onClick={() => toggleSelection(style.name)}
             className={cn(
               `rounded-md p-2 outline-1 outline-gray-400 cursor-pointer transition`,
-              selected === style.name && "outline-gray-600 outline-2 "
+              selected.includes(style.name) && "outline-gray-600 outline-2 "
             )}
           >
             {/* <Image
@@ -130,8 +132,8 @@ const VisualGrid = ({ onSelect, setOpen }: VisualGrid) => {
           </li>
         ))}
       </ul>
-      <Button onClick={handleSelect} disabled={!selected}>
-        Select
+      <Button onClick={handleSelect} disabled={selected.length < 4}>
+        {selected.length >= 4 ? `Selected (${selected.length}/${visualStyles.length})` : "Select styles"}
       </Button>
     </>
   );

@@ -35,7 +35,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       colorPalette: "",
       genre: "",
       mood: "",
-      visualStyles: "",
+      visualStyles: [],
       elements: "",
     },
   });
@@ -74,19 +74,13 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
         lines.push(`It should evoke a sense of ${mood}.`);
       }
       if (elements) {
-        lines.push(
-          `The scene should feature ${elements} with a focus on rich details.`
-        );
+        lines.push(`The scene should feature ${elements} with a focus on rich details.`);
       }
       if (visualStyles) {
-        lines.push(
-          `The artwork must be highly detailed, ${visualStyles} and high-resolution.`
-        );
+        lines.push(`The artwork must be highly detailed, ${visualStyles} and high-resolution.`);
       }
 
-      lines.push(
-        `This artwork is designed for music album covers for streaming platforms and vinyl releases.`
-      );
+      lines.push(`This artwork is designed for music album covers for streaming platforms and vinyl releases.`);
 
       const template = lines.join("\n");
 
@@ -148,31 +142,16 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
     <>
       <Form {...generateForm}>
         {/* {promptText} */}
-        <form
-          onSubmit={generateForm.handleSubmit(generateFormSubmit)}
-          className="space-y-4"
-        >
+        <form onSubmit={generateForm.handleSubmit(generateFormSubmit)} className="space-y-4">
           <GenerateForm />
-          <button
-            ref={generateFormRef}
-            type="submit"
-            className="hidden"
-            aria-hidden
-          />
+          <button ref={generateFormRef} type="submit" className="hidden" aria-hidden />
+          <Button type="submit">submit</Button>
         </form>
       </Form>
       <Form {...mainForm}>
-        <form
-          onSubmit={mainForm.handleSubmit(mainFormSubmit)}
-          className="space-y-4"
-        >
+        <form onSubmit={mainForm.handleSubmit(mainFormSubmit)} className="space-y-4">
           <MainGenerateForm />
-          <button
-            ref={mainGenerateFormRef}
-            type="submit"
-            className="hidden"
-            aria-hidden
-          />
+          <button ref={mainGenerateFormRef} type="submit" className="hidden" aria-hidden />
         </form>
       </Form>
 
