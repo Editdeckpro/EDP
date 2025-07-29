@@ -265,13 +265,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
             isLoading={isSubmitting}
             disabled={isSubmitting || status !== "authenticated" || data.user.credits === 0}
           >
-            {data?.user.credits === 0 ? (
-              "Please upgrade plan"
-            ) : (
-              <>
-                Remix Image <GIcon>wand_stars</GIcon>
-              </>
-            )}
+            Remix Image <GIcon>wand_stars</GIcon>
           </Button>
         </form>
       </Form>

@@ -15,6 +15,7 @@ export type PlanID = "FREE" | "STARTER" | "NEXT_LEVEL" | "PRO_STUDIO";
 export interface PricingCardProps {
   id: PlanID;
   title: string;
+  badge: string;
   description: string;
   price: number;
   price_annual: number;

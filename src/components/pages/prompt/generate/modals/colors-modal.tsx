@@ -2,10 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { useMediaQuery } from "@/hook/use-media-querry";
 import { cn } from "@/lib/utils"; // Optional: to handle class merging
-import { ChevronRight, Palette } from "lucide-react";
+import { ChevronRight, Info, Palette } from "lucide-react";
 import { FC, useState } from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 
@@ -89,7 +90,7 @@ const ModalTrigger = ({ value }: { value: string[] }) => (
       <span>
         <Palette className="text-muted-foreground" />
       </span>
-      <span>{value.length > 0 ? value.join(", ") : "Color Palette"}</span>
+      <span>{value.length > 0 ? value.join(value.length > 1 ? ", " : " ") : "Color Palette"}</span>
     </div>
     <ChevronRight className="text-muted-foreground size-5" />
   </div>
@@ -134,36 +135,71 @@ const ColorsGrid = ({ onSelect, setOpen, value }: ColorsGrid) => {
     <>
       <div className="flex items-center gap-2 mt-2 mb-2 md:mb-0">
         <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: selected[0] }} />
-        <Input
-          value={selected[0] || ""}
-          onChange={(e) =>
-            setSelected((prev) => {
-              const updated = [...prev];
-              updated[0] = e.target.value;
-              return updated;
-            })
-          }
-          maxLength={7}
-          className="w-full"
-          placeholder="Primary Color"
-        />
+        <div className="relative w-full">
+          <Input
+            value={selected[0] || ""}
+            onChange={(e) =>
+              setSelected((prev) => {
+                const updated = [...prev];
+                updated[0] = e.target.value;
+                return updated;
+              })
+            }
+            maxLength={7}
+            className="w-full"
+            placeholder="Primary Color"
+          />
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
+                >
+                  <Info className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-64 text-center leading-[1.5]" side="right">
+                Enter a valid primary color HEX code (e.g., #ff5733).
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
 
       <div className="flex items-center gap-2 mb-2 md:mb-0">
         <div className="w-6 h-6 rounded-full border" style={{ backgroundColor: selected[1] }} />
-        <Input
-          value={selected[1] || ""}
-          onChange={(e) =>
-            setSelected((prev) => {
-              const updated = [...prev];
-              updated[1] = e.target.value;
-              return updated;
-            })
-          }
-          maxLength={7}
-          className="w-full"
-          placeholder="Secoundry Color"
-        />
+        <div className="relative w-full">
+          <Input
+            value={selected[1] || ""}
+            onChange={(e) =>
+              setSelected((prev) => {
+                const updated = [...prev];
+                updated[1] = e.target.value;
+                return updated;
+              })
+            }
+            maxLength={7}
+            className="w-full"
+            placeholder="Secoundry Color"
+          />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
+                >
+                  <Info className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-64 text-center leading-[1.5]" side="right">
+                Enter a valid secoundry color HEX code (e.g., #ff0000).
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
 
       <ul className="grid grid-cols-2 2xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 py-4 max-h-64 overflow-y-auto">

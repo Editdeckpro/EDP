@@ -1,28 +1,24 @@
 "use client";
 import DashboardHeader from "@/components/layout/header";
 import { SidebarWrapper } from "@/components/layout/sidebar";
-import {
-  CustomGeneratedImage,
-  GeneratedImageRes,
-} from "@type/api/generate.type";
+import { CustomGeneratedImage, GeneratedImageRes } from "@type/api/generate.type";
 import { Dispatch, SetStateAction, useState } from "react";
 import GeneratePage from "./generate-page";
 import GenerateSidebarContent from "./sidebar-content";
+import { NoActiveSubscriptionModal } from "./modals/no-active-subscription-modal";
+import { useSession } from "next-auth/react";
 
-export type GenerateResType =
-  | CustomGeneratedImage
-  | GeneratedImageRes
-  | null
-  | "loading";
-export type SetGenerateResType = Dispatch<
-  SetStateAction<GenerateResType | null>
->;
+export type GenerateResType = CustomGeneratedImage | GeneratedImageRes | null | "loading";
+export type SetGenerateResType = Dispatch<SetStateAction<GenerateResType | null>>;
 
 export default function Generate() {
+  const { data: authData } = useSession();
   const [data, setData] = useState<GenerateResType>(null);
+  const credits = authData?.user.credits;
 
   return (
     <section className="flex flex-col lg:flex-row">
+      {authData?.user && <NoActiveSubscriptionModal credits={credits} />}
       <div className="hidden lg:block lg:pr-0 min-w-1/4 p-5 pb-0">
         <SidebarWrapper>
           <GenerateSidebarContent setData={setData} />

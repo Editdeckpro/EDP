@@ -157,7 +157,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       <Button
         type="submit"
         className="w-full"
-        disabled={isSubmitting || status !== "authenticated"}
+        disabled={isSubmitting || status !== "authenticated" || data?.user.credits === 0}
         onClick={submitButtonClicked}
       >
         {isSubmitting ? "Generating..." : "Generate Image"}

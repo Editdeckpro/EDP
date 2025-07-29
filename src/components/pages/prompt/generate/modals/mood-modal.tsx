@@ -89,7 +89,9 @@ const ModalTrigger = ({ value }: { value: string[] }) => (
       <span>
         <SmilePlus className="text-muted-foreground" />
       </span>
-      <span className="line-clamp-1 text-left">{value.length > 0 ? value.join(", ") : "Mood"}</span>
+      <span className="line-clamp-1 text-left">
+        {value.length > 0 ? value.join(value.length > 1 ? ", " : " ") : "Mood"}
+      </span>
     </div>
     <ChevronRight className="text-muted-foreground size-5" />
   </div>
