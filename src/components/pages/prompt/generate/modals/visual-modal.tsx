@@ -92,7 +92,9 @@ const ModalTrigger = ({ value }: { value: string[] }) => (
       <span>
         <PaintbrushVertical className="text-muted-foreground" />
       </span>
-      <span className="line-clamp-1 text-left">{value.length > 0 ? value.join(", ") : "Visual Styles"}</span>
+      <span className="line-clamp-1 text-left">
+        {value.length > 0 ? value.join(value.length > 1 ? ", " : " ") : "Visual Styles"}
+      </span>
     </div>
     <ChevronRight className="text-muted-foreground size-5" />
   </div>

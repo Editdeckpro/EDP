@@ -62,11 +62,12 @@ export default function SubscriptionPricing() {
   );
 }
 
-const pricingPlansDetails: Omit<PricingCardProps, "billingPeriod" | "isCurrentPlan" | "isLoading">[] = [
+export const pricingPlansDetails: Omit<PricingCardProps, "billingPeriod" | "isCurrentPlan" | "isLoading">[] = [
   {
     id: "STARTER",
     title: "Starter",
     description: "Ideal for Independent Artists",
+    badge: "Most Popular",
     price: 27,
     price_annual: 219,
     features: [
@@ -84,6 +85,7 @@ const pricingPlansDetails: Omit<PricingCardProps, "billingPeriod" | "isCurrentPl
     id: "NEXT_LEVEL",
     title: "Next Level",
     description: "Designed for Serious Artists Ready to Grow",
+    badge: "Supercharged from Starter",
     price: 67,
     price_annual: 539,
     features: [
@@ -99,6 +101,7 @@ const pricingPlansDetails: Omit<PricingCardProps, "billingPeriod" | "isCurrentPl
     id: "PRO_STUDIO",
     title: "Pro Studio",
     description: "Designed for Businesses",
+    badge: "Level Up from Next Level",
     price: 119,
     price_annual: 971,
     features: [
