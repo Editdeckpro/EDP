@@ -14,6 +14,7 @@ interface SubscriptionHeaderProps {
 }
 const SubscriptionHeader: FC<SubscriptionHeaderProps> = ({ setPeriod, billingPeriod }) => {
   const [subscriptionData, setSubscriptionData] = useState<GetCurrentSubscriptionResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [expireDate, setExpireDate] = useState<string>("");
 
   useEffect(() => {
@@ -36,6 +37,7 @@ const SubscriptionHeader: FC<SubscriptionHeaderProps> = ({ setPeriod, billingPer
 
   useEffect(() => {
     const fetchSubscription = async () => {
+      setIsLoading(true);
       try {
         const axios = await GetAxiosWithAuth();
         const res = await axios.get<GetCurrentSubscriptionResponse>(`subscription`);
@@ -43,6 +45,8 @@ const SubscriptionHeader: FC<SubscriptionHeaderProps> = ({ setPeriod, billingPer
         setSubscriptionData(res.data);
       } catch (err) {
         console.error("Failed to fetch subscription info:", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -54,14 +58,16 @@ const SubscriptionHeader: FC<SubscriptionHeaderProps> = ({ setPeriod, billingPer
       <div>
         <h2 className="text-3xl font-bold mb-2">Choose the Perfect Plan.</h2>
         <p className="text-[#6a6c7b]">Select a plan that suits your needs and unlock exclusive features.</p>
-        {subscriptionData?.messageMetadata?.type ? (
-          <p className="text-primary mb-2 font-medium">
-            {subscriptionData?.messageMetadata?.type === "FREE_PLAN"
-              ? subscriptionData?.messageMetadata?.message
-              : `${subscriptionData?.messageMetadata?.message} ${formatLongDate(expireDate)}`}
-          </p>
+        {isLoading ? (
+          <Skeleton className="w-80 h-5 my-1 mx-auto md:mx-0" />
         ) : (
-          <Skeleton className="w-80 h-5 mt-1" />
+          subscriptionData?.messageMetadata?.message && (
+            <p className="text-primary mb-2 font-medium">
+              {subscriptionData?.messageMetadata?.type === "FREE_PLAN"
+                ? subscriptionData?.messageMetadata?.message
+                : `${subscriptionData?.messageMetadata?.message} ${formatLongDate(expireDate)}`}
+            </p>
+          )
         )}
       </div>
       <div className="mb-6">
