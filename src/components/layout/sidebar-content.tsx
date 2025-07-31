@@ -8,12 +8,14 @@ import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
 import { usePathname } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { useTour } from "@/context/OnboardingTourContext";
 
 interface SidebarContent {
   target?: React.HTMLAttributeAnchorTarget;
 }
 
 export default function SidebarContent({ target }: SidebarContent) {
+  const { handleStartTour } = useTour();
   return (
     <>
       <Image
@@ -31,14 +33,10 @@ export default function SidebarContent({ target }: SidebarContent) {
         (section, i) =>
           section.header != false && (
             <div key={i} className="space-y-1">
-              {section.header && (
-                <header className="font-bold text-black">
-                  {section.header}
-                </header>
-              )}
-              <ul className="space-y-3">
+              {section.header && <header className="font-bold text-black mb-3">{section.header}</header>}
+              <ul className="space-y-3" id={section.header === "Other Options" ? "step1" : undefined}>
                 {section.links.map((item, idx) => (
-                  <li className={cn("pl-2")} key={idx}>
+                  <li className={cn("pl-2")} key={idx} id={item.text === "Upload" ? "step2" : undefined}>
                     <SidebarLinkButton {...item} target={target} />
                   </li>
                 ))}
@@ -46,6 +44,10 @@ export default function SidebarContent({ target }: SidebarContent) {
             </div>
           )
       )}
+      <Separator />
+      <Button size={"sm"} variant={"outline"} onClick={handleStartTour} className="cursor-pointer">
+        Onboarding Tour
+      </Button>
     </>
   );
 }
@@ -81,10 +83,7 @@ const SidebarLinkButton = ({
             )}
             tabIndex={-1}
           >
-            <div
-              data-active={!isActive}
-              className="flex items-center gap-1 group"
-            >
+            <div data-active={!isActive} className="flex items-center gap-1 group">
               {icon}
               <div className="text-wrap font-semibold">{text}</div>
             </div>
