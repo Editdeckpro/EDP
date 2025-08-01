@@ -1,6 +1,5 @@
 "use client";
 import { Skeleton } from "@/components/ui/skeleton";
-import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
 const messages = [
@@ -41,23 +40,14 @@ const GenerationLoading = () => {
       </div>
 
       <div className="p-4 rounded-lg bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-3 items-start md:items-center">
-        {/* <div className="flex items-center gap-3 text-sm">
-            <Sparkles className="text-primary size-5 min-w-4" />
-            <Skeleton className="w-full h-5" />
-          </div> */}
-
-        {/* <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <Skeleton className="aspect-square w-[12rem]" />
-            <Skeleton className="aspect-square w-[12rem]" />
-            <Skeleton className="aspect-square w-[12rem]" />
-            <Skeleton className="aspect-square w-[12rem]" />
-          </div> */}
-
-        <div className="flex justify-center items-center flex-col">
-          <div className="relative w-60 sm:w-80 md:w-[300px] lg:w-[450px] aspect-square">
-            <Image src="/images/generation-loading.gif" fill alt="something" className="object-cover" />
+        <div className="flex justify-center items-center flex-col gap-4">
+          <div className="content">
+            <div className="cube"></div>
           </div>
-          <div className="relative -top-8 md:-top-12 min-h-[24px] text-center text-muted-foreground text-sm font-medium transition-all duration-500 ease-in-out">
+          {/* <div className="relative w-60 sm:w-80 md:w-[300px] lg:w-[450px] aspect-square">
+            <Image src="/images/generation-loading.gif" fill alt="something" className="object-cover" />
+          </div> */}
+          <div className="relative -top-8 md:-top-6 min-h-[24px] text-center text-muted-foreground text-sm font-medium transition-all duration-500 ease-in-out">
             <p
               className={`tracking-wide transition-all duration-500 transform ${
                 fade ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
