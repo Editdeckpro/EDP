@@ -4,15 +4,26 @@ import Image from "next/image";
 import React, { FC, useEffect, useState } from "react";
 import type { CallBackProps, Step } from "react-joyride";
 import Joyride, { EVENTS, STATUS } from "react-joyride";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface OnboardingTourProps {
   children: React.ReactNode;
 }
 
 const OnboardingTour: FC<OnboardingTourProps> = ({ children }) => {
-  const { startTour, setStartTour, loaded, handleTourEnd, setProgress } = useTour();
-
+  const { startTour, setStartTour, loaded, handleTourEnd, progress, setProgress, handleStartTour } = useTour();
   const [run, setRun] = useState(startTour);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const isOnboarding = searchParams.get("onboarding") || "";
+
+  useEffect(() => {
+    if (isOnboarding && progress === 1) {
+      Promise.resolve().then(() => {
+        handleStartTour(); // also safely defers the state update
+      });
+    }
+  }, [isOnboarding, handleStartTour, progress]);
 
   const steps: Step[] = [
     {
@@ -48,7 +59,17 @@ const OnboardingTour: FC<OnboardingTourProps> = ({ children }) => {
   }, [startTour]);
 
   const handleJoyrideCallback = (data: CallBackProps) => {
-    const { status, type, index } = data;
+    const { status, type, index, action } = data;
+    const isLastStep = index === steps.length - 1;
+
+    if (type === EVENTS.STEP_AFTER && isLastStep && action === "next") {
+      // console.log("🎉 Last step 'Next' button clicked!");
+
+      // ✅ Delay navigation to prevent reload
+      setTimeout(() => {
+        router.replace("/");
+      }, 2000);
+    }
 
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
       setRun(false);

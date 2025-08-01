@@ -1,30 +1,20 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { FormPasswordField } from "@/components/ui/password-input";
 import { axiosInstance } from "@/lib/axios-instance";
-import {
-  signupFormSchema,
-  SignupFormSchemaType,
-} from "@/schemas/signup-form-schema";
+import { signupFormSchema, SignupFormSchemaType } from "@/schemas/signup-form-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
-import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { useTopLoader } from "nextjs-toploader";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 export default function SignupForm() {
-  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const topLoader = useTopLoader();
   const searchParams = useSearchParams();
@@ -45,25 +35,44 @@ export default function SignupForm() {
     setLoading(true);
     topLoader.start();
     try {
-      await axiosInstance.post(
+      const signUpResponse = await axiosInstance.post(
         `auth/register${promo ? `?promo=${encodeURIComponent(promo)}` : ""}`,
-        values,
+        values
       );
+      const { data } = signUpResponse;
 
+      form.reset();
       toast.success("Registration successful!", {
-        description: "You can now login",
-        action: {
-          label: "Login",
-          onClick: () => {
-            router.push("/login");
-          },
-        },
+        description: "Welcome to Edit Deck Pro",
       });
+
+      if (data.accessToken) {
+        await signIn("credentials", {
+          token: data.accessToken,
+          callbackUrl: "/?onboarding=true",
+        });
+
+        // router.replace("/");
+      } else {
+        toast.error("Missing token!", {
+          description: "Access token is not provided, contect to developer.",
+        });
+      }
     } catch (e) {
       const error = e as AxiosError;
-      // console.log("Error while registering user", e);
-      toast.error(error.response?.statusText || "Something went wrong!", {
-        description: "Please try again after some time",
+      // console.log("Error while registering user", error);
+      let errorMessage = "Something went wrong!";
+
+      if (
+        error.response &&
+        error.response.data &&
+        typeof error.response.data === "object" &&
+        "message" in error.response.data
+      ) {
+        errorMessage = (error.response.data as { message: string }).message;
+      }
+      toast.error(errorMessage, {
+        description: "Please try again with correct details",
       });
     }
     setLoading(false);
