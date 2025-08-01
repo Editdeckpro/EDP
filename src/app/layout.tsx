@@ -5,6 +5,7 @@ import "./g-font.css";
 import { Toaster } from "@/components/ui/sonner";
 import localFont from "next/font/local";
 import NextTopLoader from "nextjs-toploader";
+import { TourProvider } from "@/context/OnboardingTourContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,12 +36,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <meta name="grammarly" content="off" />
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${materialSymbols.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} ${materialSymbols.variable} antialiased`}>
         <NextTopLoader color="#3E4EBA" />
         <Toaster richColors position="top-right" />
-        {children}
+        <TourProvider>{children}</TourProvider>
       </body>
     </html>
   );
