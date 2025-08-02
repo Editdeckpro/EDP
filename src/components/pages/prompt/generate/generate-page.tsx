@@ -35,7 +35,7 @@ const DataResult = ({ data }: GeneratePageProps) => {
           </Button> */}
         </div>
 
-        <div className="px-4 py-2 rounded-lg bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-3 items-start md:items-center">
+        <div className="p-4 rounded-lg bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-3 items-start md:items-center">
           {/* <div className="flex items-center gap-3 text-sm">
             <Sparkles className="text-primary size-5 min-w-4" />
             {data.finalPrompt}

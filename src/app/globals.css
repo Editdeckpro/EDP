@@ -233,7 +233,7 @@
 .content .cube::before {
   position: absolute;
   content: "";
-  background: var(--color);
+  background: var(--primary);
   width: calc(100% - 2vmin);
   height: calc(100% - 2vmin);
   border-radius: 2vmin;
@@ -246,7 +246,7 @@
 }
 
 .content .cube {
-  background: var(--color);
+  background: var(--primary);
   width: 20vmin;
   height: 20vmin;
   border-radius: 2vmin;
