@@ -51,6 +51,7 @@ export default function SubscriptionPricing() {
             {...card}
             key={card.title}
             billingPeriod={billingPeriod}
+            currentPlanId={data?.user?.subscription?.planType || "FREE"}
             isLoading={status != "authenticated"}
             isCurrentPlan={
               data?.user.subscription.planType === card.id && data?.user.subscription.interval === billingPeriod
@@ -61,6 +62,46 @@ export default function SubscriptionPricing() {
     </>
   );
 }
+
+export type PlanActionType = "PURCHASE" | "UPGRADE" | "DOWNGRADE" | "SAME_PLAN";
+
+export const tierPriority = {
+  FREE: 0,
+  STARTER: 1,
+  NEXT_LEVEL: 2,
+  PRO_STUDIO: 3,
+} as const;
+
+export type PlanID = keyof typeof tierPriority;
+
+export const messageMap = {
+  upgrade: {
+    title: "Ready to Upgrade?",
+    description:
+      "You're about to upgrade your current plan for more powerful features and higher limits. Proceed with the upgrade?",
+    action: "Confirm, Upgrade",
+  },
+  downgrade: {
+    title: "Confirm Downgrade",
+    description: "Downgrading your plan may remove access to certain features. Are you sure you want to continue?",
+    action: "Confirm, Downgrade",
+  },
+  purchase: {
+    title: "Confirm Plan Purchase",
+    description: "You're about to purchase this subscription plan. Please confirm to proceed with payment.",
+    action: "Confirm, Purchase",
+  },
+};
+
+export const getPlanActionType = (currentPlan: PlanID | null, newPlan: PlanID): keyof typeof messageMap => {
+  if (!currentPlan || currentPlan === "FREE") {
+    return newPlan === "FREE" ? "purchase" : "purchase";
+  }
+
+  if (tierPriority[newPlan] > tierPriority[currentPlan]) return "upgrade";
+  if (tierPriority[newPlan] < tierPriority[currentPlan]) return "downgrade";
+  return "purchase";
+};
 
 export const pricingPlansDetails: Omit<PricingCardProps, "billingPeriod" | "isCurrentPlan" | "isLoading">[] = [
   {
