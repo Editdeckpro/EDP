@@ -11,10 +11,12 @@ function OAuthCallback() {
 
   useEffect(() => {
     if (token) {
-      signIn("credentials", {
-        token,
-        callbackUrl: "/",
-      });
+      (async () => {
+        await signIn("credentials", {
+          token,
+          callbackUrl: "/?onboarding=true",
+        });
+      })();
     } else {
       // Invalid redirect
       router.push("/login");

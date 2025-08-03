@@ -9,6 +9,8 @@ import { MobileNavSheet } from "./sidebar";
 import { sidebarSections } from "./sidebar-content";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "../ui/skeleton";
+import { Button } from "../ui/button";
+import { useTour } from "@/context/OnboardingTourContext";
 
 interface HeaderProps {
   type?: "prompt" | "nav";
@@ -18,6 +20,7 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { status, data } = useSession();
+  const { handleStartTour } = useTour();
 
   // Split the path into parts
   const pathParts = pathname.split("/").filter(Boolean);
@@ -79,6 +82,14 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            size={"sm"}
+            variant={"outline"}
+            onClick={handleStartTour}
+            className="cursor-pointer text-primary border-primary hover:bg-primary hover:text-white rounded-3xl"
+          >
+            Onboarding Tour
+          </Button>
           {/* Credits Badge */}
           <div className="flex items-center gap-2 bg-white text-black outline outline-gray-300 rounded-full px-3 py-1 pl-[5px]">
             <div className="rounded-full bg-secondary p-2 aspect-square flex items-center justify-center text-xs font-bold">
@@ -150,8 +161,18 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
                 </div>
               </div>
             </div>
+            <div className="flex gap-4 items-center">
+              <Button
+                size={"sm"}
+                variant={"outline"}
+                onClick={handleStartTour}
+                className="cursor-pointer text-primary border-primary hover:bg-primary hover:text-white rounded-3xl"
+              >
+                Onboarding
+              </Button>
 
-            <ProfileDropdown isMobile />
+              <ProfileDropdown isMobile />
+            </div>
           </nav>
         </header>
       )}
