@@ -10,6 +10,18 @@ import { useTopLoader } from "nextjs-toploader";
 import { toast } from "sonner";
 import { CancelSubscriptionResponse, CreateCheckoutSessionResponse } from "./types";
 import { AxiosError } from "axios";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { getPlanActionType, messageMap } from "./subscription-pricing";
 
 export type PlanID = "FREE" | "STARTER" | "NEXT_LEVEL" | "PRO_STUDIO";
 export interface PricingCardProps {
@@ -25,6 +37,7 @@ export interface PricingCardProps {
   icon: React.ReactNode;
   isLoading: boolean;
   isCurrentPlan: boolean;
+  currentPlanId?: PlanID;
 }
 
 const PricingCard: FC<PricingCardProps> = ({
@@ -39,6 +52,7 @@ const PricingCard: FC<PricingCardProps> = ({
   icon: Icon,
   color,
   isLoading,
+  currentPlanId = "FREE",
 }) => {
   const cardBg = color === "primary" ? "bg-primary/20" : color === "secondary" ? "bg-secondary/20" : "bg-accent/20";
 
@@ -50,6 +64,8 @@ const PricingCard: FC<PricingCardProps> = ({
   const router = useRouter();
   const topLoader = useTopLoader();
   const [loading, setLoading] = React.useState(false);
+
+  const actionType = getPlanActionType(currentPlanId, id);
 
   async function upgradePlan() {
     topLoader.start();
@@ -158,9 +174,23 @@ const PricingCard: FC<PricingCardProps> = ({
             Cancel Plan
           </Button>
         ) : (
-          <Button size={"full"} onClick={upgradePlan} isLoading={loading} disabled={loading || isLoading}>
-            Get Started Now
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button size={"full"} isLoading={loading}>
+                Get Started Now
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{messageMap[actionType].title}</AlertDialogTitle>
+                <AlertDialogDescription>{messageMap[actionType].description}</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={upgradePlan}>{messageMap[actionType].action}</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         ))}
     </div>
   );

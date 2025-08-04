@@ -1,6 +1,7 @@
 // types/next-auth.d.ts
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import NextAuth from "next-auth";
+import { PlanID } from "@/components/pages/subscription/subscription-pricing";
 
 declare module "next-auth" {
   interface User {
@@ -28,7 +29,7 @@ export interface SessionUser {
   profileImage?: string;
   credits: number;
   subscription: {
-    planType: string;
+    planType: PlanID;
     status: string;
     interval: "monthly" | "yearly";
     currentPeriodEnd: string;

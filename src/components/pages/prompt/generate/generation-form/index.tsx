@@ -89,7 +89,13 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
     updateField();
   }, [mainForm, watchedValues]);
 
-  function submitButtonClicked() {
+  async function submitButtonClicked() {
+    const isGenerateFormValid = await generateForm.trigger(); // triggers validation
+    const isMainFormValid = await mainForm.trigger();
+
+    if (!isGenerateFormValid || !isMainFormValid) {
+      return;
+    }
     if (generateFormRef.current) {
       generateFormRef.current.click();
     }

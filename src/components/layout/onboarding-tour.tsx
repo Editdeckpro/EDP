@@ -5,6 +5,7 @@ import React, { FC, useEffect, useState } from "react";
 import type { CallBackProps, Step } from "react-joyride";
 import Joyride, { EVENTS, STATUS } from "react-joyride";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useIsMobile } from "@/hook/use-is-mobile";
 
 interface OnboardingTourProps {
   children: React.ReactNode;
@@ -16,11 +17,15 @@ const OnboardingTour: FC<OnboardingTourProps> = ({ children }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isOnboarding = searchParams.get("onboarding") || "";
+  const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (isOnboarding && progress === 1) {
+    if (isOnboarding && progress === 0) {
       Promise.resolve().then(() => {
-        handleStartTour(); // also safely defers the state update
+        if (!localStorage.getItem("isShowedOnboardTour")) {
+          localStorage.setItem("isShowedOnboardTour", "true");
+          handleStartTour(); // also safely defers the state update
+        }
       });
     }
   }, [isOnboarding, handleStartTour, progress]);
@@ -33,22 +38,22 @@ const OnboardingTour: FC<OnboardingTourProps> = ({ children }) => {
       content: <StepOneContent />,
     },
     {
-      target: "#step1",
-      placement: "top",
+      target: isMobile ? "body" : "#step-1",
+      placement: isMobile ? "center" : "top",
       styles: { options: { width: 320 } },
-      content: <StepTwoContent />,
+      content: <StepTwoContent isMobile={isMobile} />,
     },
     {
-      target: "#step2",
-      placement: "bottom",
+      target: isMobile ? "body" : "#step-2",
+      placement: isMobile ? "center" : "bottom",
       styles: { options: { width: 320 } },
-      content: <StepThreeContent />,
+      content: <StepThreeContent isMobile={isMobile} />,
     },
     {
-      target: "#step3",
-      placement: "right",
+      target: isMobile ? "body" : "#step-3",
+      placement: isMobile ? "center" : "right",
       styles: { options: { width: 320 } },
-      content: <StepFourContent />,
+      content: <StepFourContent isMobile={isMobile} />,
     },
   ];
 
@@ -58,23 +63,29 @@ const OnboardingTour: FC<OnboardingTourProps> = ({ children }) => {
     }
   }, [startTour]);
 
-  const handleJoyrideCallback = (data: CallBackProps) => {
-    const { status, type, index, action } = data;
-    const isLastStep = index === steps.length - 1;
-
-    if (type === EVENTS.STEP_AFTER && isLastStep && action === "next") {
-      // console.log("🎉 Last step 'Next' button clicked!");
-
-      // ✅ Delay navigation to prevent reload
-      setTimeout(() => {
-        router.replace("/");
-      }, 2000);
+  useEffect(() => {
+    if (run) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
     }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [run]);
+
+  const handleJoyrideCallback = async (data: CallBackProps) => {
+    const { status, type, index } = data;
 
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
       setRun(false);
       setStartTour(false);
       handleTourEnd();
+      setProgress(0);
+      setTimeout(() => {
+        router.replace("/");
+      }, 2000);
     } else if (type === EVENTS.STEP_BEFORE) {
       setProgress(index + 1);
     }
@@ -90,8 +101,13 @@ const OnboardingTour: FC<OnboardingTourProps> = ({ children }) => {
           callback={handleJoyrideCallback}
           run={run}
           steps={steps}
-          scrollToFirstStep
+          disableScrolling
+          // scrollToFirstStep
           debug
+          showSkipButton
+          disableOverlayClose
+          disableCloseOnEsc
+          hideCloseButton
           styles={{
             // overlay: {
             //   border: "6px solid lightblue",
@@ -131,13 +147,13 @@ const OnboardingTour: FC<OnboardingTourProps> = ({ children }) => {
               primaryColor: "#3E4EBA",
             },
           }}
-          //   stepIndex={stepIndex}
-          //   showProgress
-          showSkipButton
-          //   disableOverlayClose
-          //   disableCloseOnEsc
-          //   spotlightPadding={10}
-          //   hideCloseButton={false}
+          locale={{
+            back: "←",
+            close: "Close",
+            last: "Get start",
+            next: "→",
+            skip: "Skip",
+          }}
         />
         {children}
       </>
@@ -147,10 +163,14 @@ const OnboardingTour: FC<OnboardingTourProps> = ({ children }) => {
   }
 };
 
+interface IStep {
+  isMobile: boolean;
+}
+
 const StepOneContent = () => {
   const { progress, totalSteps } = useTour(); // from context or props
   return (
-    <div className="p-3">
+    <div className="p-3 z-50">
       <div className="mt-10 w-full flex items-center justify-center">
         <Image src="/images/logo.jpg" alt="Logo" width={150} height={100} priority />
       </div>
@@ -166,12 +186,20 @@ const StepOneContent = () => {
   );
 };
 
-const StepTwoContent = () => {
+const StepTwoContent = ({ isMobile }: IStep) => {
   const { progress, totalSteps } = useTour(); // from context or props
   return (
     <div className="mb-2 flex flex-col gap-4 px-2 text-left">
       {/* <p className="mr-4 text-base font-bold">Support section</p> */}
-      <p className="mr-2 text-sm text-foreground text-center">If you have any questions, check here first!</p>
+      {isMobile ? (
+        <p className="text-sm text-foreground text-center">
+          Need help or have questions? Check out the <strong>FAQs</strong> and <strong>Support</strong> options in the
+          sidebar menu.
+        </p>
+      ) : (
+        <p className="mr-2 text-sm text-foreground text-center">If you have any questions, check here first!</p>
+      )}
+
       <div className="absolute bottom-[30px] left-[38%] text-sm text-neutral-400">
         {progress} of {totalSteps}
       </div>
@@ -179,12 +207,19 @@ const StepTwoContent = () => {
   );
 };
 
-const StepThreeContent = () => {
+const StepThreeContent = ({ isMobile }: IStep) => {
   const { progress, totalSteps } = useTour(); // from context or props
   return (
     <div className="mb-4 flex flex-col gap-4 px-2 text-left">
       {/* <p className="mr-4 text-base font-bold">Support section</p> */}
-      <p className="mr-2 text-sm text-foreground text-center">Click here to upload an image.</p>
+      {isMobile ? (
+        <p className="text-sm text-foreground text-center">
+          Use the <strong>Upload</strong> button in the sidebar to start editing your images instantly.
+        </p>
+      ) : (
+        <p className="mr-2 text-sm text-foreground text-center">Click here to upload an image.</p>
+      )}
+
       <div className="absolute bottom-[30px] left-[38%] text-sm text-neutral-400">
         {progress} of {totalSteps}
       </div>
@@ -192,12 +227,19 @@ const StepThreeContent = () => {
   );
 };
 
-const StepFourContent = () => {
+const StepFourContent = ({ isMobile }: IStep) => {
   const { progress, totalSteps } = useTour(); // from context or props
   return (
     <div className="my-2 flex flex-col gap-4 px-2 text-left">
       {/* <p className="mr-4 text-base font-bold">Support section</p> */}
-      <p className="mr-2 text-sm text-foreground text-center">{"Press 'Generate Now' to create images now!"}</p>
+      {isMobile ? (
+        <p className="text-sm text-foreground text-center">
+          Tap <strong>Generate Now</strong> to bring your design to life. You’re all set!
+        </p>
+      ) : (
+        <p className="mr-2 text-sm text-foreground text-center">{"Press 'Generate Now' to create images now!"}</p>
+      )}
+
       <div className="absolute bottom-[30px] left-[38%] text-sm text-neutral-400">
         {progress} of {totalSteps}
       </div>

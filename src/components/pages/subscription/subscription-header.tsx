@@ -41,7 +41,6 @@ const SubscriptionHeader: FC<SubscriptionHeaderProps> = ({ setPeriod, billingPer
       try {
         const axios = await GetAxiosWithAuth();
         const res = await axios.get<GetCurrentSubscriptionResponse>(`subscription`);
-        console.log("subscription res", res);
         setSubscriptionData(res.data);
       } catch (err) {
         console.error("Failed to fetch subscription info:", err);

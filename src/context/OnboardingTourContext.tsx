@@ -17,7 +17,7 @@ const TourContext = createContext<TourContextType | null>(null);
 export const TourProvider = ({ children }: { children: ReactNode }) => {
   const [startTour, setStartTour] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [progress, setProgress] = useState<number>(1);
+  const [progress, setProgress] = useState<number>(0);
   const totalSteps: number = 4;
 
   useEffect(() => {
