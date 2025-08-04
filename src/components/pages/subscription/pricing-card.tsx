@@ -164,15 +164,32 @@ const PricingCard: FC<PricingCardProps> = ({
           // <div className="grid grid-cols-2 gap-3">
           //<Button variant={"secondary"}>Renew Plan</Button>
           // </div>
-          <Button
-            variant={"destructive"}
-            className="cursor-pointer"
-            onClick={cancelPlan}
-            isLoading={loading}
-            disabled={loading || isLoading}
-          >
-            Cancel Plan
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant={"destructive"}
+                className="cursor-pointer"
+                isLoading={loading}
+                disabled={loading || isLoading}
+              >
+                Cancel Plan
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Cancel Subscription?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {
+                    "Are you sure you want to cancel your subscription? You’ll lose access to premium features at the end of your billing cycle."
+                  }
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={cancelPlan}>Yes, Cancel Subscription</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         ) : (
           <AlertDialog>
             <AlertDialogTrigger asChild>
