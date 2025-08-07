@@ -1,5 +1,6 @@
 import { apiProviders } from "@/lib/utils";
 import { z } from "zod";
+import { fileSchema } from "./remix-schema";
 
 export const generateFormSchema = z.object({
   albumSongName: z.string().min(1, "Album song name is required"),
@@ -18,7 +19,7 @@ export const generateFormSchema = z.object({
 export const mainGenerateFormSchema = z.object({
   numberOfImages: z.number().min(1).max(4),
   apiProvider: z.enum(apiProviders),
-
+  referenceImage: fileSchema.optional(),
   customPrompt: z.string().min(1, {
     message: "Custom prompt is required.",
   }),
