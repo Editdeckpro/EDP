@@ -1,30 +1,25 @@
 import { apiProviders } from "@/lib/utils";
 import { z } from "zod";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/webp", "image/png"];
+export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/webp", "image/png"];
 
-const fileSchema = z
+export const fileSchema = z
   .instanceof(File)
   .refine((file) => file.size <= MAX_FILE_SIZE, "Max file size is 10MB.")
-  .refine(
-    (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
-    "Only .jpeg, .webp, .png formats are supported."
-  );
+  .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), "Only .jpeg, .webp, .png formats are supported.");
 
 export const remixFormSchema = z
   .object({
-    customPrompt: z
-      .string()
-      .max(1000, "Prompt is too long")
-      .min(1, { message: "Prompt is required" }),
+    albumSongName: z.string().optional(),
+    artistName: z.string().optional(),
+    genre: z.string().optional(),
+    elements: z.string().optional(),
+    customPrompt: z.string().max(1000, "Prompt is too long").min(1, { message: "Prompt is required" }),
 
     referenceImage: fileSchema.optional(),
 
-    imageSimilarity: z
-      .number()
-      .min(0, "Similarity must be at least 0%")
-      .max(100, "Similarity cannot exceed 100%"),
+    imageSimilarity: z.number().min(0, "Similarity must be at least 0%").max(100, "Similarity cannot exceed 100%"),
 
     imageUrl: z.string().url().nullable().optional(),
     apiProvider: z.enum(apiProviders),

@@ -12,9 +12,18 @@ import ColorPaletteModal from "../modals/colors-modal";
 import MoodModal from "../modals/mood-modal";
 import VisualStyleModal from "../modals/visual-modal";
 
-const genreSuggestions = ["Synthwave", "Lo-fi", "Jazz", "Cyberpunk", "Dark Fantasy", "Vaporwave", "Classical", "Retro"];
+export const genreSuggestions = [
+  "Synthwave",
+  "Lo-fi",
+  "Jazz",
+  "Cyberpunk",
+  "Dark Fantasy",
+  "Vaporwave",
+  "Classical",
+  "Retro",
+];
 
-const elementSuggestions = [
+export const elementSuggestions = [
   "Neon lights",
   "City skyline",
   "Spaceship",
@@ -319,7 +328,9 @@ export default function GenerationForm() {
                     <ColorPaletteModal onSelect={handleColorSelect} value={field.value} />
                   </FormControl>
                   <FormMessage />
-                  <FormDescription className="font-normal text-xs">Choose a dominant color scheme.</FormDescription>
+                  <FormDescription className="font-normal text-xs">
+                    <b>NOTE:</b> Colors only works with OpenAI
+                  </FormDescription>
                 </FormItem>
               )}
             />
