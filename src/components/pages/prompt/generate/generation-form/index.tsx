@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import {
   generateFormSchema,
   GenerateFormSchemaType,
@@ -16,6 +16,9 @@ import { SetGenerateResType } from "..";
 import { generateFormDataSubmit } from "../request";
 import GenerateForm from "./generation-form";
 import MainGenerateForm from "./main-generation-form";
+import { ChevronDown, ChevronUp, Upload } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { fileToBase64 } from "@/lib/utils";
 
 interface GenerateFormProps {
   setData: SetGenerateResType;
@@ -26,6 +29,8 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
   const { data, status, update } = useSession();
   const generateFormRef = useRef<HTMLButtonElement | null>(null);
   const mainGenerateFormRef = useRef<HTMLButtonElement | null>(null);
+  const [imageGuidancesOpen, setImageGuidanceOpen] = useState<boolean>(true);
+  const [imageBase64, setImageBase64] = useState<string | undefined>(undefined);
 
   const generateForm = useForm<GenerateFormSchemaType>({
     resolver: zodResolver(generateFormSchema),
@@ -46,6 +51,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       numberOfImages: 1,
       apiProvider: "openai",
       customPrompt: "",
+      referenceImage: undefined,
     },
   });
 
@@ -59,6 +65,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       const mood = watchedValues.mood;
       const elements = watchedValues.elements;
       const visualStyles = watchedValues.visualStyles;
+      const colorPalette = watchedValues.colorPalette;
 
       const lines: string[] = [];
 
@@ -78,6 +85,10 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       }
       if (visualStyles) {
         lines.push(`The artwork must be highly detailed, ${visualStyles} and high-resolution.`);
+      }
+
+      if (colorPalette.length > 0) {
+        lines.push(`Use these colors: ${colorPalette.join(colorPalette.length > 1 ? ", " : " ")}`);
       }
 
       lines.push(`This artwork is designed for music album covers for streaming platforms and vinyl releases.`);
@@ -155,6 +166,65 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       </Form>
       <Form {...mainForm}>
         <form onSubmit={mainForm.handleSubmit(mainFormSubmit)} className="space-y-4">
+          {/* referenceImage Upload */}
+          <div className="space-y-3">
+            <div
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => setImageGuidanceOpen(!imageGuidancesOpen)}
+            >
+              <h3 className="text-lg font-medium">Image Guidance</h3>
+              <Button variant="link" size="icon" type="button">
+                {imageGuidancesOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </Button>
+            </div>
+
+            {imageGuidancesOpen && (
+              <FormField
+                control={mainForm.control}
+                name="referenceImage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl className="outline-muted-foreground outline-dashed outline">
+                      <Input
+                        type="file"
+                        icon={<Upload className="text-primary size-5" />}
+                        accept="image/jpeg, image/webp, image/png"
+                        // disabled={hasValidUrl}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const base64 = await fileToBase64(file);
+                            setImageBase64(base64);
+                            // setPageBase64(base64);
+                            field.onChange(file); // pass File to RHF
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+          </div>
+
+          <div className="space-y-2">
+            {/* <h2 className="font-bold text-lg">Image to be Remixed</h2> */}
+            <div className="p-2 bg-muted rounded-lg border border-primary/30 max-h-32">
+              {imageBase64 !== undefined && imageBase64 !== "" ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={imageBase64 || undefined}
+                  width={45}
+                  height={45}
+                  alt={"Remix Image Preview"}
+                  className="rounded-sm max-h-full"
+                />
+              ) : (
+                <div className="text-center text-muted-foreground font-light">Preview of selected image</div>
+              )}
+            </div>
+          </div>
           <MainGenerateForm />
           <button ref={mainGenerateFormRef} type="submit" className="hidden" aria-hidden />
         </form>
