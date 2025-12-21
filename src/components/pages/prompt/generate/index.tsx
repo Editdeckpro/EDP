@@ -24,9 +24,11 @@ export default function Generate() {
           <GenerateSidebarContent setData={setData} />
         </SidebarWrapper>
       </div>
-      <section className="p-5 space-y-5  w-full">
+      <section className="p-5 pt-3 pb-4 space-y-4 w-full max-w-full">
         <DashboardHeader />
-        <GeneratePage data={data} />
+        <div className="w-full">
+          <GeneratePage data={data} />
+        </div>
         <section className="max-w-2xl block lg:hidden">
           <GenerateSidebarContent setData={setData} />
         </section>

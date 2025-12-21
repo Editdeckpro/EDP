@@ -31,15 +31,15 @@ const GenerationLoading = () => {
     return () => clearInterval(interval);
   }, []);
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex justify-between">
-        <div className="space-y-3">
+        <div className="space-y-2">
           <Skeleton className="w-sm h-6" />
           <Skeleton className="w-xs h-4" />
         </div>
       </div>
 
-      <div className="p-4 rounded-lg bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-3 items-start md:items-center">
+      <div className="p-4 md:p-6 rounded-xl bg-gradient-to-br from-blue-50/40 via-purple-50/30 to-pink-50/20 border border-gray-100/50 min-h-[300px] flex items-center justify-center">
         <div className="flex justify-center items-center flex-col gap-4">
           <div className="content">
             <div className="cube"></div>

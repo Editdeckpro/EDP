@@ -53,7 +53,7 @@ export const SidebarWrapper = ({ children }: { children: React.ReactNode }) => {
 
         <aside
           ref={containerRef}
-          className="p-5 bg-white border w-full rounded-3xl space-y-5 text-sm text-gray-700 font-medium max-w-sm  min-h-[94dvh] max-h-[95dvh] overflow-y-scroll hide-scrollbar"
+          className="p-5 bg-blue-50/60 border w-full rounded-3xl space-y-5 text-sm text-gray-700 font-medium max-w-sm  min-h-[94dvh] max-h-[95dvh] overflow-y-scroll hide-scrollbar"
         >
           {children}
         </aside>
@@ -102,7 +102,7 @@ export const MobileNavSheet = () => {
           </SheetDescription>
         </SheetHeader>
 
-        <div className="p-2 py-5 bg-white border w-full rounded-r-3xl min-h-dvh space-y-5 text-sm text-gray-700 font-medium overflow-y-scroll">
+        <div className="p-2 py-5 bg-blue-50/60 border w-full rounded-r-3xl min-h-dvh space-y-5 text-sm text-gray-700 font-medium overflow-y-scroll">
           <SidebarContent />
         </div>
       </SheetContent>

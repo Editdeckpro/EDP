@@ -69,19 +69,19 @@ export default function GenerationForm() {
   return (
     <>
       {/* General Stings Section */}
-      <div className="space-y-3">
+      <div className="space-y-3 bg-gray-100/90  rounded-lg w-full p-1 border border-gray-200">
         <div
-          className="flex items-center justify-between cursor-pointer"
+          className="flex items-center justify-between cursor-pointer w-full"
           onClick={() => toggleSection("generalSetting")}
         >
-          <h3 className="text-lg font-medium">General Settings</h3>
+          <h3 className="text-lg font-medium ">General Settings</h3>
           <Button variant="link" size="icon" type="button">
             {sectionsOpen.generalSetting ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </Button>
         </div>
 
         {sectionsOpen.generalSetting && (
-          <div className="space-y-3">
+          <div className="space-y-3 w-full">
             <FormField
               control={control}
               name="albumSongName"
@@ -269,8 +269,8 @@ export default function GenerationForm() {
       </div>
 
       {/* Style settings */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between cursor-pointer" onClick={() => toggleSection("style")}>
+      <div className="space-y-3 w-full bg-gray-50/80 rounded-lg p-1 border border-gray-100">
+        <div className="flex items-center justify-between cursor-pointer w-full" onClick={() => toggleSection("style")}>
           <h3 className="text-lg font-medium">Style</h3>
           <Button variant="link" size="icon" type="button">
             {sectionsOpen.style ? <ChevronUp size={18} /> : <ChevronDown size={18} />}

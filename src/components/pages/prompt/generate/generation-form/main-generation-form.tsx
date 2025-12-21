@@ -30,9 +30,9 @@ const MainGenerateForm = () => {
   return (
     <>
       {/* Other Settings Section */}
-      <div className="space-y-3">
+      <div className="space-y-3 w-full p-1">
         <div
-          className="flex items-center justify-between cursor-pointer"
+          className="flex items-center justify-between cursor-pointer w-full"
           onClick={() => toggleSection("otherSettings")}
         >
           <h3 className="text-lg font-medium">Other Settings</h3>
@@ -64,8 +64,8 @@ const MainGenerateForm = () => {
           </div>
         )}
       </div>
-      <div className="space-y-3">
-        <div className="flex items-center justify-between cursor-pointer" onClick={() => toggleSection("model")}>
+      <div className="space-y-3 w-full bg-gray-50/80 rounded-lg p-1 border border-gray-100">
+        <div className="flex items-center justify-between cursor-pointer w-full" onClick={() => toggleSection("model")}>
           <h3 className="text-lg font-medium">AI Model</h3>
           <Button variant="link" size="icon" type="button">
             {sectionsOpen.model ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
@@ -80,16 +80,38 @@ const MainGenerateForm = () => {
               <FormItem>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl className="w-full">
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-white border-2 border-primary/30 hover:border-primary/50 focus-visible:border-primary focus-visible:ring-primary/20 font-semibold shadow-sm">
                       <SelectValue placeholder="Select a image generation model" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="w-full">
-                    {apiProviderSelect.map((val) => (
-                      <SelectItem key={val.value} value={val.value}>
-                        {val.name}
-                      </SelectItem>
-                    ))}
+                  <SelectContent className="w-full p-2">
+                    {apiProviderSelect.map((val) => {
+                      const isSelected = field.value === val.value;
+                      return (
+                        <SelectItem 
+                          key={val.value} 
+                          value={val.value}
+                          className={cn(
+                            "font-semibold border-2 rounded-lg my-1 transition-all duration-200",
+                            // Default/unselected state
+                            !isSelected && "border-gray-200 bg-white",
+                            // Enhanced hover state
+                            "hover:border-primary hover:bg-primary/12 hover:shadow-md hover:scale-[1.02] hover:-translate-y-0.5",
+                            "hover:!text-gray-900 dark:hover:!text-gray-100",
+                            // Focus/highlighted state (keyboard navigation)
+                            "focus:border-primary focus:bg-primary/12 focus:ring-2 focus:ring-primary/25 focus:shadow-md focus:scale-[1.02] focus:-translate-y-0.5",
+                            "data-[highlighted]:border-primary data-[highlighted]:bg-primary/12 data-[highlighted]:ring-2 data-[highlighted]:ring-primary/25 data-[highlighted]:shadow-md data-[highlighted]:scale-[1.02] data-[highlighted]:-translate-y-0.5",
+                            "data-[highlighted]:!text-gray-900 dark:data-[highlighted]:!text-gray-100",
+                            // Selected state - more prominent with darker text
+                            isSelected && "border-primary bg-primary/15 shadow-md font-bold !text-gray-950 dark:!text-white",
+                            // Make checkmark more prominent when visible
+                            "[&_svg[class*='lucide-check']]:text-primary [&_svg[class*='lucide-check']]:size-5 [&_svg[class*='lucide-check']]:stroke-[2.5]"
+                          )}
+                        >
+                          {val.name}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -99,8 +121,8 @@ const MainGenerateForm = () => {
         )}
       </div>
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between cursor-pointer" onClick={() => toggleSection("customPrompt")}>
+      <div className="space-y-3 w-full p-1">
+        <div className="flex items-center justify-between cursor-pointer w-full" onClick={() => toggleSection("customPrompt")}>
           <h3 className="text-lg font-medium ">Custom Prompt</h3>
           <Button variant="link" size="icon" type="button">
             {sectionsOpen.customPrompt ? <ChevronUp size={18} /> : <ChevronDown size={18} />}

@@ -129,7 +129,7 @@ const MobileNavSheet = ({ SidebarContent }: MobileNavSheetProps) => {
           </SheetDescription>
         </SheetHeader>
 
-        <div className="p-2 py-5 bg-white border w-full rounded-r-3xl min-h-dvh space-y-5 text-sm text-gray-700 font-medium overflow-y-scroll">
+        <div className="p-2 py-5 bg-gray-50/80 border w-full rounded-r-3xl min-h-dvh space-y-5 text-sm text-gray-700 font-medium overflow-y-scroll">
           {SidebarContent}
         </div>
       </SheetContent>

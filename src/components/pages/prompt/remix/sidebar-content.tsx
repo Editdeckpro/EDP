@@ -452,12 +452,34 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
                           <SelectValue placeholder="Select a image generation model" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="w-full">
-                        {apiProviderSelect.map((val) => (
-                          <SelectItem key={val.value} value={val.value}>
-                            {val.name}
-                          </SelectItem>
-                        ))}
+                      <SelectContent className="w-full p-2">
+                        {apiProviderSelect.map((val) => {
+                          const isSelected = field.value === val.value;
+                          return (
+                            <SelectItem 
+                              key={val.value} 
+                              value={val.value}
+                              className={cn(
+                                "font-semibold border-2 rounded-lg my-1 transition-all duration-200",
+                                // Default/unselected state
+                                !isSelected && "border-gray-200 bg-white",
+                                // Enhanced hover state
+                                "hover:border-primary hover:bg-primary/12 hover:shadow-md hover:scale-[1.02] hover:-translate-y-0.5",
+                                "hover:!text-gray-900 dark:hover:!text-gray-100",
+                                // Focus/highlighted state (keyboard navigation)
+                                "focus:border-primary focus:bg-primary/12 focus:ring-2 focus:ring-primary/25 focus:shadow-md focus:scale-[1.02] focus:-translate-y-0.5",
+                                "data-[highlighted]:border-primary data-[highlighted]:bg-primary/12 data-[highlighted]:ring-2 data-[highlighted]:ring-primary/25 data-[highlighted]:shadow-md data-[highlighted]:scale-[1.02] data-[highlighted]:-translate-y-0.5",
+                                "data-[highlighted]:!text-gray-900 dark:data-[highlighted]:!text-gray-100",
+                                // Selected state - more prominent with darker text
+                                isSelected && "border-primary bg-primary/15 shadow-md font-bold !text-gray-950 dark:!text-white",
+                                // Make checkmark more prominent when visible
+                                "[&_svg[class*='lucide-check']]:text-primary [&_svg[class*='lucide-check']]:size-5 [&_svg[class*='lucide-check']]:stroke-[2.5]"
+                              )}
+                            >
+                              {val.name}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                     <FormMessage />

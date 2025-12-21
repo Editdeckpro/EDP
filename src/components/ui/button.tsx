@@ -57,6 +57,7 @@ function Button({
     <Comp
       disabled={isLoading ? true : disabled}
       data-slot="button"
+      suppressHydrationWarning
       className={cn(
         "relative",
         buttonVariants({ variant, size, className }),

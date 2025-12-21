@@ -165,11 +165,11 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
         </form>
       </Form>
       <Form {...mainForm}>
-        <form onSubmit={mainForm.handleSubmit(mainFormSubmit)} className="space-y-4">
+        <form onSubmit={mainForm.handleSubmit(mainFormSubmit)} className="space-y-4 w-full">
           {/* referenceImage Upload */}
-          <div className="space-y-3">
+          <div className="space-y-3 w-full bg-gray-50/80 rounded-lg p-1 border border-gray-100">
             <div
-              className="flex items-center justify-between cursor-pointer"
+              className="flex items-center justify-between cursor-pointer w-full"
               onClick={() => setImageGuidanceOpen(!imageGuidancesOpen)}
             >
               <h3 className="text-lg font-medium">Image Guidance</h3>
@@ -208,9 +208,9 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 w-full">
             {/* <h2 className="font-bold text-lg">Image to be Remixed</h2> */}
-            <div className="p-2 bg-muted rounded-lg border border-primary/30 max-h-32">
+            <div className="p-2 bg-muted rounded-lg border border-primary/30 max-h-32 flex items-center justify-center min-h-[80px]">
               {imageBase64 !== undefined && imageBase64 !== "" ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -221,7 +221,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
                   className="rounded-sm max-h-full"
                 />
               ) : (
-                <div className="text-center text-muted-foreground font-light">Preview of selected image</div>
+                <div className="text-muted-foreground font-light text-sm">Preview of selected image</div>
               )}
             </div>
           </div>

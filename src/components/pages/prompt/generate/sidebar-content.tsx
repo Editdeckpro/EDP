@@ -13,7 +13,9 @@ const GenerateSidebarContent: FC<GenerateSidebarContent> = ({ setData }) => {
     <>
       <h1 className="text-lg font-bold">Create Image</h1>
       <Separator />
-      <GenerateFilterForm setData={setData} />
+      <div className="bg-gray-50/50 rounded-xl p-5 -mx-5 mt-4 mb-4">
+        <GenerateFilterForm setData={setData} />
+      </div>
     </>
   );
 };
