@@ -102,13 +102,16 @@
   --popover: #1f2937;
   --popover-foreground: #f9fafb;
 
-  --primary: #6473e3; /* lighter version of #3E4EBA */
+  --primary: #6473e3;
+  /* lighter version of #3E4EBA */
   --primary-foreground: #1f2937;
 
-  --secondary: #ff9a58; /* lighter secondary for dark */
+  --secondary: #ff9a58;
+  /* lighter secondary for dark */
   --secondary-foreground: #1f2937;
 
-  --accent: #63a9e5; /* lighter accent for dark */
+  --accent: #63a9e5;
+  /* lighter accent for dark */
   --accent-foreground: #1f2937;
 
   --muted: #374151;
@@ -140,15 +143,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
+
 @media (min-width: 375px) {
   .xs-visible {
     display: block;
   }
 }
+
 @media (max-width: 375px) {
   .xs-visible {
     display: none;
@@ -157,13 +163,16 @@
 
 @layer utilities {
   @keyframes blink-sequence {
+
     0%,
     100% {
       opacity: 0.2;
     }
+
     12.5% {
       opacity: 1;
     }
+
     25% {
       opacity: 0.2;
     }
@@ -189,14 +198,18 @@
     animation-delay: 0.75s;
   }
 }
+
 /* styles.css */
 .hide-scrollbar {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE 10+ */
 }
 
 .hide-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
 .scroll-shadow {

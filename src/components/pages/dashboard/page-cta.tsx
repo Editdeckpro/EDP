@@ -43,9 +43,8 @@ const PageCta: FC<PageCtaProps> = ({
           <Link href={btnLink}>
             <Button
               variant={buttonVariant === "default" ? "default" : "secondary"}
-              className={`mt-4 w-full sm:w-fit ${
-                buttonVariant === "secondary" ? "bg-orange-400 hover:bg-orange-500" : ""
-              } text-sm sm:text-base px-3 sm:px-4 sm:py-3`}
+              className={`mt-4 w-full sm:w-fit ${buttonVariant === "secondary" ? "bg-orange-400 hover:bg-orange-500" : ""
+                } text-sm sm:text-base px-3 sm:px-4 sm:py-3`}
               id={buttonText.toLowerCase() === "generate now" ? "step-3" : undefined}
             >
               {buttonText}

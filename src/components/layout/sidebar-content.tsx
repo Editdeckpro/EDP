@@ -137,7 +137,7 @@ export const sidebarSections: SidebarSectionType[] = [
         ),
         text: "Content Creator",
         link: "/image-generation",
-        bgClassName: "bg-primary/10 hover:bg-primary/10",
+        bgClassName: "bg-primary/20 hover:bg-primary/25",
         tooltip: "Generate brand-new, customized album cover.",
       },
       {

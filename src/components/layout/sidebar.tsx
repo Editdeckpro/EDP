@@ -92,7 +92,7 @@ export const MobileNavSheet = () => {
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="max-w-screen w-xs bg-transparent border-none"
+        className="max-w-screen w-xs bg-white/95 backdrop-blur-md border-none p-0"
       >
         {/* Accessibility only */}
         <SheetHeader className="hidden">
@@ -102,7 +102,7 @@ export const MobileNavSheet = () => {
           </SheetDescription>
         </SheetHeader>
 
-        <div className="p-2 py-5 bg-blue-50/60 border w-full rounded-r-3xl min-h-dvh space-y-5 text-sm text-gray-700 font-medium overflow-y-scroll">
+        <div className="p-2 py-5 bg-blue-50 border w-full rounded-r-3xl min-h-dvh space-y-5 text-sm text-gray-700 font-medium overflow-y-scroll">
           <SidebarContent />
         </div>
       </SheetContent>
