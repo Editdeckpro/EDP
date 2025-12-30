@@ -1,10 +1,16 @@
 import SocialLogin from "@/components/auth/social-login";
 import LoginForm from "@/components/pages/auth/login/login-form";
+import { OAuthErrorHandler } from "@/components/pages/auth/login/oauth-error-handler";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default function Page() {
   return (
     <>
+      <Suspense fallback={null}>
+        <OAuthErrorHandler />
+      </Suspense>
+      
       {/* Login Header */}
       <div className="text-center space-y-1">
         <h2 className="text-2xl font-bold text-foreground">

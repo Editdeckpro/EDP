@@ -1,36 +1,89 @@
 "use client";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Loader2Icon } from "lucide-react";
+import { SubscriptionRequiredModal } from "@/components/pages/auth/subscription-required-modal";
 
 function OAuthCallback() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const subscriptionRequired = searchParams.get("subscriptionRequired") === "true";
+  const detailsParam = searchParams.get("details");
+  
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [subscriptionDetails, setSubscriptionDetails] = useState<any>(null);
+
+  useEffect(() => {
+    // Parse subscription details if provided
+    if (detailsParam) {
+      try {
+        const decoded = decodeURIComponent(detailsParam);
+        const details = JSON.parse(decoded);
+        setSubscriptionDetails(details);
+      } catch (error) {
+        console.error("Error parsing subscription details:", error);
+      }
+    }
+  }, [detailsParam]);
 
   useEffect(() => {
     if (token) {
       (async () => {
-        await signIn("credentials", {
-          token,
-          callbackUrl: "/?onboarding=true",
-        });
+        try {
+          const result = await signIn("credentials", {
+            token,
+            redirect: false,
+          });
+
+          if (result?.ok || result?.error === undefined) {
+            // Sign in successful
+            if (subscriptionRequired) {
+              // Show subscription modal
+              setShowSubscriptionModal(true);
+            } else {
+              // Normal flow - redirect to onboarding
+              router.push("/?onboarding=true");
+            }
+          } else {
+            // Sign in failed, redirect to login
+            router.push("/login");
+          }
+        } catch (error) {
+          console.error("Sign in error:", error);
+          router.push("/login");
+        }
       })();
     } else {
       // Invalid redirect
       router.push("/login");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [token, subscriptionRequired]);
+
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen space-y-4">
-      <div>
-        <Loader2Icon className="animate-spin" />
+    <>
+      <div className="flex flex-col items-center justify-center h-screen space-y-4">
+        <div>
+          <Loader2Icon className="animate-spin" />
+        </div>
+        <div>Validating session, please wait...</div>
       </div>
-      <div>Validating session, please wait...</div>
-    </div>
+      
+      <SubscriptionRequiredModal
+        open={showSubscriptionModal}
+        onOpenChange={(open) => {
+          setShowSubscriptionModal(open);
+          if (!open) {
+            // Redirect to dashboard after closing modal
+            router.push("/");
+          }
+        }}
+        details={subscriptionDetails}
+      />
+    </>
   );
 }
 
