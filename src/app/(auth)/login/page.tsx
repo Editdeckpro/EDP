@@ -1,7 +1,6 @@
 import SocialLogin from "@/components/auth/social-login";
 import LoginForm from "@/components/pages/auth/login/login-form";
 import { OAuthErrorHandler } from "@/components/pages/auth/login/oauth-error-handler";
-import Link from "next/link";
 import { Suspense } from "react";
 
 export default function Page() {
@@ -39,12 +38,14 @@ export default function Page() {
       <div className="text-center">
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
-          <Link
-            href="/signup"
+          <a
+            href="https://editdeckpro.com/pricing-plans/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-primary font-medium hover:underline"
           >
             Register Now
-          </Link>
+          </a>
         </p>
       </div>
     </>
