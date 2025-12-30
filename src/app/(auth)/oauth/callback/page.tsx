@@ -13,7 +13,14 @@ function OAuthCallback() {
   const detailsParam = searchParams.get("details");
   
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-  const [subscriptionDetails, setSubscriptionDetails] = useState<any>(null);
+  const [subscriptionDetails, setSubscriptionDetails] = useState<{
+    title?: string;
+    message?: string;
+    description?: string;
+    pricingPageUrl?: string;
+    actionText?: string;
+    supportMessage?: string;
+  } | null>(null);
 
   useEffect(() => {
     // Parse subscription details if provided
@@ -81,7 +88,7 @@ function OAuthCallback() {
             router.push("/");
           }
         }}
-        details={subscriptionDetails}
+        details={subscriptionDetails || undefined}
       />
     </>
   );
