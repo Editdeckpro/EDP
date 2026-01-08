@@ -11,6 +11,7 @@ import ContentTypeStep from "./steps/content-type-step";
 import ReleaseFrequencyStep from "./steps/release-frequency-step";
 import PriorityStep from "./steps/priority-step";
 import CompletionStep from "./steps/completion-step";
+import ThreeBackground from "./three-background";
 
 const TOTAL_STEPS = 6;
 const ONBOARDING_COMPLETE_KEY = "signup-onboarding-complete";
@@ -122,8 +123,16 @@ export default function OnboardingFlow() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-cyan-50/45 via-purple-50/40 via-pink-50/35 to-indigo-50/50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">{renderStep()}</div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-cyan-50/45 via-purple-50/40 via-pink-50/35 to-indigo-50/50 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Three.js animated background */}
+      <ThreeBackground />
+      {/* Left blurs */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-purple-300/40 rounded-full blur-3xl -z-10" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-pink-300/35 rounded-full blur-3xl -z-10" />
+      {/* Right blurs */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/50 rounded-full blur-3xl -z-10" />
+      <div className="absolute bottom-0 right-0 w-80 h-80 bg-indigo-500/45 rounded-full blur-3xl -z-10" />
+      <div className="w-full max-w-2xl relative z-10">{renderStep()}</div>
     </div>
   );
 }
