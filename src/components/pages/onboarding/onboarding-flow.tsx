@@ -35,7 +35,7 @@ export default function OnboardingFlow() {
       try {
         await handleSaveOnboarding(updatedData as OnboardingData);
         setCurrentStep((prev) => prev + 1);
-      } catch (error) {
+      } catch {
         // Error is already handled in handleSaveOnboarding
         // Don't advance to next step if save fails
       }
