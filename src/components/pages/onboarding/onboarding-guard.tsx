@@ -1,0 +1,78 @@
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { getOnboardingStatus } from "./request";
+
+const ONBOARDING_COMPLETE_KEY = "signup-onboarding-complete";
+
+interface OnboardingGuardProps {
+  children: React.ReactNode;
+}
+
+export default function OnboardingGuard({ children }: OnboardingGuardProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { data: session, status } = useSession();
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      // Skip check if not authenticated
+      if (status !== "authenticated" || !session?.accessToken) {
+        setIsChecking(false);
+        return;
+      }
+
+      // Allow access to onboarding page - it will handle its own redirect
+      if (pathname === "/onboarding") {
+        setIsChecking(false);
+        return;
+      }
+
+      // Check localStorage first to avoid unnecessary API call
+      if (typeof window !== "undefined") {
+        const isCompleteInStorage = localStorage.getItem(ONBOARDING_COMPLETE_KEY) === "true";
+        if (isCompleteInStorage) {
+          setIsChecking(false);
+          return;
+        }
+      }
+
+      try {
+        // Check onboarding status using the new status endpoint
+        const statusResponse = await getOnboardingStatus(session.accessToken);
+
+        if (!statusResponse.isComplete) {
+          // Redirect to onboarding if not completed
+          router.push("/onboarding");
+        } else {
+          // Store in localStorage for future checks
+          if (typeof window !== "undefined") {
+            localStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
+          }
+          setIsChecking(false);
+        }
+      } catch (error) {
+        // If there's an error, allow access to avoid blocking users
+        console.error("Error checking onboarding status:", error);
+        setIsChecking(false);
+      }
+    };
+
+    checkOnboardingStatus();
+  }, [session, status, pathname, router]);
+
+  if (isChecking && status === "authenticated" && pathname !== "/onboarding") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}

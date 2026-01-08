@@ -6,24 +6,40 @@ import { Badge } from "@/components/ui/badge";
 import { pricingPlansDetails } from "@/components/pages/subscription/subscription-pricing";
 import { cn } from "@/lib/utils";
 import { memo, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 interface NoActiveSubscriptionModalProps {
-  credits: number | undefined;
+  credits?: number;
 }
 
 function NoActiveSubscriptionModalComponent({ credits }: NoActiveSubscriptionModalProps) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (credits === 0) {
+      // Check subscription status from session
+      const subscription = session?.user?.subscription;
+      const planType = subscription?.planType;
+      const status = subscription?.status;
+      
+      // Show modal if:
+      // 1. User has FREE plan, OR
+      // 2. Subscription status is not active (expired, canceled, etc.), OR
+      // 3. Credits are 0 (fallback check)
+      const hasNoActiveSubscription = 
+        planType === "FREE" || 
+        (status && status !== "active" && status !== "trialing") ||
+        credits === 0;
+
+      if (hasNoActiveSubscription) {
         setShowDialog(true);
       }
     }, 2000); // after 2 seconds show no subscription dialog
 
     return () => clearTimeout(timeout);
-  }, [credits]);
+  }, [credits, session]);
   return (
     <Dialog open={showDialog} onOpenChange={setShowDialog}>
       <DialogContent>

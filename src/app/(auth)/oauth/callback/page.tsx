@@ -51,7 +51,7 @@ function OAuthCallback() {
               setShowSubscriptionModal(true);
             } else {
               // Normal flow - redirect to onboarding
-              router.push("/?onboarding=true");
+              router.push("/onboarding");
             }
           } else {
             // Sign in failed, redirect to login

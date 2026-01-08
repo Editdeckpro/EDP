@@ -8,18 +8,19 @@ const Layout: FC<LayoutProps> = ({ children }) => {
   return (
     <main className="flex min-h-screen flex-col md:flex-row">
       {/* Background Image Section */}
-      <section className="w-full h-48 md:h-96 md:w-2/3 relative">
+      <section className="w-full h-48 md:h-screen md:w-2/3 relative overflow-hidden">
         <Image
           src="/images/auth/login-bg.jpg"
           alt="Cybernetic tiger in a field of red flowers"
           fill
-          className="object-cover"
+          className="object-cover w-full h-full"
           priority
+          sizes="(max-width: 768px) 100vw, 66vw"
         />
       </section>
 
       {/* Login Form Section */}
-      <section className="w-full md:w-1/2 flex items-center justify-center bg-white p-8 md:relative">
+      <section className="w-full md:w-1/3 flex items-center justify-center bg-white p-8 md:relative">
         <div className="w-full max-w-md space-y-8">
           {/* Logo */}
           <div className="flex justify-center">

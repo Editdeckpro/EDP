@@ -49,7 +49,7 @@ export default function SignupForm() {
       if (data.accessToken) {
         await signIn("credentials", {
           token: data.accessToken,
-          callbackUrl: "/?onboarding=true",
+          callbackUrl: "/onboarding",
         });
 
         // router.replace("/");
