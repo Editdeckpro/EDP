@@ -8,7 +8,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
   return (
     <main className="flex min-h-screen flex-col md:flex-row">
       {/* Background Image Section */}
-      <section className="w-full min-h-72 md:h-auto md:w-2/3 relative">
+      <section className="w-full h-48 md:h-96 md:w-2/3 relative">
         <Image
           src="/images/auth/login-bg.jpg"
           alt="Cybernetic tiger in a field of red flowers"
