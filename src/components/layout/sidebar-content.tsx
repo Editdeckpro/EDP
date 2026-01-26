@@ -152,6 +152,17 @@ export const sidebarSections: SidebarSectionType[] = [
         bgClassName: "bg-secondary/20 hover:bg-secondary/20",
         tooltip: "Convert existing photo to album cover.",
       },
+      {
+        icon: (
+          <GIcon size={22} className="group-data-[active=true]:text-purple-600">
+            smart_display
+          </GIcon>
+        ),
+        text: "Lyric Videos",
+        link: "/lyric-videos",
+        bgClassName: "bg-purple-600/10 hover:bg-purple-600/20",
+        tooltip: "Create lyric videos with AI-powered timing.",
+      },
     ],
   },
   {

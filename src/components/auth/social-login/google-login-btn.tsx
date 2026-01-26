@@ -1,9 +1,6 @@
 const GoogleLoginBtn = ({}) => {
   return (
-    <button
-      type="button"
-      className="cursor-pointer flex items-center justify-center py-2 px-4 border border-[#dcdde3] rounded-md hover:bg-[#f8f8f8] focus:outline-none focus:ring-2 focus:ring-[#4285f4] focus:ring-offset-2 w-full"
-    >
+    <span className="flex items-center justify-center w-full">
       <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
         <path
           d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -24,7 +21,7 @@ const GoogleLoginBtn = ({}) => {
         <path d="M1 1h22v22H1z" fill="none" />
       </svg>
       Use Google
-    </button>
+    </span>
   );
 };
 export default GoogleLoginBtn;

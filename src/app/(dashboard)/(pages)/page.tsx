@@ -5,7 +5,7 @@ import PageCta from "@/components/pages/dashboard/page-cta";
 export default function Page() {
   return (
     <section className="space-y-10">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <PageCta
           title="Image Creator"
           description="Craft stunning album covers from pure imagination."
@@ -24,6 +24,21 @@ export default function Page() {
           buttonVariant="secondary"
           bgImgSrc="/images/cta-2.jpg"
           btnLink="/remix-image/remix"
+        />
+        <PageCta
+          title="Lyric Video"
+          description="Create stunning lyric videos with AI-powered timing."
+          buttonText="Create Video"
+          buttonIcon="video"
+          imageSrc="/images/cta-fg.jpg"
+          bgImgSrc="/images/cta-bg.jpg"
+          btnLink="/lyric-video/create"
+          disabled={false}
+          upgradeRequired={false}
+          planRestriction={{
+            allowedPlans: ["NEXT_LEVEL", "PRO_STUDIO"],
+            message: "Upgrade to Next Level or Pro Studio to create lyric videos"
+          }}
         />
       </div>
       <ImageCardGrid generationType="custom,filter" />

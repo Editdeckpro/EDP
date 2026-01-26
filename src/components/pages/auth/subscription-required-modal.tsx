@@ -2,6 +2,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 interface SubscriptionRequiredModalProps {
   open: boolean;
@@ -11,6 +12,7 @@ interface SubscriptionRequiredModalProps {
     message?: string;
     description?: string;
     pricingPageUrl?: string;
+    actionLink?: string;
     actionText?: string;
     supportMessage?: string;
   };
@@ -29,7 +31,7 @@ export function SubscriptionRequiredModal({ open, onOpenChange, details }: Subsc
     title: "Subscription Required",
     message: "Welcome! To access all features and start creating amazing images, you need to purchase a subscription plan.",
     description: "Please visit our pricing page to view available subscription packages and choose the plan that best fits your needs.",
-    pricingPageUrl: "https://editdeckpro.com/pricing-plans/",
+    actionLink: "/subscription",
     actionText: "View Pricing Plans",
     supportMessage: "Need help choosing a plan? Contact our support team at editdeckpro@gmail.com for assistance.",
   };
@@ -37,7 +39,9 @@ export function SubscriptionRequiredModal({ open, onOpenChange, details }: Subsc
   const finalDetails = { ...defaultDetails, ...details };
 
   const handleViewPricing = () => {
-    window.open(finalDetails.pricingPageUrl, "_blank");
+    if (finalDetails.pricingPageUrl) {
+      window.open(finalDetails.pricingPageUrl, "_blank");
+    }
   };
 
   return (
@@ -63,9 +67,17 @@ export function SubscriptionRequiredModal({ open, onOpenChange, details }: Subsc
         </div>
 
         <div className="flex justify-center mt-4">
-          <Button onClick={handleViewPricing} className="w-full">
-            {finalDetails.actionText}
-          </Button>
+          {finalDetails.actionLink ? (
+            <Link href={finalDetails.actionLink} className="w-full">
+              <Button className="w-full" onClick={() => onOpenChange(false)}>
+                {finalDetails.actionText}
+              </Button>
+            </Link>
+          ) : (
+            <Button onClick={handleViewPricing} className="w-full">
+              {finalDetails.actionText}
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -1,0 +1,142 @@
+"use client";
+import { GetAxiosWithAuth } from "@/lib/axios-instance";
+import { AxiosError } from "axios";
+import type {
+  AudioUploadResponse,
+  CreateLyricVideoResponse,
+  TimingData,
+  LyricVideo,
+  LyricVideosListResponse,
+  JobStatusResponse,
+} from "./request";
+
+/**
+ * Upload audio file (client-side)
+ */
+export async function uploadAudioClient(file: File): Promise<AudioUploadResponse> {
+  const formData = new FormData();
+  formData.append("audio", file);
+
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.post<AudioUploadResponse>("lyric-videos/upload-audio", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
+}
+
+/**
+ * Create lyric video project (client-side)
+ */
+export async function createLyricVideoClient(data: {
+  audioId: string;
+  lyrics: string;
+  style?: string;
+  font?: string;
+  textColor?: string;
+  highlightColor?: string;
+  backgroundColor?: string;
+  backgroundImage?: string;
+}): Promise<CreateLyricVideoResponse> {
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.post<CreateLyricVideoResponse>("lyric-videos/create", data);
+  return response.data;
+}
+
+/**
+ * Align lyrics timing (client-side)
+ */
+export async function alignTimingClient(audioId: string, lyrics: string): Promise<TimingData> {
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.post<TimingData>("lyric-videos/align-timing", {
+    audioId,
+    lyrics,
+  });
+  return response.data;
+}
+
+/**
+ * Update word timing (client-side)
+ */
+export async function updateTimingClient(
+  lyricVideoId: number,
+  words: TimingData["words"]
+): Promise<{ success: boolean }> {
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.put<{ success: boolean }>(`lyric-videos/${lyricVideoId}/timing`, {
+    words,
+  });
+  return response.data;
+}
+
+/**
+ * Regenerate timing (client-side)
+ */
+export async function regenerateTimingClient(lyricVideoId: number): Promise<TimingData> {
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.post<TimingData>(`lyric-videos/${lyricVideoId}/regenerate-timing`);
+  return response.data;
+}
+
+/**
+ * Get lyric video by ID (client-side)
+ */
+export async function getLyricVideoByIdClient(id: number): Promise<LyricVideo> {
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.get<LyricVideo>(`lyric-videos/${id}`);
+  return response.data;
+}
+
+/**
+ * Get all lyric videos (client-side)
+ */
+export async function getLyricVideosClient(params?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+}): Promise<LyricVideosListResponse> {
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.get<LyricVideosListResponse>("lyric-videos", {
+    params,
+  });
+  return response.data;
+}
+
+/**
+ * Generate preview video (client-side)
+ */
+export async function generatePreviewClient(
+  lyricVideoId: number
+): Promise<{ jobId: string; status: string; message?: string; previewUrl?: string }> {
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.post<{ jobId: string; status: string; message?: string; previewUrl?: string }>(
+    `lyric-videos/${lyricVideoId}/preview`
+  );
+  return response.data;
+}
+
+/**
+ * Generate final video (client-side)
+ */
+export async function generateFinalVideoClient(
+  lyricVideoId: number,
+  aspectRatio: "1:1" | "9:16" | "16:9" = "16:9"
+): Promise<{ jobId: string; status: string; aspectRatio: string }> {
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.post<{ jobId: string; status: string; aspectRatio: string }>(
+    `lyric-videos/${lyricVideoId}/generate`,
+    { aspectRatio }
+  );
+  return response.data;
+}
+
+/**
+ * Get job status (client-side)
+ */
+export async function getJobStatusClient(jobId: string): Promise<JobStatusResponse> {
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.get<JobStatusResponse>(`lyric-videos/jobs/${jobId}`);
+  return response.data;
+}
