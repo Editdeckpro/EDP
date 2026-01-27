@@ -1,6 +1,12 @@
 import axios, { AxiosInstance, AxiosError } from "axios";
 import { getSession, signOut } from "next-auth/react";
 
+type SessionWithBypass = {
+  user?: {
+    bypassSubscription?: boolean;
+  };
+};
+
 export const axiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_BE_URL}/`,
 });
@@ -59,7 +65,8 @@ function setupSubscriptionExpirationInterceptor(axiosInstance: AxiosInstance) {
         // If user is in bypass list, do not auto-logout/redirect
         try {
           const session = await getSession();
-          if (session?.user && (session.user as any).bypassSubscription) {
+          const s = session as unknown as SessionWithBypass | null;
+          if (s?.user?.bypassSubscription) {
             return Promise.reject(error);
           }
         } catch {

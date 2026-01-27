@@ -1,11 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2, Play, RefreshCw } from "lucide-react";
 import { generatePreviewClient, getJobStatusClient, getLyricVideoByIdClient } from "@/components/pages/lyric-video/api";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false }) as unknown as ComponentType<Record<string, unknown>>;
 
@@ -32,13 +33,7 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
   const [totalFrames, setTotalFrames] = useState<number>(0);
   const [previewFrameUrl, setPreviewFrameUrl] = useState<string>("");
 
-  useEffect(() => {
-    if (videoData.lyricVideoId && !previewUrl) {
-      checkExistingPreview();
-    }
-  }, [videoData.lyricVideoId]);
-
-  const checkExistingPreview = async () => {
+  const checkExistingPreview = useCallback(async () => {
     if (!videoData.lyricVideoId) return;
     const lyricVideoId = videoData.lyricVideoId;
 
@@ -52,7 +47,13 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
     } catch {
       console.error("Error checking preview");
     }
-  };
+  }, [onDataUpdate, videoData.lyricVideoId]);
+
+  useEffect(() => {
+    if (videoData.lyricVideoId && !previewUrl) {
+      checkExistingPreview();
+    }
+  }, [checkExistingPreview, previewUrl, videoData.lyricVideoId]);
 
   const handleGeneratePreview = async () => {
     if (!videoData.lyricVideoId) {
@@ -240,10 +241,13 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
             )}
             {previewFrameUrl && (
               <div className="w-full">
-                <img
+                <Image
                   src={previewFrameUrl}
                   alt="Rendering preview"
+                  width={1280}
+                  height={720}
                   className="w-full rounded border"
+                  unoptimized
                 />
               </div>
             )}

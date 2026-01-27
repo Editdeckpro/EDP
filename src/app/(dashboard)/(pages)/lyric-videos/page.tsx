@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -16,11 +16,7 @@ export default function LyricVideosPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    loadVideos();
-  }, [page]);
-
-  const loadVideos = async () => {
+  const loadVideos = useCallback(async () => {
     setLoading(true);
     try {
       const result = await getLyricVideosClient({ page, limit: 20 });
@@ -31,7 +27,11 @@ export default function LyricVideosPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
+
+  useEffect(() => {
+    loadVideos();
+  }, [loadVideos]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

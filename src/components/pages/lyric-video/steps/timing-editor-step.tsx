@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2, RefreshCw } from "lucide-react";
@@ -23,11 +23,7 @@ export default function TimingEditorStep({ onNext, onPrev, onDataUpdate, videoDa
   const [timingData, setTimingData] = useState<unknown>(null);
   const [audioUrl, setAudioUrl] = useState<string>("");
 
-  useEffect(() => {
-    loadTimingData();
-  }, [videoData.lyricVideoId]);
-
-  const loadTimingData = async () => {
+  const loadTimingData = useCallback(async () => {
     if (!videoData.lyricVideoId) {
       setLoading(false);
       return;
@@ -44,7 +40,11 @@ export default function TimingEditorStep({ onNext, onPrev, onDataUpdate, videoDa
       console.error("Error loading timing data");
       setLoading(false);
     }
-  };
+  }, [videoData.lyricVideoId]);
+
+  useEffect(() => {
+    loadTimingData();
+  }, [loadTimingData]);
 
   const handleRegenerate = async () => {
     if (!videoData.lyricVideoId) return;
