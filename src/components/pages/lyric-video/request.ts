@@ -89,7 +89,7 @@ export interface LyricVideosListResponse {
 export interface JobStatusResponse {
   id: string;
   state: string;
-  progress: number;
+  progress: any;
   result: any;
   failedReason: string | null;
   data: any;

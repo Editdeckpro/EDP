@@ -21,6 +21,11 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [jobId, setJobId] = useState<string>("");
   const [status, setStatus] = useState<string>("");
+  const [progressPercent, setProgressPercent] = useState<number>(0);
+  const [progressStage, setProgressStage] = useState<string>("");
+  const [framesDone, setFramesDone] = useState<number>(0);
+  const [totalFrames, setTotalFrames] = useState<number>(0);
+  const [previewFrameUrl, setPreviewFrameUrl] = useState<string>("");
 
   useEffect(() => {
     if (videoData.lyricVideoId && !previewUrl) {
@@ -48,6 +53,11 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
 
     setGenerating(true);
     setStatus("generating");
+    setProgressPercent(0);
+    setProgressStage("");
+    setFramesDone(0);
+    setTotalFrames(0);
+    setPreviewFrameUrl("");
 
     try {
       const result = await generatePreviewClient(videoData.lyricVideoId);
@@ -80,6 +90,22 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
       
       try {
         const result = await getJobStatusClient(jobId);
+
+        const p: any = (result as any).progress;
+        if (p && typeof p === 'object') {
+          if (typeof p.percent === 'number') setProgressPercent(Math.max(0, Math.min(100, Math.round(p.percent))));
+          if (typeof p.stage === 'string') setProgressStage(p.stage);
+          if (typeof p.frame === 'number') setFramesDone(p.frame);
+          if (typeof p.totalFrames === 'number') setTotalFrames(p.totalFrames);
+          if (typeof p.previewImageUrl === 'string') {
+            const be = process.env.NEXT_PUBLIC_BE_URL || '';
+            const url = `${be}${p.previewImageUrl}`;
+            setPreviewFrameUrl(`${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`);
+          }
+        } else if (typeof p === 'number') {
+          setProgressPercent(Math.max(0, Math.min(100, Math.round(p))));
+        }
+
         if (result.state === "completed") {
           setGenerating(false);
           setStatus("completed");
@@ -109,8 +135,18 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
   };
 
   const startPolling = (jobId: string) => {
+    const startedAt = Date.now();
+    const timeoutMs = 5 * 60 * 1000;
     const interval = setInterval(async () => {
       try {
+        if (Date.now() - startedAt > timeoutMs) {
+          clearInterval(interval);
+          setGenerating(false);
+          setStatus("failed");
+          toast.error("Preview generation is taking too long. Please try again.");
+          return;
+        }
+
         const result = await getJobStatusClient(jobId);
         if (result.state === "completed") {
           clearInterval(interval);
@@ -132,9 +168,6 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
         console.error("Error polling job status:", error);
       }
     }, 2000);
-
-    // Clear interval after 5 minutes
-    setTimeout(() => clearInterval(interval), 5 * 60 * 1000);
   };
 
   const handleNext = () => {
@@ -169,6 +202,31 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
           <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
           <p className="text-muted-foreground">Generating preview video...</p>
           <p className="text-sm text-muted-foreground mt-2">This may take a few moments</p>
+
+          <div className="w-full max-w-lg mt-6 space-y-3">
+            <div className="w-full h-2 bg-muted rounded overflow-hidden">
+              <div
+                className="h-2 bg-primary transition-all"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>{progressStage ? `Stage: ${progressStage}` : 'Stage: starting'}</span>
+              <span>{progressPercent}%</span>
+            </div>
+            {totalFrames > 0 && (
+              <div className="text-xs text-muted-foreground">Frames: {framesDone}/{totalFrames}</div>
+            )}
+            {previewFrameUrl && (
+              <div className="w-full">
+                <img
+                  src={previewFrameUrl}
+                  alt="Rendering preview"
+                  className="w-full rounded border"
+                />
+              </div>
+            )}
+          </div>
         </div>
       )}
 
