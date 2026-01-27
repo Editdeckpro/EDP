@@ -38,12 +38,13 @@ const PageCta: FC<PageCtaProps> = ({
 }) => {
   const { data: session } = useSession();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const bypassSubscription = Boolean(session?.user?.bypassSubscription);
   
   const planType = session?.user?.subscription?.planType || "FREE";
-  const isDisabled = disabled || (planRestriction && !planRestriction.allowedPlans.includes(planType));
+  const isDisabled = disabled || (!bypassSubscription && planRestriction && !planRestriction.allowedPlans.includes(planType));
 
   const handleClick = (e: React.MouseEvent) => {
-    if (isDisabled || upgradeRequired) {
+    if ((isDisabled || upgradeRequired) && !bypassSubscription) {
       e.preventDefault();
       setShowUpgradeModal(true);
     }

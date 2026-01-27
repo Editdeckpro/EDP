@@ -36,9 +36,10 @@ export default function CreateLyricVideoPage() {
   const [videoData, setVideoData] = useState<LyricVideoData>({});
 
   const planType = session?.user?.subscription?.planType || "FREE";
+  const bypassSubscription = Boolean(session?.user?.bypassSubscription);
 
   // Check plan access
-  if (planType === "STARTER" || planType === "FREE") {
+  if (!bypassSubscription && (planType === "STARTER" || planType === "FREE")) {
     return (
       <>
         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">

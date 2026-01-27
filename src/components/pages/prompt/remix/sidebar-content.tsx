@@ -47,6 +47,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
   const [imageBase64, setImageBase64] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { status, data, update } = useSession();
+  const bypassSubscription = Boolean(data?.user?.bypassSubscription);
 
   const form = useForm<RemixFormSchemaType>({
     resolver: zodResolver(remixFormSchema),
@@ -68,7 +69,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
   });
 
   async function onSubmit(values: RemixFormSchemaType) {
-    if (data?.user.credits === 0) {
+    if (!bypassSubscription && data?.user.credits === 0) {
       toast.error("Please upgrade your plan to generate images", {
         description: "You have no credits left",
       });
@@ -531,7 +532,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
             type="submit"
             className="w-full"
             isLoading={isSubmitting}
-            disabled={isSubmitting || status !== "authenticated" || data.user.credits === 0}
+            disabled={isSubmitting || status !== "authenticated" || (!bypassSubscription && data.user.credits === 0)}
           >
             Remix Image <GIcon>wand_stars</GIcon>
           </Button>

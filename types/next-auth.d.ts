@@ -28,6 +28,7 @@ export interface SessionUser {
   username: string;
   profileImage?: string;
   credits: number;
+  bypassSubscription?: boolean;
   subscription: {
     planType: PlanID;
     status: string;

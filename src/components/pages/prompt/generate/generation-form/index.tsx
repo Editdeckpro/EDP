@@ -27,6 +27,7 @@ interface GenerateFormProps {
 const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { data, status, update } = useSession();
+  const bypassSubscription = Boolean(data?.user?.bypassSubscription);
   const generateFormRef = useRef<HTMLButtonElement | null>(null);
   const mainGenerateFormRef = useRef<HTMLButtonElement | null>(null);
   const [imageGuidancesOpen, setImageGuidanceOpen] = useState<boolean>(true);
@@ -116,7 +117,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
   }
 
   async function mainFormSubmit(values: MainGenerateFormSchemaType) {
-    if (data?.user.credits === 0) {
+    if (!bypassSubscription && data?.user.credits === 0) {
       toast.error("Please upgrade your plan to generate images", {
         description: "You have no credits left",
       });
@@ -233,7 +234,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       <Button
         type="submit"
         className="w-full"
-        disabled={isSubmitting || status !== "authenticated" || data?.user.credits === 0}
+        disabled={isSubmitting || status !== "authenticated" || (!bypassSubscription && data?.user.credits === 0)}
         onClick={submitButtonClicked}
       >
         {isSubmitting ? "Generating..." : "Generate Image"}

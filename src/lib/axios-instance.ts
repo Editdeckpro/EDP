@@ -56,6 +56,16 @@ function setupSubscriptionExpirationInterceptor(axiosInstance: AxiosInstance) {
         "error" in error.response.data &&
         error.response.data.error === "subscription_expired"
       ) {
+        // If user is in bypass list, do not auto-logout/redirect
+        try {
+          const session = await getSession();
+          if (session?.user && (session.user as any).bypassSubscription) {
+            return Promise.reject(error);
+          }
+        } catch {
+          // ignore and fall through to default behavior
+        }
+
         // Prevent multiple redirects
         if (isRedirecting) {
           return Promise.reject(error);

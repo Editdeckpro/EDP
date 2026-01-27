@@ -23,6 +23,7 @@ function NoActiveSubscriptionModalComponent({ credits }: NoActiveSubscriptionMod
       const subscription = session?.user?.subscription;
       const planType = subscription?.planType;
       const status = subscription?.status;
+      const bypassSubscription = Boolean(session?.user?.bypassSubscription);
       
       // Show modal if:
       // 1. User has FREE plan, OR
@@ -33,7 +34,7 @@ function NoActiveSubscriptionModalComponent({ credits }: NoActiveSubscriptionMod
         (status && status !== "active" && status !== "trialing") ||
         credits === 0;
 
-      if (hasNoActiveSubscription) {
+      if (hasNoActiveSubscription && !bypassSubscription) {
         setShowDialog(true);
       }
     }, 2000); // after 2 seconds show no subscription dialog
