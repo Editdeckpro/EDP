@@ -5,11 +5,18 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
+type LyricVideoWizardData = {
+  font?: string;
+  textColor?: string;
+  highlightColor?: string;
+  backgroundColor?: string;
+};
+
 interface CustomizationStepProps {
   onNext: () => void;
   onPrev: () => void;
-  onDataUpdate: (data: any) => void;
-  videoData: any;
+  onDataUpdate: (data: Partial<LyricVideoWizardData>) => void;
+  videoData: LyricVideoWizardData;
 }
 
 const FONTS = [
@@ -29,10 +36,10 @@ const BRAND_COLORS = [
 ];
 
 export default function CustomizationStep({ onNext, onPrev, onDataUpdate, videoData }: CustomizationStepProps) {
-  const [font, setFont] = useState(videoData.font || "Inter");
-  const [textColor, setTextColor] = useState(videoData.textColor || "#FFFFFF");
-  const [highlightColor, setHighlightColor] = useState(videoData.highlightColor || "#FFD700");
-  const [backgroundColor, setBackgroundColor] = useState(videoData.backgroundColor || "#000000");
+  const [font, setFont] = useState<string>(videoData.font || "Inter");
+  const [textColor, setTextColor] = useState<string>(videoData.textColor || "#FFFFFF");
+  const [highlightColor, setHighlightColor] = useState<string>(videoData.highlightColor || "#FFD700");
+  const [backgroundColor, setBackgroundColor] = useState<string>(videoData.backgroundColor || "#000000");
 
   const handleNext = () => {
     onDataUpdate({

@@ -1,6 +1,5 @@
 "use client";
 import { GetAxiosWithAuth } from "@/lib/axios-instance";
-import { AxiosError } from "axios";
 import type {
   AudioUploadResponse,
   CreateLyricVideoResponse,
@@ -9,6 +8,8 @@ import type {
   LyricVideosListResponse,
   JobStatusResponse,
 } from "./request";
+
+export type { LyricVideo };
 
 /**
  * Upload audio file (client-side)

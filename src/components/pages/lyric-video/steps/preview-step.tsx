@@ -1,25 +1,30 @@
 "use client";
 import { useState, useEffect } from "react";
+import type { ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2, Play, RefreshCw } from "lucide-react";
 import { generatePreviewClient, getJobStatusClient, getLyricVideoByIdClient } from "@/components/pages/lyric-video/api";
 import dynamic from "next/dynamic";
 
-const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false }) as unknown as ComponentType<Record<string, unknown>>;
+
+type LyricVideoWizardData = {
+  lyricVideoId?: number;
+  previewUrl?: string;
+};
 
 interface PreviewStepProps {
   onNext: () => void;
   onPrev: () => void;
-  onDataUpdate: (data: any) => void;
-  videoData: any;
+  onDataUpdate: (data: Partial<LyricVideoWizardData>) => void;
+  videoData: LyricVideoWizardData;
   onEditTiming: () => void;
 }
 
 export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, onEditTiming }: PreviewStepProps) {
   const [generating, setGenerating] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [jobId, setJobId] = useState<string>("");
   const [status, setStatus] = useState<string>("");
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [progressStage, setProgressStage] = useState<string>("");
@@ -34,14 +39,18 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
   }, [videoData.lyricVideoId]);
 
   const checkExistingPreview = async () => {
+    if (!videoData.lyricVideoId) return;
+    const lyricVideoId = videoData.lyricVideoId;
+
     try {
-      const result = await getLyricVideoByIdClient(videoData.lyricVideoId);
+      const result = await getLyricVideoByIdClient(lyricVideoId);
       if (result.previewVideoUrl) {
         setPreviewUrl(result.previewVideoUrl);
+        onDataUpdate({ previewUrl: result.previewVideoUrl });
         setStatus("completed");
       }
-    } catch (error) {
-      console.error("Error checking preview:", error);
+    } catch {
+      console.error("Error checking preview");
     }
   };
 
@@ -61,11 +70,11 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
 
     try {
       const result = await generatePreviewClient(videoData.lyricVideoId);
-      setJobId(result.jobId);
       
       // If preview URL is already available (sync job completed), use it immediately
       if (result.previewUrl) {
         setPreviewUrl(result.previewUrl);
+        onDataUpdate({ previewUrl: result.previewUrl });
         setStatus("completed");
         setGenerating(false);
         toast.success("Preview generated successfully");
@@ -74,9 +83,10 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
       
       // For sync jobs, check immediately; for async jobs, start polling
       await pollJobStatus(result.jobId);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error generating preview:", error);
-      toast.error(error?.response?.data?.message || error.message || "Failed to generate preview");
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      toast.error(err?.response?.data?.message || err?.message || "Failed to generate preview");
       setGenerating(false);
       setStatus("");
     }
@@ -91,15 +101,22 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
       try {
         const result = await getJobStatusClient(jobId);
 
-        const p: any = (result as any).progress;
+        const p = (result as { progress?: unknown }).progress;
         if (p && typeof p === 'object') {
-          if (typeof p.percent === 'number') setProgressPercent(Math.max(0, Math.min(100, Math.round(p.percent))));
-          if (typeof p.stage === 'string') setProgressStage(p.stage);
-          if (typeof p.frame === 'number') setFramesDone(p.frame);
-          if (typeof p.totalFrames === 'number') setTotalFrames(p.totalFrames);
-          if (typeof p.previewImageUrl === 'string') {
+          const prog = p as {
+            percent?: unknown;
+            stage?: unknown;
+            frame?: unknown;
+            totalFrames?: unknown;
+            previewImageUrl?: unknown;
+          };
+          if (typeof prog.percent === 'number') setProgressPercent(Math.max(0, Math.min(100, Math.round(prog.percent))));
+          if (typeof prog.stage === 'string') setProgressStage(prog.stage);
+          if (typeof prog.frame === 'number') setFramesDone(prog.frame);
+          if (typeof prog.totalFrames === 'number') setTotalFrames(prog.totalFrames);
+          if (typeof prog.previewImageUrl === 'string') {
             const be = process.env.NEXT_PUBLIC_BE_URL || '';
-            const url = `${be}${p.previewImageUrl}`;
+            const url = `${be}${prog.previewImageUrl}`;
             setPreviewFrameUrl(`${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`);
           }
         } else if (typeof p === 'number') {
@@ -110,9 +127,11 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
           setGenerating(false);
           setStatus("completed");
           // Reload video data to get preview URL
+          if (!videoData.lyricVideoId) return;
           const videoResult = await getLyricVideoByIdClient(videoData.lyricVideoId);
           if (videoResult.previewVideoUrl) {
             setPreviewUrl(videoResult.previewVideoUrl);
+            onDataUpdate({ previewUrl: videoResult.previewVideoUrl });
           }
           toast.success("Preview generated successfully");
         } else if (result.state === "failed") {
@@ -153,9 +172,11 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
           setGenerating(false);
           setStatus("completed");
           // Reload video data to get preview URL
+          if (!videoData.lyricVideoId) return;
           const videoResult = await getLyricVideoByIdClient(videoData.lyricVideoId);
           if (videoResult.previewVideoUrl) {
             setPreviewUrl(videoResult.previewVideoUrl);
+            onDataUpdate({ previewUrl: videoResult.previewVideoUrl });
           }
           toast.success("Preview generated successfully");
         } else if (result.state === "failed") {

@@ -7,15 +7,22 @@ import { toast } from "sonner";
 import { FileText, Upload } from "lucide-react";
 import { createLyricVideoClient, alignTimingClient } from "@/components/pages/lyric-video/api";
 
+type LyricVideoWizardData = {
+  audioId?: string;
+  lyrics?: string;
+  lyricVideoId?: number;
+  timingData?: unknown;
+};
+
 interface AddLyricsStepProps {
   onNext: () => void;
   onPrev: () => void;
-  onDataUpdate: (data: any) => void;
-  videoData: any;
+  onDataUpdate: (data: Partial<LyricVideoWizardData>) => void;
+  videoData: LyricVideoWizardData;
 }
 
 export default function AddLyricsStep({ onNext, onPrev, onDataUpdate, videoData }: AddLyricsStepProps) {
-  const [lyrics, setLyrics] = useState(videoData.lyrics || "");
+  const [lyrics, setLyrics] = useState<string>(videoData.lyrics || "");
   const [loading, setLoading] = useState(false);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,7 +70,7 @@ export default function AddLyricsStep({ onNext, onPrev, onDataUpdate, videoData 
       let timingResult = null;
       try {
         timingResult = await alignTimingClient(videoData.audioId, lyrics.trim());
-      } catch (timingError: any) {
+      } catch (timingError: unknown) {
         console.warn("Timing alignment may still be processing:", timingError);
         // Continue even if timing isn't ready yet - user can regenerate later
       }
@@ -77,9 +84,10 @@ export default function AddLyricsStep({ onNext, onPrev, onDataUpdate, videoData 
       toast.success("Lyrics added successfully");
       setLoading(false);
       onNext();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating lyric video:", error);
-      const errorMessage = error?.response?.data?.message || error?.message || "Failed to process lyrics";
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      const errorMessage = err?.response?.data?.message || err?.message || "Failed to process lyrics";
       toast.error(errorMessage);
       setLoading(false);
     }
@@ -126,8 +134,8 @@ export default function AddLyricsStep({ onNext, onPrev, onDataUpdate, videoData 
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <FileText className="h-4 w-4" />
           <span>
-            {lyrics.split("\n").filter((l) => l.trim()).length} lines,{" "}
-            {lyrics.split(/\s+/).filter((w) => w).length} words
+            {lyrics.split("\n").filter((l: string) => l.trim()).length} lines,{" "}
+            {lyrics.split(/\s+/).filter((w: string) => w).length} words
           </span>
         </div>
       </div>

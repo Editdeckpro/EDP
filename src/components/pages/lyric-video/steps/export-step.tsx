@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import type { ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,12 +9,12 @@ import { Loader2, Download, CheckCircle2 } from "lucide-react";
 import { generateFinalVideoClient, getJobStatusClient, getLyricVideoByIdClient } from "@/components/pages/lyric-video/api";
 import dynamic from "next/dynamic";
 
-const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false }) as unknown as ComponentType<Record<string, unknown>>;
 
 interface ExportStepProps {
   onPrev: () => void;
   onComplete: () => void;
-  videoData: any;
+  videoData: { lyricVideoId?: number };
 }
 
 const ASPECT_RATIOS = [
@@ -25,7 +26,6 @@ const ASPECT_RATIOS = [
 export default function ExportStep({ onPrev, onComplete, videoData }: ExportStepProps) {
   const [aspectRatio, setAspectRatio] = useState<"1:1" | "9:16" | "16:9">("16:9");
   const [generating, setGenerating] = useState(false);
-  const [jobId, setJobId] = useState<string>("");
   const [finalVideoUrl, setFinalVideoUrl] = useState<string>("");
   const [status, setStatus] = useState<string>("");
 
@@ -35,27 +35,23 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
       return;
     }
 
+    const lyricVideoId = videoData.lyricVideoId;
+
     setGenerating(true);
     setStatus("generating");
 
     try {
-      const result = await generateFinalVideo(videoData.lyricVideoId, aspectRatio);
-      if (result !== "error") {
-        setJobId(result.jobId);
-        pollJobStatus(result.jobId);
-      } else {
-        toast.error("Failed to start video generation");
-        setGenerating(false);
-        setStatus("");
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Failed to generate video");
+      const result = await generateFinalVideoClient(videoData.lyricVideoId, aspectRatio);
+      pollJobStatus(result.jobId, lyricVideoId);
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      toast.error(err?.message || "Failed to generate video");
       setGenerating(false);
       setStatus("");
     }
   };
 
-  const pollJobStatus = async (jobId: string) => {
+  const pollJobStatus = async (jobId: string, lyricVideoId: number) => {
     const interval = setInterval(async () => {
       try {
         const result = await getJobStatusClient(jobId);
@@ -64,7 +60,7 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
           setGenerating(false);
           setStatus("completed");
           // Reload video data to get final URL
-          const videoResult = await getLyricVideoByIdClient(videoData.lyricVideoId);
+          const videoResult = await getLyricVideoByIdClient(lyricVideoId);
           if (videoResult.finalVideoUrl) {
             setFinalVideoUrl(videoResult.finalVideoUrl);
           }
@@ -88,7 +84,7 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
     if (finalVideoUrl) {
       const link = document.createElement("a");
       link.href = finalVideoUrl;
-      link.download = `lyric-video-${videoData.lyricVideoId}.mp4`;
+      link.download = `lyric-video-${videoData.lyricVideoId || ""}.mp4`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -108,7 +104,7 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="aspectRatio">Aspect Ratio</Label>
-            <Select value={aspectRatio} onValueChange={(value: any) => setAspectRatio(value)}>
+            <Select value={aspectRatio} onValueChange={(value) => setAspectRatio(value as "1:1" | "9:16" | "16:9")}>
               <SelectTrigger id="aspectRatio">
                 <SelectValue />
               </SelectTrigger>

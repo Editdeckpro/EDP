@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import UploadAudioStep from "@/components/pages/lyric-video/steps/upload-audio-step";
 import AddLyricsStep from "@/components/pages/lyric-video/steps/add-lyrics-step";
 import TimingEditorStep from "@/components/pages/lyric-video/steps/timing-editor-step";
@@ -20,7 +19,7 @@ interface LyricVideoData {
   audioDuration?: number;
   lyrics?: string;
   lyricVideoId?: number;
-  timingData?: any;
+  timingData?: unknown;
   style?: string;
   font?: string;
   textColor?: string;

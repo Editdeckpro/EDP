@@ -7,10 +7,16 @@ import { Upload, FileAudio, Loader2 } from "lucide-react";
 import { uploadAudioClient } from "@/components/pages/lyric-video/api";
 import { useSession } from "next-auth/react";
 
+type LyricVideoWizardData = {
+  audioId?: string;
+  audioUrl?: string;
+  audioDuration?: number;
+};
+
 interface UploadAudioStepProps {
   onNext: () => void;
-  onDataUpdate: (data: any) => void;
-  videoData: any;
+  onDataUpdate: (data: Partial<LyricVideoWizardData>) => void;
+  videoData: LyricVideoWizardData;
 }
 
 export default function UploadAudioStep({ onNext, onDataUpdate, videoData }: UploadAudioStepProps) {
@@ -47,9 +53,10 @@ export default function UploadAudioStep({ onNext, onDataUpdate, videoData }: Upl
 
       toast.success("Audio uploaded successfully");
       setUploading(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Upload error:", error);
-      const errorMessage = error.response?.data?.message || error.message || "Failed to upload audio file";
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      const errorMessage = err?.response?.data?.message || err?.message || "Failed to upload audio file";
       toast.error(errorMessage);
       setUploading(false);
       setUploadedFile(null);

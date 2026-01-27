@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import type { ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Plus, Loader2, Video, Download } from "lucide-react";
@@ -7,7 +8,7 @@ import Link from "next/link";
 import { getLyricVideosClient, LyricVideo } from "@/components/pages/lyric-video/api";
 import dynamic from "next/dynamic";
 
-const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false }) as unknown as ComponentType<Record<string, unknown>>;
 
 export default function LyricVideosPage() {
   const [videos, setVideos] = useState<LyricVideo[]>([]);
@@ -25,7 +26,7 @@ export default function LyricVideosPage() {
       const result = await getLyricVideosClient({ page, limit: 20 });
       setVideos(result.videos);
       setTotalPages(result.pagination.totalPages);
-    } catch (error) {
+    } catch {
       toast.error("Failed to load lyric videos");
     } finally {
       setLoading(false);

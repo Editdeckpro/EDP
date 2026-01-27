@@ -5,17 +5,22 @@ import { toast } from "sonner";
 import { Loader2, RefreshCw } from "lucide-react";
 import { getLyricVideoByIdClient, regenerateTimingClient } from "@/components/pages/lyric-video/api";
 
+type LyricVideoWizardData = {
+  lyricVideoId?: number;
+  timingData?: unknown;
+};
+
 interface TimingEditorStepProps {
   onNext: () => void;
   onPrev: () => void;
-  onDataUpdate: (data: any) => void;
-  videoData: any;
+  onDataUpdate: (data: Partial<LyricVideoWizardData>) => void;
+  videoData: LyricVideoWizardData;
 }
 
 export default function TimingEditorStep({ onNext, onPrev, onDataUpdate, videoData }: TimingEditorStepProps) {
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
-  const [timingData, setTimingData] = useState<any>(null);
+  const [timingData, setTimingData] = useState<unknown>(null);
   const [audioUrl, setAudioUrl] = useState<string>("");
 
   useEffect(() => {
@@ -28,13 +33,15 @@ export default function TimingEditorStep({ onNext, onPrev, onDataUpdate, videoDa
       return;
     }
 
+    const lyricVideoId = videoData.lyricVideoId;
+
     try {
-      const result = await getLyricVideoByIdClient(videoData.lyricVideoId);
+      const result = await getLyricVideoByIdClient(lyricVideoId);
       setTimingData(result.lyricsData || { words: [], lines: [] });
       setAudioUrl(result.audioUrl || "");
       setLoading(false);
-    } catch (error) {
-      console.error("Error loading timing data:", error);
+    } catch {
+      console.error("Error loading timing data");
       setLoading(false);
     }
   };
@@ -42,12 +49,14 @@ export default function TimingEditorStep({ onNext, onPrev, onDataUpdate, videoDa
   const handleRegenerate = async () => {
     if (!videoData.lyricVideoId) return;
 
+    const lyricVideoId = videoData.lyricVideoId;
+
     setRegenerating(true);
     try {
-      const result = await regenerateTimingClient(videoData.lyricVideoId);
+      const result = await regenerateTimingClient(lyricVideoId);
       setTimingData(result);
       toast.success("Timing regenerated successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to regenerate timing");
     } finally {
       setRegenerating(false);
@@ -55,7 +64,8 @@ export default function TimingEditorStep({ onNext, onPrev, onDataUpdate, videoDa
   };
 
   const handleNext = () => {
-    if (!timingData || timingData.words.length === 0) {
+    const td = timingData as { words?: unknown[] } | null;
+    if (!td || !Array.isArray(td.words) || td.words.length === 0) {
       toast.error("Please wait for timing alignment to complete");
       return;
     }
@@ -98,10 +108,13 @@ export default function TimingEditorStep({ onNext, onPrev, onDataUpdate, videoDa
         </div>
       )}
 
-      {timingData && timingData.lines && timingData.lines.length > 0 ? (
+      {(() => {
+        const td = timingData as { lines?: Array<{ text: string; startTime: number; endTime: number; words: Array<{ word: string; startTime: number; endTime: number }> }> } | null;
+        if (td && Array.isArray(td.lines) && td.lines.length > 0) {
+          return (
         <div className="space-y-4">
           <div className="bg-muted rounded-lg p-4 max-h-[400px] overflow-y-auto">
-            {timingData.lines.map((line: any, lineIndex: number) => (
+            {td.lines.map((line, lineIndex: number) => (
               <div key={lineIndex} className="mb-4 pb-4 border-b last:border-b-0">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-sm font-medium text-muted-foreground">
@@ -113,7 +126,7 @@ export default function TimingEditorStep({ onNext, onPrev, onDataUpdate, videoDa
                 </div>
                 <p className="text-lg">{line.text}</p>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {line.words.map((word: any, wordIndex: number) => (
+                  {line.words.map((word, wordIndex: number) => (
                     <span
                       key={wordIndex}
                       className="text-sm px-2 py-1 bg-background rounded border"
@@ -130,20 +143,26 @@ export default function TimingEditorStep({ onNext, onPrev, onDataUpdate, videoDa
             Timing alignment complete. You can proceed to customize the style.
           </p>
         </div>
-      ) : (
+          );
+        }
+        return (
         <div className="text-center py-12">
           <p className="text-muted-foreground mb-4">
             Timing alignment is in progress. Please wait...
           </p>
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
         </div>
-      )}
+        );
+      })()}
 
       <div className="flex justify-between">
         <Button variant="outline" onClick={onPrev}>
           Previous
         </Button>
-        <Button onClick={handleNext} disabled={!timingData || timingData.words.length === 0}>
+        <Button
+          onClick={handleNext}
+          disabled={!Array.isArray((timingData as { words?: unknown[] } | null)?.words) || ((timingData as { words?: unknown[] } | null)?.words?.length ?? 0) === 0}
+        >
           Next: Choose Style
         </Button>
       </div>

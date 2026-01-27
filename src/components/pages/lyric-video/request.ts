@@ -47,7 +47,7 @@ export interface LyricVideo {
   audioPath: string;
   audioDuration: number;
   lyrics: string;
-  lyricsData: any;
+  lyricsData: unknown;
   style: string | null;
   font: string | null;
   textColor: string | null;
@@ -89,10 +89,10 @@ export interface LyricVideosListResponse {
 export interface JobStatusResponse {
   id: string;
   state: string;
-  progress: any;
-  result: any;
+  progress: unknown;
+  result: unknown;
   failedReason: string | null;
-  data: any;
+  data: unknown;
 }
 
 /**

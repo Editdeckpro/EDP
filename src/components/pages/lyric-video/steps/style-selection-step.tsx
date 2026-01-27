@@ -1,13 +1,16 @@
 "use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+
+type LyricVideoWizardData = {
+  style?: string;
+};
 
 interface StyleSelectionStepProps {
   onNext: () => void;
   onPrev: () => void;
-  onDataUpdate: (data: any) => void;
-  videoData: any;
+  onDataUpdate: (data: Partial<LyricVideoWizardData>) => void;
+  videoData: LyricVideoWizardData;
 }
 
 const STYLES = [
