@@ -1,9 +1,12 @@
 "use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { updateLyricVideoClient } from "@/components/pages/lyric-video/api";
+import { toast } from "sonner";
 
 type LyricVideoWizardData = {
   style?: string;
+  lyricVideoId?: number;
 };
 
 interface StyleSelectionStepProps {
@@ -42,10 +45,22 @@ const STYLES = [
 
 export default function StyleSelectionStep({ onNext, onPrev, onDataUpdate, videoData }: StyleSelectionStepProps) {
   const [selectedStyle, setSelectedStyle] = useState(videoData.style || "minimal");
+  const [saving, setSaving] = useState(false);
 
-  const handleNext = () => {
-    onDataUpdate({ style: selectedStyle });
-    onNext();
+  const handleNext = async () => {
+    try {
+      if (videoData.lyricVideoId) {
+        setSaving(true);
+        await updateLyricVideoClient(videoData.lyricVideoId, { style: selectedStyle });
+      }
+      onDataUpdate({ style: selectedStyle });
+      onNext();
+    } catch (error) {
+      console.error("Failed to update style:", error);
+      toast.error("Failed to save style. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -83,7 +98,9 @@ export default function StyleSelectionStep({ onNext, onPrev, onDataUpdate, video
         <Button variant="outline" onClick={onPrev}>
           Previous
         </Button>
-        <Button onClick={handleNext}>Next: Customize</Button>
+        <Button onClick={handleNext} disabled={saving}>
+          {saving ? "Saving..." : "Next: Customize"}
+        </Button>
       </div>
     </div>
   );

@@ -4,12 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { updateLyricVideoClient } from "@/components/pages/lyric-video/api";
+import { toast } from "sonner";
 
 type LyricVideoWizardData = {
   font?: string;
   textColor?: string;
   highlightColor?: string;
   backgroundColor?: string;
+  lyricVideoId?: number;
 };
 
 interface CustomizationStepProps {
@@ -40,15 +43,32 @@ export default function CustomizationStep({ onNext, onPrev, onDataUpdate, videoD
   const [textColor, setTextColor] = useState<string>(videoData.textColor || "#FFFFFF");
   const [highlightColor, setHighlightColor] = useState<string>(videoData.highlightColor || "#FFD700");
   const [backgroundColor, setBackgroundColor] = useState<string>(videoData.backgroundColor || "#000000");
+  const [saving, setSaving] = useState(false);
 
-  const handleNext = () => {
-    onDataUpdate({
-      font,
-      textColor,
-      highlightColor,
-      backgroundColor,
-    });
-    onNext();
+  const handleNext = async () => {
+    try {
+      if (videoData.lyricVideoId) {
+        setSaving(true);
+        await updateLyricVideoClient(videoData.lyricVideoId, {
+          font,
+          textColor,
+          highlightColor,
+          backgroundColor
+        });
+      }
+      onDataUpdate({
+        font,
+        textColor,
+        highlightColor,
+        backgroundColor,
+      });
+      onNext();
+    } catch (error) {
+      console.error("Failed to update customization:", error);
+      toast.error("Failed to save customization. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -154,7 +174,9 @@ export default function CustomizationStep({ onNext, onPrev, onDataUpdate, videoD
         <Button variant="outline" onClick={onPrev}>
           Previous
         </Button>
-        <Button onClick={handleNext}>Next: Preview</Button>
+        <Button onClick={handleNext} disabled={saving}>
+          {saving ? "Saving..." : "Next: Preview"}
+        </Button>
       </div>
     </div>
   );

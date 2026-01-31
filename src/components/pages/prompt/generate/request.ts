@@ -31,7 +31,9 @@ import { AxiosError } from "axios";
 //   }
 // }
 
-export async function generateFormDataSubmit(data: MainGenerateFormSchemaType): Promise<GeneratedImageRes | "error"> {
+export async function generateFormDataSubmit(
+  data: MainGenerateFormSchemaType
+): Promise<GeneratedImageRes | "error" | "insufficient_credits"> {
   const formData = new FormData();
 
   if (data.referenceImage) {
@@ -48,7 +50,11 @@ export async function generateFormDataSubmit(data: MainGenerateFormSchemaType): 
     return response.data;
   } catch (error) {
     const e = error as AxiosError;
+    const status = e.response?.status;
     console.error("API request failed:", e);
-    throw new Error("Something went wrong!");
+    if (status === 402) {
+      return "insufficient_credits";
+    }
+    return "error";
   }
 }

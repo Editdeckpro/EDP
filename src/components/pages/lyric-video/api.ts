@@ -124,9 +124,9 @@ export async function generatePreviewClient(
 export async function generateFinalVideoClient(
   lyricVideoId: number,
   aspectRatio: "1:1" | "9:16" | "16:9" = "16:9"
-): Promise<{ jobId: string; status: string; aspectRatio: string }> {
+): Promise<{ jobId: string; status: string; aspectRatio: string; finalUrl?: string }> {
   const axios = await GetAxiosWithAuth();
-  const response = await axios.post<{ jobId: string; status: string; aspectRatio: string }>(
+  const response = await axios.post<{ jobId: string; status: string; aspectRatio: string; finalUrl?: string }>(
     `lyric-videos/${lyricVideoId}/generate`,
     { aspectRatio }
   );
@@ -139,5 +139,24 @@ export async function generateFinalVideoClient(
 export async function getJobStatusClient(jobId: string): Promise<JobStatusResponse> {
   const axios = await GetAxiosWithAuth();
   const response = await axios.get<JobStatusResponse>(`lyric-videos/jobs/${jobId}`);
+  return response.data;
+}
+
+/**
+ * Update lyric video settings (client-side)
+ */
+export async function updateLyricVideoClient(
+  lyricVideoId: number,
+  data: {
+    style?: string;
+    font?: string;
+    textColor?: string;
+    highlightColor?: string;
+    backgroundColor?: string;
+    backgroundImage?: string | null;
+  }
+): Promise<LyricVideo> {
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.put<LyricVideo>(`lyric-videos/${lyricVideoId}`, data);
   return response.data;
 }

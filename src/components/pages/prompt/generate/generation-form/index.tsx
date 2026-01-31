@@ -130,10 +130,18 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       const data = await generateFormDataSubmit(values);
       setIsSubmitting(false);
 
+      if (data === "insufficient_credits") {
+        toast.error("Please upgrade your plan to generate images", {
+          description: "You do not have enough credits for this request",
+        });
+        setData(null);
+        return;
+      }
       if (data === "error") {
         toast.error("Something went wrong", {
           description: "Please try submitting form again",
         });
+        setData(null);
         return;
       } else {
         update(); // Update session to refresh user data

@@ -56,7 +56,11 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
         <div className="flex items-center gap-2">
           {/* Back Button - Show only if more than 1 path part */}
           {breadcrumbs.length > 1 && (
-            <button onClick={handleBack} className="text-primary hover:text-primary/80 transition cursor-pointer">
+            <button
+              onClick={handleBack}
+              className="text-primary hover:text-primary/80 transition cursor-pointer"
+              suppressHydrationWarning
+            >
               <ChevronLeft className="text-2xl" />
             </button>
           )}

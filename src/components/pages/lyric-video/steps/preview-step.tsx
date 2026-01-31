@@ -168,6 +168,27 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
         }
 
         const result = await getJobStatusClient(jobId);
+        const p = (result as { progress?: unknown }).progress;
+        if (p && typeof p === "object") {
+          const prog = p as {
+            percent?: unknown;
+            stage?: unknown;
+            frame?: unknown;
+            totalFrames?: unknown;
+            previewImageUrl?: unknown;
+          };
+          if (typeof prog.percent === "number") setProgressPercent(Math.max(0, Math.min(100, Math.round(prog.percent))));
+          if (typeof prog.stage === "string") setProgressStage(prog.stage);
+          if (typeof prog.frame === "number") setFramesDone(prog.frame);
+          if (typeof prog.totalFrames === "number") setTotalFrames(prog.totalFrames);
+          if (typeof prog.previewImageUrl === "string") {
+            const be = process.env.NEXT_PUBLIC_BE_URL || "";
+            const url = `${be}${prog.previewImageUrl}`;
+            setPreviewFrameUrl(`${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`);
+          }
+        } else if (typeof p === "number") {
+          setProgressPercent(Math.max(0, Math.min(100, Math.round(p))));
+        }
         if (result.state === "completed") {
           clearInterval(interval);
           setGenerating(false);
@@ -178,6 +199,11 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
           if (videoResult.previewVideoUrl) {
             setPreviewUrl(videoResult.previewVideoUrl);
             onDataUpdate({ previewUrl: videoResult.previewVideoUrl });
+          } else if ((result as { result?: { previewPath?: string } }).result?.previewPath) {
+            const be = process.env.NEXT_PUBLIC_BE_URL || "http://localhost:5000";
+            const fallbackUrl = `${be}${(result as { result?: { previewPath?: string } }).result?.previewPath}`;
+            setPreviewUrl(fallbackUrl);
+            onDataUpdate({ previewUrl: fallbackUrl });
           }
           toast.success("Preview generated successfully");
         } else if (result.state === "failed") {

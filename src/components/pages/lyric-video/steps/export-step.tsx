@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Loader2, Download, CheckCircle2 } from "lucide-react";
 import { generateFinalVideoClient, getJobStatusClient, getLyricVideoByIdClient } from "@/components/pages/lyric-video/api";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false }) as unknown as ComponentType<Record<string, unknown>>;
@@ -28,6 +29,29 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
   const [generating, setGenerating] = useState(false);
   const [finalVideoUrl, setFinalVideoUrl] = useState<string>("");
   const [status, setStatus] = useState<string>("");
+  const [progressPercent, setProgressPercent] = useState<number>(0);
+  const [progressStage, setProgressStage] = useState<string>("");
+  const [framesDone, setFramesDone] = useState<number>(0);
+  const [totalFrames, setTotalFrames] = useState<number>(0);
+  const [previewFrameUrl, setPreviewFrameUrl] = useState<string>("");
+
+  useEffect(() => {
+    const checkExistingFinal = async () => {
+      if (!videoData.lyricVideoId) return;
+      try {
+        const result = await getLyricVideoByIdClient(videoData.lyricVideoId);
+        if (result.finalVideoUrl) {
+          setFinalVideoUrl(result.finalVideoUrl);
+          setStatus("completed");
+        }
+      } catch {
+        console.error("Error checking final video");
+      }
+    };
+    if (videoData.lyricVideoId && !finalVideoUrl) {
+      checkExistingFinal();
+    }
+  }, [finalVideoUrl, videoData.lyricVideoId]);
 
   const handleGenerate = async () => {
     if (!videoData.lyricVideoId) {
@@ -39,9 +63,21 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
 
     setGenerating(true);
     setStatus("generating");
+    setProgressPercent(0);
+    setProgressStage("");
+    setFramesDone(0);
+    setTotalFrames(0);
+    setPreviewFrameUrl("");
 
     try {
       const result = await generateFinalVideoClient(videoData.lyricVideoId, aspectRatio);
+      if (result.finalUrl) {
+        setFinalVideoUrl(result.finalUrl);
+        setGenerating(false);
+        setStatus("completed");
+        toast.success("Video generated successfully!");
+        return;
+      }
       pollJobStatus(result.jobId, lyricVideoId);
     } catch (error: unknown) {
       const err = error as { message?: string };
@@ -52,14 +88,97 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
   };
 
   const pollJobStatus = async (jobId: string, lyricVideoId: number) => {
-    const interval = setInterval(async () => {
+    if (jobId.startsWith("sync-")) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       try {
         const result = await getJobStatusClient(jobId);
+        const p = (result as { progress?: unknown }).progress;
+        if (p && typeof p === "object") {
+          const prog = p as {
+            percent?: unknown;
+            stage?: unknown;
+            frame?: unknown;
+            totalFrames?: unknown;
+            previewImageUrl?: unknown;
+          };
+          if (typeof prog.percent === "number") setProgressPercent(Math.max(0, Math.min(100, Math.round(prog.percent))));
+          if (typeof prog.stage === "string") setProgressStage(prog.stage);
+          if (typeof prog.frame === "number") setFramesDone(prog.frame);
+          if (typeof prog.totalFrames === "number") setTotalFrames(prog.totalFrames);
+          if (typeof prog.previewImageUrl === "string") {
+            const be = process.env.NEXT_PUBLIC_BE_URL || "";
+            const url = `${be}${prog.previewImageUrl}`;
+            setPreviewFrameUrl(`${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`);
+          }
+        } else if (typeof p === "number") {
+          setProgressPercent(Math.max(0, Math.min(100, Math.round(p))));
+        }
+
+        if (result.state === "completed") {
+          setGenerating(false);
+          setStatus("completed");
+          const videoResult = await getLyricVideoByIdClient(lyricVideoId);
+          if (videoResult.finalVideoUrl) {
+            setFinalVideoUrl(videoResult.finalVideoUrl);
+          }
+          toast.success("Video generated successfully!");
+        } else if (result.state === "failed") {
+          setGenerating(false);
+          setStatus("failed");
+          toast.error("Video generation failed");
+        } else {
+          startPolling(jobId, lyricVideoId);
+        }
+      } catch (error) {
+        console.error("Error checking sync job status:", error);
+        startPolling(jobId, lyricVideoId);
+      }
+      return;
+    }
+
+    startPolling(jobId, lyricVideoId);
+  };
+
+  const startPolling = (jobId: string, lyricVideoId: number) => {
+    const startedAt = Date.now();
+    const timeoutMs = 10 * 60 * 1000;
+    const interval = setInterval(async () => {
+      try {
+        if (Date.now() - startedAt > timeoutMs) {
+          clearInterval(interval);
+          setGenerating(false);
+          setStatus("failed");
+          toast.error("Video generation is taking too long. Please try again.");
+          return;
+        }
+
+        const result = await getJobStatusClient(jobId);
+        const p = (result as { progress?: unknown }).progress;
+        if (p && typeof p === "object") {
+          const prog = p as {
+            percent?: unknown;
+            stage?: unknown;
+            frame?: unknown;
+            totalFrames?: unknown;
+            previewImageUrl?: unknown;
+          };
+          if (typeof prog.percent === "number") setProgressPercent(Math.max(0, Math.min(100, Math.round(prog.percent))));
+          if (typeof prog.stage === "string") setProgressStage(prog.stage);
+          if (typeof prog.frame === "number") setFramesDone(prog.frame);
+          if (typeof prog.totalFrames === "number") setTotalFrames(prog.totalFrames);
+          if (typeof prog.previewImageUrl === "string") {
+            const be = process.env.NEXT_PUBLIC_BE_URL || "";
+            const url = `${be}${prog.previewImageUrl}`;
+            setPreviewFrameUrl(`${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`);
+          }
+        } else if (typeof p === "number") {
+          setProgressPercent(Math.max(0, Math.min(100, Math.round(p))));
+        }
+
         if (result.state === "completed") {
           clearInterval(interval);
           setGenerating(false);
           setStatus("completed");
-          // Reload video data to get final URL
           const videoResult = await getLyricVideoByIdClient(lyricVideoId);
           if (videoResult.finalVideoUrl) {
             setFinalVideoUrl(videoResult.finalVideoUrl);
@@ -69,15 +188,12 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
           clearInterval(interval);
           setGenerating(false);
           setStatus("failed");
-          toast.error("Video generation failed");
+          toast.error(result.failedReason || "Video generation failed");
         }
       } catch (error) {
         console.error("Error polling job status:", error);
       }
-    }, 3000);
-
-    // Clear interval after 10 minutes
-    setTimeout(() => clearInterval(interval), 10 * 60 * 1000);
+    }, 2000);
   };
 
   const handleDownload = () => {
@@ -135,10 +251,38 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
       )}
 
       {status === "generating" && (
-        <div className="flex flex-col items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">Generating final video...</p>
-          <p className="text-sm text-muted-foreground mt-2">This may take several minutes</p>
+        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+          <div className="flex flex-col items-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+            <p className="text-muted-foreground">Generating final video...</p>
+            <p className="text-sm text-muted-foreground mt-2">This may take several minutes</p>
+          </div>
+
+          <div className="w-full max-w-md space-y-2">
+            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all duration-300"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{progressStage ? `Stage: ${progressStage}` : "Stage: starting"}</span>
+              <span>{progressPercent}%</span>
+            </div>
+            {totalFrames > 0 && (
+              <div className="text-xs text-muted-foreground">
+                Frames: {framesDone}/{totalFrames}
+              </div>
+            )}
+          </div>
+
+          {previewFrameUrl && (
+            <div className="w-full max-w-md">
+              <div className="relative aspect-video rounded-md overflow-hidden border">
+                <Image src={previewFrameUrl} alt="Rendering preview" fill className="object-contain" />
+              </div>
+            </div>
+          )}
         </div>
       )}
 
