@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useMediaQuery } from "@/hook/use-media-querry";
 import { cn } from "@/lib/utils";
 import { ChevronRight, SmilePlus } from "lucide-react";
-import { Dispatch, FC, SetStateAction, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 
 const moods = [
   { name: "Whimsical", src: "/images/visual-style.png" },
@@ -105,6 +105,10 @@ const VisualGrid = ({ onSelect, setOpen, value, setCustomMoods, customMoods }: V
   const [selected, setSelected] = useState<string[]>(value);
   const [customMood, setCustomMood] = useState("");
 
+  useEffect(() => {
+    setSelected(value);
+  }, [value]);
+
   const handleAddCustomMood = () => {
     const trimmed = customMood.trim();
     if (trimmed !== "" && !customMoods.includes(trimmed) && !moods.find((v) => v.name === trimmed)) {
@@ -167,7 +171,7 @@ const VisualGrid = ({ onSelect, setOpen, value, setCustomMoods, customMoods }: V
         ))}
       </ul>
       <Button onClick={handleSelect} disabled={selected.length === 0}>
-        {selected.length > 0 ? `Selected (${selected.length}/${moods.length})` : "Select moods"}
+        {selected.length > 0 ? `Selected (${selected.length})` : "Select moods"}
       </Button>
     </>
   );

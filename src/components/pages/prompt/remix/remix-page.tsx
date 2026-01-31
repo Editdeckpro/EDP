@@ -115,9 +115,32 @@ const RemixPage: FC<RemixPageProps> = ({ data, imageSrc, prompt }) => {
   return (
     <main>
       <div className="px-4 py-4 rounded-lg bg-primary/5 bg-[url('/images/support-banner-bg.png')] object-fill space-y-1 items-start md:items-center">
-        <Carousel className="space-y-5">
-          <ImageCarouselContent />
-        </Carousel>
+        {imageSrc ? (
+          <div className="space-y-5">
+            <div className="flex items-start gap-3 text-sm">
+              <Sparkles className="text-primary size-5 min-w-4" />
+              {prompt || "Selected image for remixing"}
+            </div>
+            <div className="grid grid-cols-1 gap-1 text-center max-w-full md:max-w-sm mx-auto">
+              <div className="relative aspect-square">
+                <Image
+                  src={imageSrc}
+                  alt={prompt || "Selected remix image"}
+                  width={700}
+                  height={475}
+                  className="transition-opacity duration-300 rounded-md"
+                  layout="responsive"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <Carousel className="space-y-5">
+            <ImageCarouselContent />
+          </Carousel>
+        )}
       </div>
     </main>
   );

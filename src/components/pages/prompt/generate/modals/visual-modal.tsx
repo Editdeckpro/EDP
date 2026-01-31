@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useMediaQuery } from "@/hook/use-media-querry";
 import { cn } from "@/lib/utils";
 import { ChevronRight, PaintbrushVertical } from "lucide-react";
-import { Dispatch, FC, SetStateAction, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 
 const visualStyles = [
   { name: "Photo", src: "/images/visual-style.png" },
@@ -108,6 +108,11 @@ const VisualGrid = ({ onSelect, setOpen, value, setCustomStyles, customStyles }:
   const [selected, setSelected] = useState<string[]>(value);
   const [customStyle, setCustomStyle] = useState("");
   const MAX_SELECTION = 4;
+  const maxReached = selected.length >= MAX_SELECTION;
+
+  useEffect(() => {
+    setSelected(value);
+  }, [value]);
 
   const handleAddCustomStyle = () => {
     const trimmed = customStyle.trim();
@@ -158,14 +163,14 @@ const VisualGrid = ({ onSelect, setOpen, value, setCustomStyles, customStyles }:
       {/* <ul className="grid grid-cols-2 2xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 py-4"> */}
       <ul className="flex flex-wrap gap-4 py-4 overflow-y-scroll md:overflow-y-auto px-2 md:px-1">
         {[...customStyles, ...visualStyles.map((v) => v.name)].map((style) => {
-          const isNotSelect = selected.length === MAX_SELECTION;
+          const isLocked = maxReached && !selected.includes(style);
           return (
             <li
               key={style}
               onClick={() => toggleSelection(style)}
               className={cn(
                 `rounded-md p-2 outline-1 outline-gray-400 cursor-pointer transition`,
-                isNotSelect ? "cursor-not-allowed" : "cursor-pointer",
+                isLocked ? "cursor-not-allowed" : "cursor-pointer",
                 selected.includes(style) && "outline-gray-600 outline-2 cursor-pointer"
               )}
             >

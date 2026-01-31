@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useMediaQuery } from "@/hook/use-media-querry";
 import { cn } from "@/lib/utils"; // Optional: to handle class merging
 import { ChevronRight, Info, Palette } from "lucide-react";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 
 const colors = [
@@ -104,6 +104,11 @@ interface ColorsGrid {
 
 const ColorsGrid = ({ onSelect, setOpen, value }: ColorsGrid) => {
   const [selected, setSelected] = useState<string[]>(value);
+  const hasPrimary = Boolean(selected[0]?.trim());
+
+  useEffect(() => {
+    setSelected(value);
+  }, [value]);
 
   const toggleColor = (color: string, title: string) => {
     setSelected((prev) => {
@@ -206,15 +211,19 @@ const ColorsGrid = ({ onSelect, setOpen, value }: ColorsGrid) => {
         {colors.map((color) => {
           const title = selected[0] === color ? "Primary" : selected[1] === color ? "Secondary" : "Click to select";
           const bothSelected = selected[0] && selected[1];
+          const isSelected = selected.includes(color);
           return (
             <li key={color} className="flex items-center justify-center">
               <button
                 type="button"
-                onClick={() => toggleColor(color, title)}
+                onClick={() => {
+                  if (bothSelected && !isSelected) return;
+                  toggleColor(color, title);
+                }}
                 className={cn(
                   "w-10 h-10 rounded-sm border-2 transition",
-                  bothSelected ? "cursor-not-allowed" : "cursor-pointer",
-                  selected.includes(color) ? "border-black cursor-pointer" : "border-transparent"
+                  bothSelected && !isSelected ? "cursor-not-allowed" : "cursor-pointer",
+                  isSelected ? "border-black cursor-pointer" : "border-transparent"
                 )}
                 style={{ backgroundColor: color }}
                 title={selected[0] === color ? "Primary" : selected[1] === color ? "Secondary" : "Click to select"}
@@ -224,7 +233,7 @@ const ColorsGrid = ({ onSelect, setOpen, value }: ColorsGrid) => {
         })}
       </ul>
 
-      <Button className="w-full" onClick={handleSelect}>
+      <Button className="w-full" onClick={handleSelect} disabled={!hasPrimary}>
         Select
       </Button>
     </>

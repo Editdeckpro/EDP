@@ -11,7 +11,7 @@ export default function Page() {
           description="Craft stunning album covers from pure imagination."
           buttonText="Generate Now"
           buttonIcon="sparkles"
-          imageSrc="/images/cta-fg.jpg"
+          imageSrc="/images/cta-image-creator.svg"
           bgImgSrc="/images/cta-bg.jpg"
           btnLink="/image-generation/generate"
         />
@@ -20,7 +20,7 @@ export default function Page() {
           description="Transform and evolve your visuals with a single prompt."
           buttonText="Remix Image"
           buttonIcon="sparkles"
-          imageSrc="/images/cta-2-fg-1.jpg"
+          imageSrc="/images/cta-remix.svg"
           buttonVariant="secondary"
           bgImgSrc="/images/cta-2.jpg"
           btnLink="/remix-image/remix"
@@ -30,7 +30,7 @@ export default function Page() {
           description="Create stunning lyric videos with AI-powered timing."
           buttonText="Create Video"
           buttonIcon="video"
-          imageSrc="/images/cta-fg.jpg"
+          imageSrc="/images/cta-lyric-video.svg"
           bgImgSrc="/images/cta-bg.jpg"
           btnLink="/lyric-video/create"
           disabled={false}
