@@ -7,5 +7,4 @@ export default defineConfig({
     include: ["src/**/*.test.{ts,tsx}"],
     setupFiles: [],
   },
-  css: false,
 });
