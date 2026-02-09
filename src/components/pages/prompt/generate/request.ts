@@ -43,18 +43,31 @@ export async function generateFormDataSubmit(
   formData.append("apiProvider", data.apiProvider || "openai");
   formData.append("userPrompt", data.customPrompt);
 
-  try {
-    const axios = await GetServerAxiosWithAuth();
-    const response = await axios.post<GeneratedImageRes>(`generations/custom`, formData);
+  const axios = await GetServerAxiosWithAuth();
+  const MAX_RETRIES = 2;
+  const RETRY_DELAY_MS = 2000;
 
-    return response.data;
-  } catch (error) {
-    const e = error as AxiosError;
-    const status = e.response?.status;
-    console.error("API request failed:", e);
-    if (status === 402) {
-      return "insufficient_credits";
-    }
-    return "error";
+  function isRetryable(err: unknown): boolean {
+    const e = err as NodeJS.ErrnoException & { code?: string; cause?: { code?: string } };
+    const code = e?.code ?? e?.cause?.code;
+    return code === "ECONNRESET" || code === "ETIMEDOUT" || code === "ECONNABORTED";
   }
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await axios.post<GeneratedImageRes>(`generations/custom`, formData);
+      return response.data;
+    } catch (error) {
+      const e = error as AxiosError;
+      console.error(`API request failed (attempt ${attempt}/${MAX_RETRIES}):`, e?.message || e);
+      if (e.response?.status === 402) return "insufficient_credits";
+      if (attempt < MAX_RETRIES && isRetryable(error)) {
+        await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+        continue;
+      }
+      return "error";
+    }
+  }
+
+  return "error";
 }

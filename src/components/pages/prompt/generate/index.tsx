@@ -14,11 +14,15 @@ export type SetGenerateResType = Dispatch<SetStateAction<GenerateResType | null>
 export default function Generate() {
   const { data: authData } = useSession();
   const [data, setData] = useState<GenerateResType>(null);
-  const credits = authData?.user.credits;
 
   return (
     <section className="flex flex-col lg:flex-row">
-      {authData?.user && <NoActiveSubscriptionModal credits={credits} />}
+      {authData?.user && (
+        <NoActiveSubscriptionModal
+          generationsUsedThisMonth={authData.user.generationsUsedThisMonth}
+          monthlyLimit={authData.user.monthlyLimit}
+        />
+      )}
       <div className="hidden lg:block lg:pr-0 min-w-1/4 p-5 pb-0">
         <SidebarWrapper>
           <GenerateSidebarContent setData={setData} />

@@ -30,14 +30,14 @@ const Page = () => {
             </div>
             <div className="text-xs">
               <div className="leading-tight text-gray-600">
-                Credits Remained
+                Generations this month
               </div>
               <div className="font-semibold text-xs leading-tight text-primary">
                 {status === "authenticated" && data?.user ? (
-                  data.user.credits < 0 ? (
-                    "Unlimited"
+                  data.user.monthlyLimit === null ? (
+                    `${data.user.generationsUsedThisMonth} (Unlimited)`
                   ) : (
-                    data.user.credits.toLocaleString()
+                    `${data.user.generationsUsedThisMonth} / ${data.user.monthlyLimit}`
                   )
                 ) : (
                   <Skeleton className="w-16 h-3" />
@@ -60,14 +60,14 @@ const Page = () => {
               <div className="flex items-center gap-1">
                 <h1 className="text-lg font-bold text-black">Editor</h1>
               </div>
-              {/* Credits below on mobile */}
+              {/* Generations this month on mobile */}
               <div className="text-xs text-gray-500">
                 <span className="font-bold text-primary">
                   {status === "authenticated" && data?.user ? (
-                    data.user.credits < 0 ? (
-                      "Unlimited"
+                    data.user.monthlyLimit === null ? (
+                      `${data.user.generationsUsedThisMonth} (Unlimited)`
                     ) : (
-                      data.user.credits.toLocaleString()
+                      `${data.user.generationsUsedThisMonth} / ${data.user.monthlyLimit}`
                     )
                   ) : (
                     <Skeleton className="w-16 h-3" />

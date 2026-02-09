@@ -1,11 +1,10 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useState } from "react";
 import { Skeleton } from "../ui/skeleton";
 import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -25,48 +24,18 @@ interface ProfileDropdownProps {
 
 const ProfileDropdown: FC<ProfileDropdownProps> = ({ isMobile = false }) => {
   const session = useSession();
-  const router = useRouter();
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [countdown, setCountdown] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (!isLoggingOut) {
-      return;
+  async function handleConfirmLogout() {
+    setIsLoggingOut(true);
+    try {
+      await signOut({ redirect: true, callbackUrl: "/login" });
+    } finally {
+      setIsLoggingOut(false);
+      setLogoutOpen(false);
     }
-
-    if (countdown === null) {
-      return;
-    }
-
-    if (countdown <= 0) {
-      return;
-    }
-
-    const id = window.setTimeout(() => {
-      setCountdown((prev) => (typeof prev === "number" ? prev - 1 : prev));
-    }, 1000);
-
-    return () => window.clearTimeout(id);
-  }, [countdown, isLoggingOut]);
-
-  useEffect(() => {
-    if (!isLoggingOut || countdown !== 0) {
-      return;
-    }
-
-    (async () => {
-      try {
-        await signOut({ redirect: true, callbackUrl: "/login" });
-      } finally {
-        window.setTimeout(() => {
-          if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
-            window.location.href = "/login";
-          }
-        }, 300);
-      }
-    })();
-  }, [countdown, isLoggingOut]);
+  }
 
   if (session.status != "authenticated") {
     return (
@@ -117,7 +86,6 @@ const ProfileDropdown: FC<ProfileDropdownProps> = ({ isMobile = false }) => {
             onClick={() => {
               setLogoutOpen(true);
               setIsLoggingOut(false);
-              setCountdown(null);
             }}
           >
             Logout
@@ -128,64 +96,33 @@ const ProfileDropdown: FC<ProfileDropdownProps> = ({ isMobile = false }) => {
       <Dialog
         open={logoutOpen}
         onOpenChange={(open) => {
-          if (isLoggingOut) {
-            return;
-          }
-          setLogoutOpen(open);
+          if (!isLoggingOut) setLogoutOpen(open);
         }}
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {isLoggingOut ? "Logging out" : "Confirm logout"}
-            </DialogTitle>
+            <DialogTitle>Confirm logout</DialogTitle>
           </DialogHeader>
-
-          {isLoggingOut ? (
-            <div className="text-sm text-muted-foreground">
-              Logging out in {countdown ?? 3}s…
-            </div>
-          ) : (
-            <div className="text-sm text-muted-foreground">
-              Are you sure you want to logout?
-            </div>
-          )}
-
+          <div className="text-sm text-muted-foreground">
+            Are you sure you want to logout?
+          </div>
           <DialogFooter>
-            {isLoggingOut ? (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setIsLoggingOut(false);
-                  setCountdown(null);
-                  setLogoutOpen(false);
-                  router.refresh();
-                }}
-              >
-                Cancel
-              </Button>
-            ) : (
-              <>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setLogoutOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => {
-                    setIsLoggingOut(true);
-                    setCountdown(3);
-                  }}
-                >
-                  Logout
-                </Button>
-              </>
-            )}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setLogoutOpen(false)}
+              disabled={isLoggingOut}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleConfirmLogout}
+              disabled={isLoggingOut}
+            >
+              {isLoggingOut ? "Logging out…" : "Logout"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

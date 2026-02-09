@@ -212,7 +212,7 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
       <div>
         <h2 className="text-2xl font-semibold mb-2">Export Video</h2>
         <p className="text-muted-foreground">
-          Choose the aspect ratio and generate your final lyric video. This will use 1 credit.
+          Choose the aspect ratio and generate your final lyric video. This counts as 1 generation toward your monthly limit.
         </p>
       </div>
 

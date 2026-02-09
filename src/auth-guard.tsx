@@ -69,7 +69,8 @@ export const authOptions: NextAuthOptions = {
         email: data.email,
         username: data.username,
         profileImage: data.profileImage,
-        credits: data.credits,
+        generationsUsedThisMonth: data.generationsUsedThisMonth ?? 0,
+        monthlyLimit: data.monthlyLimit ?? null,
         bypassSubscription: data.bypassSubscription,
         subscription: {
           planType: data.subscription.planType,

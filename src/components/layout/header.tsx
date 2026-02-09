@@ -94,19 +94,19 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
           >
             Onboarding Tour
           </Button>
-          {/* Credits Badge */}
+          {/* Monthly generations badge */}
           <div className="flex items-center gap-2 bg-white text-black outline outline-gray-300 rounded-full px-3 py-1 pl-[5px]">
             <div className="rounded-full bg-secondary p-2 aspect-square flex items-center justify-center text-xs font-bold">
               <GIcon name="toll" />
             </div>
             <div className="text-xs">
-              <div className="leading-tight text-gray-600">Credits Remained</div>
+              <div className="leading-tight text-gray-600">Generations this month</div>
               <div className="font-semibold text-xs leading-tight text-primary">
                 {status === "authenticated" && data?.user ? (
-                  data.user.credits < 0 ? (
-                    "Unlimited"
+                  data.user.monthlyLimit === null ? (
+                    `${data.user.generationsUsedThisMonth.toLocaleString()} (Unlimited)`
                   ) : (
-                    data.user.credits.toLocaleString()
+                    `${data.user.generationsUsedThisMonth.toLocaleString()} / ${data.user.monthlyLimit}`
                   )
                 ) : (
                   <Skeleton className="w-16 h-3" />
@@ -148,15 +148,15 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
                     ))
                   )}
                 </div>
-                {/* Credits below on mobile */}
+                {/* Generations this month on mobile */}
                 <div className="text-xs text-gray-500">
-                  Credit Remained:{" "}
+                  Generations this month:{" "}
                   <span className="font-bold text-primary">
                     {status === "authenticated" && data?.user ? (
-                      data.user.credits < 0 ? (
-                        "Unlimited"
+                      data.user.monthlyLimit === null ? (
+                        `${data.user.generationsUsedThisMonth} (Unlimited)`
                       ) : (
-                        data.user.credits.toLocaleString()
+                        `${data.user.generationsUsedThisMonth} / ${data.user.monthlyLimit}`
                       )
                     ) : (
                       <Skeleton className="w-16 h-3" />

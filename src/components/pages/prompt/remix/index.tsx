@@ -20,7 +20,6 @@ export default function Remix() {
   let validUrl: string | null = null;
   const [base64, setBase64] = useState<string | null>(null);
   const { data: authData } = useSession();
-  const credits = authData?.user.credits;
 
   if (typeof url === "string" && url.trim() !== "") {
     try {
@@ -34,7 +33,12 @@ export default function Remix() {
 
   return (
     <section className="flex flex-col lg:flex-row">
-      {authData?.user && <NoActiveSubscriptionModal credits={credits} />}
+      {authData?.user && (
+        <NoActiveSubscriptionModal
+          generationsUsedThisMonth={authData.user.generationsUsedThisMonth}
+          monthlyLimit={authData.user.monthlyLimit}
+        />
+      )}
       <section className="hidden lg:block p-5 lg:pr-0 min-w-1/4 ">
         <SidebarWrapper>
           <RemixSidebarContent

@@ -69,9 +69,10 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
   });
 
   async function onSubmit(values: RemixFormSchemaType) {
-    if (!bypassSubscription && data?.user.credits === 0) {
-      toast.error("Please upgrade your plan to generate images", {
-        description: "You have no credits left",
+    const atMonthlyLimit = !bypassSubscription && data?.user && data.user.monthlyLimit !== null && data.user.generationsUsedThisMonth >= data.user.monthlyLimit;
+    if (atMonthlyLimit) {
+      toast.error("Monthly limit reached", {
+        description: "You've used all generations for this month. Upgrade your plan for more.",
       });
       return;
     }
@@ -93,11 +94,11 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
       }
       setData(data);
     } catch (err) {
-      console.log(err);
-
+      console.error(err);
       setIsSubmitting(false);
-      toast.error("Something went wrong", {
-        description: "Please try submitting form again",
+      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      toast.error(message, {
+        description: message.includes("try again") ? undefined : "Please try submitting form again",
       });
       setData(null);
       form.reset();
@@ -532,7 +533,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
             type="submit"
             className="w-full"
             isLoading={isSubmitting}
-            disabled={isSubmitting || status !== "authenticated" || (!bypassSubscription && data.user.credits === 0)}
+            disabled={isSubmitting || status !== "authenticated" || (!bypassSubscription && data.user && data.user.monthlyLimit !== null && data.user.generationsUsedThisMonth >= data.user.monthlyLimit)}
           >
             Remix Image <GIcon>wand_stars</GIcon>
           </Button>

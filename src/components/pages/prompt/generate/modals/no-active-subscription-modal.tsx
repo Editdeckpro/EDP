@@ -9,38 +9,34 @@ import { memo, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
 interface NoActiveSubscriptionModalProps {
-  credits?: number;
+  generationsUsedThisMonth?: number;
+  monthlyLimit?: number | null;
 }
 
-function NoActiveSubscriptionModalComponent({ credits }: NoActiveSubscriptionModalProps) {
+function NoActiveSubscriptionModalComponent({ generationsUsedThisMonth = 0, monthlyLimit }: NoActiveSubscriptionModalProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      // Check subscription status from session
       const subscription = session?.user?.subscription;
       const planType = subscription?.planType;
       const status = subscription?.status;
       const bypassSubscription = Boolean(session?.user?.bypassSubscription);
-      
-      // Show modal if:
-      // 1. User has FREE plan, OR
-      // 2. Subscription status is not active (expired, canceled, etc.), OR
-      // 3. Credits are 0 (fallback check)
-      const hasNoActiveSubscription = 
-        planType === "FREE" || 
+      const atMonthlyLimit = monthlyLimit !== null && monthlyLimit !== undefined && generationsUsedThisMonth >= monthlyLimit;
+      const hasNoActiveSubscription =
+        planType === "FREE" ||
         (status && status !== "active" && status !== "trialing") ||
-        credits === 0;
+        atMonthlyLimit;
 
       if (hasNoActiveSubscription && !bypassSubscription) {
         setShowDialog(true);
       }
-    }, 2000); // after 2 seconds show no subscription dialog
+    }, 2000);
 
     return () => clearTimeout(timeout);
-  }, [credits, session]);
+  }, [generationsUsedThisMonth, monthlyLimit, session]);
   return (
     <Dialog open={showDialog} onOpenChange={setShowDialog}>
       <DialogContent>

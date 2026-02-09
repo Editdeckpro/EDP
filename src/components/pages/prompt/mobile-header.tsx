@@ -76,13 +76,13 @@ const PromptMobileHeader = ({ SidebarContent }: PromptMobileHeaderProps) => {
               )}
             </div>
             <div className="text-xs text-gray-500">
-              Credit Remained:{" "}
+              Generations this month:{" "}
               <span className="font-bold text-primary">
                 {status === "authenticated" && data?.user ? (
-                  data.user.credits < 0 ? (
-                    "Unlimited"
+                  data.user.monthlyLimit === null ? (
+                    `${data.user.generationsUsedThisMonth} (Unlimited)`
                   ) : (
-                    data.user.credits.toLocaleString()
+                    `${data.user.generationsUsedThisMonth} / ${data.user.monthlyLimit}`
                   )
                 ) : (
                   <Skeleton className="w-16 h-3" />

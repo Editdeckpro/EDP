@@ -43,8 +43,18 @@ export default function SubscriptionPricing() {
     <>
       <SubscriptionHeader billingPeriod={billingPeriod} setPeriod={setBillingPeriod} />
 
+      {/* Plan generations summary */}
+      <div className="rounded-xl border border-gray-200 bg-gray-50/80 p-4 mb-6">
+        <h3 className="font-semibold text-sm text-gray-700 mb-3">Generations per plan (per month)</h3>
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-[#6a6c7b]">
+          <span><strong className="text-foreground">Starter:</strong> 5 generations</span>
+          <span><strong className="text-foreground">Next Level:</strong> 25 generations</span>
+          <span><strong className="text-foreground">Pro Studio:</strong> Unlimited</span>
+        </div>
+        <p className="text-xs text-[#6a6c7b] mt-2">Each image generation or final lyric video export counts as 1 generation.</p>
+      </div>
+
       {/* Pricing Cards */}
-      {/* <div className="flex items-center flex-wrap justify-center gap-6"> */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {pricingPlansDetails.map((card) => (
           <PricingCard
@@ -73,6 +83,21 @@ export const tierPriority = {
 } as const;
 
 export type PlanID = keyof typeof tierPriority;
+
+/** Image generations per month per plan (matches backend generationLimitUtils). */
+export const PLAN_GENERATIONS: Record<PlanID, number | null> = {
+  FREE: 0,
+  STARTER: 5,
+  NEXT_LEVEL: 25,
+  PRO_STUDIO: null, // unlimited
+};
+
+export function getPlanGenerationsLabel(planId: PlanID): string {
+  const n = PLAN_GENERATIONS[planId];
+  if (n === null) return "Unlimited generations per month";
+  if (n === 0) return "No generations (upgrade to a plan)";
+  return `${n} generations per month`;
+}
 
 export const messageMap = {
   upgrade: {
@@ -112,7 +137,7 @@ export const pricingPlansDetails: Omit<PricingCardProps, "billingPeriod" | "isCu
     price: 27,
     price_annual: 219,
     features: [
-      "Generate 5 covers per month",
+      "5 image generations per month",
       "Standard-resolution outputs",
       "Access to basic customization tools",
       "Full ownership of downloaded designs",
@@ -130,9 +155,10 @@ export const pricingPlansDetails: Omit<PricingCardProps, "billingPeriod" | "isCu
     price: 67,
     price_annual: 539,
     features: [
-      "Unlimited AI-powered cover designs",
+      "25 image generations per month",
       "Custom text tools for enhanced branding",
       "High-resolution outputs for pro-quality results",
+      "Lyric video feature (up to 20 seconds)",
       "Priority email support (24-hour response time)",
     ],
     color: "blue",
@@ -146,11 +172,11 @@ export const pricingPlansDetails: Omit<PricingCardProps, "billingPeriod" | "isCu
     price: 119,
     price_annual: 971,
     features: [
+      "Unlimited image generations per month",
       "Add up to 5 team members for collaborative access",
       "Centralized dashboard to manage projects, users, and downloads",
-      "Priority queue for cover generation (even faster processing)",
-      "Team-based folders for organized content management",
-      "Early access to beta features & experimental tools",
+      "Lyric video feature (up to 5 minutes)",
+      "Priority queue & early access to beta features",
     ],
     color: "primary",
     icon: <Layers3Icon color="white" />,

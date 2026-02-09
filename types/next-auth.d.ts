@@ -27,7 +27,10 @@ export interface SessionUser {
   email: string;
   username: string;
   profileImage?: string;
-  credits: number;
+  /** Generations used in the current calendar month (image + final lyric videos) */
+  generationsUsedThisMonth: number;
+  /** Plan limit per month; null = unlimited */
+  monthlyLimit: number | null;
   bypassSubscription?: boolean;
   subscription: {
     planType: PlanID;

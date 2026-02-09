@@ -117,9 +117,10 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
   }
 
   async function mainFormSubmit(values: MainGenerateFormSchemaType) {
-    if (!bypassSubscription && data?.user.credits === 0) {
-      toast.error("Please upgrade your plan to generate images", {
-        description: "You have no credits left",
+    const atMonthlyLimit = !bypassSubscription && data?.user && data.user.monthlyLimit !== null && data.user.generationsUsedThisMonth >= data.user.monthlyLimit;
+    if (atMonthlyLimit) {
+      toast.error("Monthly limit reached", {
+        description: "You've used all generations for this month. Upgrade your plan for more.",
       });
       return;
     }
@@ -131,8 +132,8 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       setIsSubmitting(false);
 
       if (data === "insufficient_credits") {
-        toast.error("Please upgrade your plan to generate images", {
-          description: "You do not have enough credits for this request",
+        toast.error("Monthly limit reached", {
+          description: "You've used all generations for this month. Upgrade your plan for more.",
         });
         setData(null);
         return;
@@ -242,7 +243,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       <Button
         type="submit"
         className="w-full"
-        disabled={isSubmitting || status !== "authenticated" || (!bypassSubscription && data?.user.credits === 0)}
+        disabled={isSubmitting || status !== "authenticated" || (!bypassSubscription && data?.user && data.user.monthlyLimit !== null && data.user.generationsUsedThisMonth >= data.user.monthlyLimit)}
         onClick={submitButtonClicked}
       >
         {isSubmitting ? "Generating..." : "Generate Image"}
