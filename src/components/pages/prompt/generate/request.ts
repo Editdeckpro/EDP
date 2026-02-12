@@ -31,13 +31,18 @@ import { AxiosError } from "axios";
 //   }
 // }
 
+/** Payload for generate – only serializable fields (no File); reference image is uploaded client-side first. */
+export type GenerateSubmitPayload = Pick<MainGenerateFormSchemaType, "numberOfImages" | "apiProvider" | "customPrompt"> & {
+  imageUrl?: string;
+};
+
 export async function generateFormDataSubmit(
-  data: MainGenerateFormSchemaType
+  data: GenerateSubmitPayload
 ): Promise<GeneratedImageRes | "error" | "insufficient_credits"> {
   const formData = new FormData();
 
-  if (data.referenceImage) {
-    formData.append("image", data.referenceImage); // Image should be a `File` object
+  if (data.imageUrl) {
+    formData.append("imageUrl", data.imageUrl);
   }
   formData.append("noOfImages", `${data.numberOfImages}`);
   formData.append("apiProvider", data.apiProvider || "openai");

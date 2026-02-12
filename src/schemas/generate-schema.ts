@@ -20,6 +20,7 @@ export const mainGenerateFormSchema = z.object({
   numberOfImages: z.number().min(1).max(4),
   apiProvider: z.enum(apiProviders),
   referenceImage: fileSchema.optional(),
+  imageUrl: z.string().url().optional(), // Set after client-side upload to avoid 413 via Server Action
   customPrompt: z.string().min(1, {
     message: "Custom prompt is required.",
   }),

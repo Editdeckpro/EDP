@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { SetGenerateResType } from "..";
 import { generateFormDataSubmit } from "../request";
+import { uploadReferenceImageClient } from "../upload-reference";
 import GenerateForm from "./generation-form";
 import MainGenerateForm from "./main-generation-form";
 import { ChevronDown, ChevronUp, Upload } from "lucide-react";
@@ -128,17 +129,35 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
     try {
       setIsSubmitting(true);
       setData("loading");
-      const data = await generateFormDataSubmit(values);
+      // Upload reference image from client first; never send File to Server Action (avoids 413/403)
+      let imageUrl: string | undefined;
+      if (values.referenceImage) {
+        try {
+          imageUrl = await uploadReferenceImageClient(values.referenceImage);
+        } catch (uploadErr) {
+          setIsSubmitting(false);
+          setData(null);
+          toast.error("Image upload failed", { description: "Please try again." });
+          return;
+        }
+      }
+      // Only pass serializable fields – no referenceImage (File) so payload never triggers 403
+      const result = await generateFormDataSubmit({
+        numberOfImages: values.numberOfImages,
+        apiProvider: values.apiProvider,
+        customPrompt: values.customPrompt,
+        imageUrl,
+      });
       setIsSubmitting(false);
 
-      if (data === "insufficient_credits") {
+      if (result === "insufficient_credits") {
         toast.error("Monthly limit reached", {
           description: "You've used all generations for this month. Upgrade your plan for more.",
         });
         setData(null);
         return;
       }
-      if (data === "error") {
+      if (result === "error") {
         toast.error("Something went wrong", {
           description: "Please try submitting form again",
         });
@@ -147,7 +166,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       } else {
         update(); // Update session to refresh user data
       }
-      setData(data);
+      setData(result);
       return;
     } catch (err) {
       setIsSubmitting(false);
