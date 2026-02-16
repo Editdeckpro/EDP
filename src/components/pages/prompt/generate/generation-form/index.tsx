@@ -134,7 +134,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       if (values.referenceImage) {
         try {
           imageUrl = await uploadReferenceImageClient(values.referenceImage);
-        } catch (uploadErr) {
+        } catch {
           setIsSubmitting(false);
           setData(null);
           toast.error("Image upload failed", { description: "Please try again." });
