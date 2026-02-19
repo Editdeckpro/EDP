@@ -34,8 +34,9 @@ export function fileToBase64(file: File): Promise<string> {
   });
 }
 
-export const apiProviders = ["ideogram", "openai"] as const;
+export const apiProviders = ["nano_banana", "openai", "ideogram"] as const;
 export const apiProviderSelect = [
-  { name: "Ideogram", value: "ideogram" },
+  { name: "Nano Banana", value: "nano_banana" },
   { name: "OpenAI", value: "openai" },
+  { name: "Ideogram", value: "ideogram" },
 ] as const;

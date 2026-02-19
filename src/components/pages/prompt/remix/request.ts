@@ -21,7 +21,7 @@ export async function remixFormDataSubmit(
   formData.append("imgSimilarityPercentage", data.imageSimilarity.toString());
   formData.append("userPrompt", data.customPrompt);
   formData.append("noOfImages", "1");
-  formData.append("apiProvider", data.apiProvider || "openai");
+  formData.append("apiProvider", data.apiProvider || "nano_banana");
 
   if (data.referenceImage) {
     formData.append("image", data.referenceImage);
@@ -55,9 +55,24 @@ export async function remixFormDataSubmit(
           "The connection was reset while generating. This often happens when the service is busy. Please try again."
         );
       }
-      throw new Error("Something went wrong. Please try again.");
+      const serverMessage = (e.response?.data as { error?: string })?.error;
+      throw new Error(
+        typeof serverMessage === "string" && serverMessage.length
+          ? serverMessage
+          : "Something went wrong. Please try again."
+      );
     }
   }
 
-  throw lastError instanceof Error ? lastError : new Error("Something went wrong. Please try again.");
+  const last = lastError as AxiosError;
+  const serverMessage = last?.response?.data && typeof last.response.data === "object" && "error" in last.response.data
+    ? (last.response.data as { error: string }).error
+    : null;
+  throw new Error(
+    typeof serverMessage === "string" && serverMessage.length
+      ? serverMessage
+      : lastError instanceof Error
+        ? lastError.message
+        : "Something went wrong. Please try again."
+  );
 }

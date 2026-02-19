@@ -51,7 +51,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
     resolver: zodResolver(mainGenerateFormSchema),
     defaultValues: {
       numberOfImages: 1,
-      apiProvider: "openai",
+      apiProvider: "nano_banana",
       customPrompt: "",
       referenceImage: undefined,
     },
@@ -157,9 +157,12 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
         setData(null);
         return;
       }
-      if (result === "error") {
-        toast.error("Something went wrong", {
-          description: "Please try submitting form again",
+      if (result === "error" || (typeof result === "object" && result !== null && "error" in result)) {
+        const message = typeof result === "object" && result !== null && "error" in result
+          ? (result as { error: string }).error
+          : "Please try submitting form again";
+        toast.error("Generation failed", {
+          description: message,
         });
         setData(null);
         return;

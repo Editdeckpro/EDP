@@ -36,16 +36,19 @@ export type GenerateSubmitPayload = Pick<MainGenerateFormSchemaType, "numberOfIm
   imageUrl?: string;
 };
 
+/** Server returned an error message (e.g. Gemini quota, rate limit). */
+export type GenerateErrorPayload = { error: string };
+
 export async function generateFormDataSubmit(
   data: GenerateSubmitPayload
-): Promise<GeneratedImageRes | "error" | "insufficient_credits"> {
+): Promise<GeneratedImageRes | "error" | "insufficient_credits" | GenerateErrorPayload> {
   const formData = new FormData();
 
   if (data.imageUrl) {
     formData.append("imageUrl", data.imageUrl);
   }
   formData.append("noOfImages", `${data.numberOfImages}`);
-  formData.append("apiProvider", data.apiProvider || "openai");
+  formData.append("apiProvider", data.apiProvider || "nano_banana");
   formData.append("userPrompt", data.customPrompt);
 
   const axios = await GetServerAxiosWithAuth();
@@ -56,6 +59,11 @@ export async function generateFormDataSubmit(
     const e = err as NodeJS.ErrnoException & { code?: string; cause?: { code?: string } };
     const code = e?.code ?? e?.cause?.code;
     return code === "ECONNRESET" || code === "ETIMEDOUT" || code === "ECONNABORTED";
+  }
+
+  function getServerMessage(e: AxiosError): string {
+    const msg = (e.response?.data as { error?: string })?.error;
+    return typeof msg === "string" && msg.length ? msg : "Something went wrong. Please try again.";
   }
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -70,9 +78,9 @@ export async function generateFormDataSubmit(
         await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
         continue;
       }
-      return "error";
+      return { error: getServerMessage(e) };
     }
   }
 
-  return "error";
+  return { error: "Something went wrong. Please try again." };
 }
