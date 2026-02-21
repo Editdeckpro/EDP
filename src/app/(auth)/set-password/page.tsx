@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { axiosInstance } from "@/lib/axios-instance";
 import { toast } from "sonner";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -25,7 +25,7 @@ const setPasswordSchema = z
   });
 type SetPasswordSchemaType = z.infer<typeof setPasswordSchema>;
 
-export default function SetPasswordPage() {
+function SetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -143,5 +143,13 @@ export default function SetPasswordPage() {
         </form>
       </Form>
     </div>
+  );
+}
+
+export default function SetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="text-center text-muted-foreground">Loading...</div>}>
+      <SetPasswordContent />
+    </Suspense>
   );
 }
