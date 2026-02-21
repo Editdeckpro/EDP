@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 export default function Page() {
   return (
-    <Suspense>
+    <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-muted-foreground">Loading...</div>}>
       <SubscriptionStatusNotifier />
     </Suspense>
   );
