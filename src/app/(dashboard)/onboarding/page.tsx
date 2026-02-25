@@ -4,8 +4,7 @@ import { getOnboardingStatus } from "@/components/pages/onboarding/request";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const ONBOARDING_COMPLETE_KEY = "signup-onboarding-complete";
+import { getOnboardingCompleteFromStorage, setOnboardingCompleteInStorage } from "@/lib/onboarding-storage";
 
 export default function OnboardingPage() {
   const { data: session, status } = useSession();
@@ -22,26 +21,17 @@ export default function OnboardingPage() {
         return;
       }
 
-      // Check localStorage first to avoid unnecessary API call
-      if (typeof window !== "undefined") {
-        const isCompleteInStorage = localStorage.getItem(ONBOARDING_COMPLETE_KEY) === "true";
-        if (isCompleteInStorage) {
-          // Redirect to dashboard if already completed (from localStorage)
-          router.push("/");
-          return;
-        }
+      // Check localStorage first (set on login) to avoid unnecessary API call
+      if (getOnboardingCompleteFromStorage()) {
+        router.push("/");
+        return;
       }
 
       try {
-        // Check if onboarding is already complete
         const statusResponse = await getOnboardingStatus(session.accessToken);
 
         if (statusResponse.isComplete) {
-          // Store in localStorage for future checks
-          if (typeof window !== "undefined") {
-            localStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
-          }
-          // Redirect to dashboard if already completed
+          setOnboardingCompleteInStorage(true);
           router.push("/");
         } else {
           // Show onboarding flow if not completed

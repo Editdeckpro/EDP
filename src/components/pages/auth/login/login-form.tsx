@@ -17,7 +17,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -25,6 +25,8 @@ import { useTopLoader } from "nextjs-toploader";
 import { axiosInstance } from "@/lib/axios-instance";
 import axios, { AxiosError } from "axios";
 import { OAuthErrorModal } from "./oauth-error-modal";
+import { getOnboardingStatus } from "@/components/pages/onboarding/request";
+import { setOnboardingCompleteInStorage } from "@/lib/onboarding-storage";
 
 interface CheckUserStatusResponse {
   exists: boolean;
@@ -139,6 +141,17 @@ export default function LoginForm() {
         });
 
         if (res?.ok) {
+          try {
+            const session = await getSession();
+            const token = session?.accessToken as string | undefined;
+            if (token) {
+              const onboardingStatus = await getOnboardingStatus(token);
+              setOnboardingCompleteInStorage(onboardingStatus.isComplete);
+            }
+          } catch {
+            // Non-blocking: clear so guard will refetch
+            setOnboardingCompleteInStorage(false);
+          }
           toast.success("Logged in!");
           router.push("/");
         } else {

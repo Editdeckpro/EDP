@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { getOnboardingStatus } from "./request";
-
-const ONBOARDING_COMPLETE_KEY = "signup-onboarding-complete";
+import { getOnboardingCompleteFromStorage, setOnboardingCompleteInStorage } from "@/lib/onboarding-storage";
 
 interface OnboardingGuardProps {
   children: React.ReactNode;
@@ -30,13 +29,10 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
         return;
       }
 
-      // Check localStorage first to avoid unnecessary API call
-      if (typeof window !== "undefined") {
-        const isCompleteInStorage = localStorage.getItem(ONBOARDING_COMPLETE_KEY) === "true";
-        if (isCompleteInStorage) {
-          setIsChecking(false);
-          return;
-        }
+      // Check localStorage first (set on login) to avoid unnecessary API call
+      if (getOnboardingCompleteFromStorage()) {
+        setIsChecking(false);
+        return;
       }
 
       try {
@@ -47,10 +43,7 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
           // Redirect to onboarding if not completed
           router.push("/onboarding");
         } else {
-          // Store in localStorage for future checks
-          if (typeof window !== "undefined") {
-            localStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
-          }
+          setOnboardingCompleteInStorage(true);
           setIsChecking(false);
         }
       } catch (error) {

@@ -12,9 +12,9 @@ import ReleaseFrequencyStep from "./steps/release-frequency-step";
 import PriorityStep from "./steps/priority-step";
 import CompletionStep from "./steps/completion-step";
 import ThreeBackground from "./three-background";
+import { setOnboardingCompleteInStorage } from "@/lib/onboarding-storage";
 
 const TOTAL_STEPS = 6;
-const ONBOARDING_COMPLETE_KEY = "signup-onboarding-complete";
 
 export default function OnboardingFlow() {
   const router = useRouter();
@@ -61,10 +61,7 @@ export default function OnboardingFlow() {
     setIsSubmitting(true);
     try {
       await saveOnboardingData(data, session.accessToken);
-      // Store completion status in localStorage
-      if (typeof window !== "undefined") {
-        localStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
-      }
+      setOnboardingCompleteInStorage(true);
       toast.success("Onboarding completed!");
       setIsSubmitting(false);
     } catch (error) {

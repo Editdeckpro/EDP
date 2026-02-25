@@ -1,9 +1,11 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { Loader2Icon } from "lucide-react";
 import { SubscriptionRequiredModal } from "@/components/pages/auth/subscription-required-modal";
+import { getOnboardingStatus } from "@/components/pages/onboarding/request";
+import { setOnboardingCompleteInStorage } from "@/lib/onboarding-storage";
 
 function OAuthCallback() {
   const router = useRouter();
@@ -45,7 +47,17 @@ function OAuthCallback() {
           });
 
           if (result?.ok || result?.error === undefined) {
-            // Sign in successful
+            // Sign in successful: fetch onboarding status and store in localStorage
+            try {
+              const session = await getSession();
+              const accessToken = session?.accessToken as string | undefined;
+              if (accessToken) {
+                const onboardingStatus = await getOnboardingStatus(accessToken);
+                setOnboardingCompleteInStorage(onboardingStatus.isComplete);
+              }
+            } catch {
+              setOnboardingCompleteInStorage(false);
+            }
             if (subscriptionRequired) {
               // Show subscription modal
               setShowSubscriptionModal(true);

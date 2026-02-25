@@ -5,6 +5,7 @@ import React, { FC, useState } from "react";
 import { Skeleton } from "../ui/skeleton";
 import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { clearOnboardingFromStorage } from "@/lib/onboarding-storage";
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ const ProfileDropdown: FC<ProfileDropdownProps> = ({ isMobile = false }) => {
 
   async function handleConfirmLogout() {
     setIsLoggingOut(true);
+    clearOnboardingFromStorage();
     try {
       await signOut({ redirect: true, callbackUrl: "/login" });
     } finally {
