@@ -5,14 +5,28 @@ import { cn } from "@/lib/utils";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 
 const Page = () => {
   const { status, data } = useSession();
+  const loading = status !== "authenticated" || !data;
+  const generationsLabel =
+    status === "authenticated" && data?.user
+      ? data.user.monthlyLimit === null
+        ? `${data.user.generationsUsedThisMonth} (Unlimited)`
+        : `${data.user.generationsUsedThisMonth} / ${data.user.monthlyLimit}`
+      : null;
 
-  if (!data) {
-    return;
-  }
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    console.log("[EditDeck] user-info (editor): session", {
+      status,
+      hasData: !!data,
+      hasUser: !!data?.user,
+      loading,
+      generations: generationsLabel ?? "(skeleton)",
+    });
+  }, [status, data, loading, generationsLabel]);
 
   return (
     <>
@@ -23,7 +37,7 @@ const Page = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Credits Badge */}
+          {/* Credits Badge - always visible; shows skeleton while session is loading/refreshing */}
           <div className="flex items-center gap-2 bg-white text-black outline outline-gray-300 rounded-full px-3 py-1 pl-[5px]">
             <div className="rounded-full bg-secondary p-2 aspect-square flex items-center justify-center text-xs font-bold">
               <GIcon name="toll" />
@@ -47,7 +61,7 @@ const Page = () => {
           </div>
 
           {/* User Profile */}
-          <ProfileDropdown data={data!} loading={status != "authenticated"} />
+          <ProfileDropdown data={data ?? undefined} loading={loading} />
         </div>
       </header>
 
@@ -78,8 +92,8 @@ const Page = () => {
           </div>
 
           <ProfileDropdown
-            data={data!}
-            loading={status != "authenticated"}
+            data={data ?? undefined}
+            loading={loading}
             isMobile
           />
         </nav>

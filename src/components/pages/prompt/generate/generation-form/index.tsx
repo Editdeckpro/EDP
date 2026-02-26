@@ -167,6 +167,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
         setData(null);
         return;
       } else {
+        console.log("[EditDeck] Generate: refreshing session after successful generation");
         update(); // Update session to refresh user data
       }
       setData(result);

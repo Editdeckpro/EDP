@@ -38,48 +38,64 @@ function OAuthCallback() {
   }, [detailsParam]);
 
   useEffect(() => {
-    if (token) {
-      (async () => {
-        try {
-          const result = await signIn("credentials", {
-            token,
-            redirect: false,
-          });
+    if (!token) {
+      console.log("[EditDeck] OAuth callback: no token, redirecting to login");
+      router.push("/login");
+      return;
+    }
 
-          if (result?.ok || result?.error === undefined) {
-            // Sign in successful: fetch onboarding status and store in localStorage
-            try {
-              const session = await getSession();
-              const accessToken = session?.accessToken as string | undefined;
-              if (accessToken) {
-                const onboardingStatus = await getOnboardingStatus(accessToken);
-                setOnboardingCompleteInStorage(onboardingStatus.isComplete);
-              }
-            } catch {
-              setOnboardingCompleteInStorage(false);
+    let cancelled = false;
+    console.log("[EditDeck] OAuth callback: token present, signing in...", { subscriptionRequired });
+
+    (async () => {
+      try {
+        const result = await signIn("credentials", {
+          token,
+          redirect: false,
+        });
+
+        if (cancelled) return;
+
+        console.log("[EditDeck] OAuth callback: signIn result", { ok: result?.ok, error: result?.error });
+
+        if (result?.ok || result?.error === undefined) {
+          // Fetch onboarding status and store in localStorage
+          try {
+            const session = await getSession();
+            const accessToken = session?.accessToken as string | undefined;
+            console.log("[EditDeck] OAuth callback: session fetched", { hasToken: !!accessToken, hasUser: !!session?.user });
+            if (accessToken) {
+              const onboardingStatus = await getOnboardingStatus(accessToken);
+              setOnboardingCompleteInStorage(onboardingStatus.isComplete);
+              console.log("[EditDeck] OAuth callback: onboarding status", { isComplete: onboardingStatus.isComplete });
             }
-            if (subscriptionRequired) {
-              // Show subscription modal
-              setShowSubscriptionModal(true);
-            } else {
-              // Normal flow - redirect to onboarding
-              router.push("/onboarding");
-            }
-          } else {
-            // Sign in failed, redirect to login
-            router.push("/login");
+          } catch (e) {
+            console.warn("[EditDeck] OAuth callback: onboarding fetch failed", e);
+            setOnboardingCompleteInStorage(false);
           }
-        } catch (error) {
-          console.error("Sign in error:", error);
+          if (cancelled) return;
+
+          if (subscriptionRequired) {
+            console.log("[EditDeck] OAuth callback: showing subscription required modal");
+            setShowSubscriptionModal(true);
+          } else {
+            console.log("[EditDeck] OAuth callback: redirecting to /onboarding (full page)");
+            window.location.href = "/onboarding";
+          }
+        } else {
+          console.warn("[EditDeck] OAuth callback: sign-in failed, redirecting to login");
           router.push("/login");
         }
-      })();
-    } else {
-      // Invalid redirect
-      router.push("/login");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, subscriptionRequired]);
+      } catch (error) {
+        console.error("[EditDeck] OAuth callback: Sign in error:", error);
+        if (!cancelled) router.push("/login");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, subscriptionRequired, router]);
 
 
   return (
@@ -96,8 +112,8 @@ function OAuthCallback() {
         onOpenChange={(open) => {
           setShowSubscriptionModal(open);
           if (!open) {
-            // Redirect to dashboard after closing modal
-            router.push("/");
+            console.log("[EditDeck] OAuth callback: subscription modal closed, redirecting to / (full page)");
+            window.location.href = "/";
           }
         }}
         details={subscriptionDetails || undefined}

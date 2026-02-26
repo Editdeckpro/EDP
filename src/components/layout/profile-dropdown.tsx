@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import React, { FC, useState } from "react";
+import React, { FC, useState, useEffect } from "react";
 import { Skeleton } from "../ui/skeleton";
 import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
@@ -39,7 +39,22 @@ const ProfileDropdown: FC<ProfileDropdownProps> = ({ isMobile = false }) => {
     }
   }
 
-  if (session.status != "authenticated") {
+  const showSkeleton = session.status !== "authenticated" || !session.data?.user;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (showSkeleton) {
+      console.log("[EditDeck] ProfileDropdown: showing skeleton", {
+        status: session.status,
+        hasData: !!session.data,
+        hasUser: !!session.data?.user,
+      });
+    } else {
+      console.log("[EditDeck] ProfileDropdown: showing user", { username: session.data?.user?.username });
+    }
+  }, [showSkeleton, session.status, session.data]);
+
+  if (showSkeleton) {
     return (
       <div
         className={cn(
@@ -53,6 +68,8 @@ const ProfileDropdown: FC<ProfileDropdownProps> = ({ isMobile = false }) => {
     );
   }
 
+  const user = session.data.user;
+
   return (
     <>
       <DropdownMenu>
@@ -64,15 +81,15 @@ const ProfileDropdown: FC<ProfileDropdownProps> = ({ isMobile = false }) => {
             )}
           >
             <Image
-              src={session.data.user.profileImage || "/images/pfp.jpg"}
-              alt={`${session.data.user.username}'s profile picture`}
+              src={user.profileImage || "/images/pfp.jpg"}
+              alt={`${user.username}'s profile picture`}
               width={42}
               height={42}
               className="rounded-full overflow-hidden"
             />
             {!isMobile && (
               <span className="text-sm font-medium text-gray-800">
-                {session.data.user.firstName} {session.data.user.lastName || ""}
+                {user.firstName} {user.lastName || ""}
               </span>
             )}
           </div>

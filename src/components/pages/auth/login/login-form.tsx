@@ -144,16 +144,18 @@ export default function LoginForm() {
           try {
             const session = await getSession();
             const token = session?.accessToken as string | undefined;
+            console.log("[EditDeck] Login (credentials): session after signIn", { hasToken: !!token, hasUser: !!session?.user });
             if (token) {
               const onboardingStatus = await getOnboardingStatus(token);
               setOnboardingCompleteInStorage(onboardingStatus.isComplete);
+              console.log("[EditDeck] Login (credentials): onboarding", { isComplete: onboardingStatus.isComplete });
             }
           } catch {
-            // Non-blocking: clear so guard will refetch
             setOnboardingCompleteInStorage(false);
           }
           toast.success("Logged in!");
-          router.push("/");
+          console.log("[EditDeck] Login (credentials): redirecting to / (full page)");
+          window.location.href = "/";
         } else {
           toast.error("Invalid username or password");
           setLoading(false);

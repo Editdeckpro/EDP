@@ -7,7 +7,7 @@ interface LayoutProps {
 }
 const Layout: FC<LayoutProps> = ({ children }) => {
   return (
-    <SessionProvider refetchOnWindowFocus={false} refetchInterval={0}>
+    <SessionProvider refetchOnWindowFocus={false} refetchInterval={5 * 60}>
       {children}
     </SessionProvider>
   );
