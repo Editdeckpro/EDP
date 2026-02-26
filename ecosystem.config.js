@@ -6,10 +6,12 @@ module.exports = {
         exec_mode: 'cluster',
         script: './node_modules/next/dist/bin/next',
         args: 'start',
-        instances: 1, // Change this to 1
+        instances: 1,
         autorestart: true,
         watch: false,
         max_memory_restart: "400M",
+        // Give Next.js time to shut down gracefully (e.g. in-flight requests, signOut)
+        kill_timeout: 15000,
         env: {
           NODE_ENV: "production",
         },

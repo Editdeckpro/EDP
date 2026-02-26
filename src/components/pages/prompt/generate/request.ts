@@ -31,7 +31,7 @@ import { AxiosError } from "axios";
 //   }
 // }
 
-/** Payload for generate – only serializable fields (no File); reference image is uploaded client-side first. */
+/** Payload for generate – only serializable fields (no File); reference image is uploaded client-side first. Image output is always 1:1 (server-enforced). */
 export type GenerateSubmitPayload = Pick<MainGenerateFormSchemaType, "numberOfImages" | "apiProvider" | "customPrompt"> & {
   imageUrl?: string;
 };
