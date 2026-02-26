@@ -9,7 +9,7 @@ const Providers: FC<ProvidersProps> = ({ children }) => {
   return (
     <SessionProvider
       refetchOnWindowFocus={false}
-      refetchInterval={0}
+      refetchInterval={5 * 60}
     >
       {children}
     </SessionProvider>

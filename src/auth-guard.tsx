@@ -63,13 +63,9 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       const accessToken = token.accessToken as string;
-      /** Timeout so a slow backend does not block the Next.js request and freeze the app (e.g. after 15–20 min under PM2). */
-      const SESSION_USER_TIMEOUT_MS = 10_000;
       try {
         const axiosWithAuth = await GetAxiosWithAuth(accessToken);
-        const { data } = await axiosWithAuth.get<SessionUser>("user", {
-          timeout: SESSION_USER_TIMEOUT_MS,
-        });
+        const { data } = await axiosWithAuth.get<SessionUser>("user");
 
         session.user = {
           id: data.id,
@@ -91,11 +87,6 @@ export const authOptions: NextAuthOptions = {
           },
         };
       } catch (err) {
-        // Timeout or network: avoid blocking; let client retry
-        if (axios.isAxiosError(err) && (err.code === "ECONNABORTED" || err.code === "ETIMEDOUT")) {
-          console.error("[EditDeck] Session callback: GET /user timeout or network error", err.code);
-          throw err;
-        }
         // GET /api/user can return 403 when: (1) token invalid/expired, (2) subscription expired
         if (axios.isAxiosError(err) && err.response?.status === 403) {
           const body = err.response?.data as { error?: string; message?: string } | undefined;
