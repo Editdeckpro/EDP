@@ -8,8 +8,12 @@ type SessionWithBypass = {
   };
 };
 
+/** Timeout for client-side API calls (login, check-user-status, etc.) - 30s */
+const CLIENT_API_TIMEOUT_MS = 30_000;
+
 export const axiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_BE_URL}/`,
+  timeout: CLIENT_API_TIMEOUT_MS,
 });
 
 function waitForSession(): Promise<string> {
@@ -111,11 +115,13 @@ export async function GetAxiosWithAuth(token?: string) {
     accessToken = await waitForSession();
   }
 
+  /** Match server-side generation timeout so long requests don't hang indefinitely */
   const instance = axios.create({
     baseURL: `${process.env.NEXT_PUBLIC_BE_URL}/api/`,
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
+    timeout: 120_000,
   });
 
   // Setup subscription expiration interceptor

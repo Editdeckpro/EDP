@@ -18,6 +18,7 @@ interface DecodedJWT extends JwtPayload {
 }
 
 // Define the type for authOptions
+// When behind reverse proxy (EC2/nginx): set AUTH_TRUST_HOST=true so NextAuth trusts X-Forwarded-Host/Proto
 export const authOptions: NextAuthOptions = {
   providers: [
     Credentials({
