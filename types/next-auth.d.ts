@@ -27,6 +27,8 @@ export interface SessionUser {
   email: string;
   username: string;
   profileImage?: string;
+  /** Set when GET /api/user returns 403 subscription_expired; session is built from JWT only */
+  subscriptionExpired?: boolean;
   /** Generations used in the current calendar month (image + final lyric videos) */
   generationsUsedThisMonth: number;
   /** Plan limit per month; null = unlimited */

@@ -6,6 +6,10 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 const Layout: FC<LayoutProps> = ({ children }) => {
-  return <SessionProvider>{children}</SessionProvider>;
+  return (
+    <SessionProvider refetchOnWindowFocus={false} refetchInterval={0}>
+      {children}
+    </SessionProvider>
+  );
 };
 export default Layout;

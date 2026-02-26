@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -34,6 +34,16 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
   const [framesDone, setFramesDone] = useState<number>(0);
   const [totalFrames, setTotalFrames] = useState<number>(0);
   const [previewFrameUrl, setPreviewFrameUrl] = useState<string>("");
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const checkExistingFinal = async () => {
@@ -140,11 +150,16 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
   };
 
   const startPolling = (jobId: string, lyricVideoId: number) => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
     const startedAt = Date.now();
     const timeoutMs = 10 * 60 * 1000;
     const interval = setInterval(async () => {
       try {
         if (Date.now() - startedAt > timeoutMs) {
+          if (pollingIntervalRef.current === interval) pollingIntervalRef.current = null;
           clearInterval(interval);
           setGenerating(false);
           setStatus("failed");
@@ -176,6 +191,7 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
         }
 
         if (result.state === "completed") {
+          if (pollingIntervalRef.current === interval) pollingIntervalRef.current = null;
           clearInterval(interval);
           setGenerating(false);
           setStatus("completed");
@@ -185,6 +201,7 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
           }
           toast.success("Video generated successfully!");
         } else if (result.state === "failed") {
+          if (pollingIntervalRef.current === interval) pollingIntervalRef.current = null;
           clearInterval(interval);
           setGenerating(false);
           setStatus("failed");
@@ -194,6 +211,7 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
         console.error("Error polling job status:", error);
       }
     }, 2000);
+    pollingIntervalRef.current = interval;
   };
 
   const handleDownload = () => {

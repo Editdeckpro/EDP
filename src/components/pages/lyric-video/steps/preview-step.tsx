@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -32,6 +32,16 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
   const [framesDone, setFramesDone] = useState<number>(0);
   const [totalFrames, setTotalFrames] = useState<number>(0);
   const [previewFrameUrl, setPreviewFrameUrl] = useState<string>("");
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   const checkExistingPreview = useCallback(async () => {
     if (!videoData.lyricVideoId) return;
@@ -155,11 +165,16 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
   };
 
   const startPolling = (jobId: string) => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
     const startedAt = Date.now();
     const timeoutMs = 5 * 60 * 1000;
     const interval = setInterval(async () => {
       try {
         if (Date.now() - startedAt > timeoutMs) {
+          if (pollingIntervalRef.current === interval) pollingIntervalRef.current = null;
           clearInterval(interval);
           setGenerating(false);
           setStatus("failed");
@@ -190,6 +205,7 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
           setProgressPercent(Math.max(0, Math.min(100, Math.round(p))));
         }
         if (result.state === "completed") {
+          if (pollingIntervalRef.current === interval) pollingIntervalRef.current = null;
           clearInterval(interval);
           setGenerating(false);
           setStatus("completed");
@@ -207,6 +223,7 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
           }
           toast.success("Preview generated successfully");
         } else if (result.state === "failed") {
+          if (pollingIntervalRef.current === interval) pollingIntervalRef.current = null;
           clearInterval(interval);
           setGenerating(false);
           setStatus("failed");
@@ -216,6 +233,7 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
         console.error("Error polling job status:", error);
       }
     }, 2000);
+    pollingIntervalRef.current = interval;
   };
 
   const handleNext = () => {

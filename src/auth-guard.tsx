@@ -11,6 +11,10 @@ import { SessionUser } from "@type/next-auth";
 
 interface DecodedJWT extends JwtPayload {
   username: string;
+  userId?: number;
+  name?: string;
+  subscriptionPlan?: string;
+  subscriptionStatus?: string;
 }
 
 // Define the type for authOptions
@@ -59,28 +63,67 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       const accessToken = token.accessToken as string;
-      const axios = await GetAxiosWithAuth(accessToken);
-      const { data } = await axios.get<SessionUser>("user");
+      try {
+        const axiosWithAuth = await GetAxiosWithAuth(accessToken);
+        const { data } = await axiosWithAuth.get<SessionUser>("user");
 
-      session.user = {
-        id: data.id,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        username: data.username,
-        profileImage: data.profileImage,
-        generationsUsedThisMonth: data.generationsUsedThisMonth ?? 0,
-        monthlyLimit: data.monthlyLimit ?? null,
-        bypassSubscription: data.bypassSubscription,
-        subscription: {
-          planType: data.subscription.planType,
-          status: data.subscription.status,
-          interval: data.subscription.interval,
-          currentPeriodEnd: data.subscription.currentPeriodEnd,
-          cancelAtPeriodEnd: data.subscription.cancelAtPeriodEnd,
-          features: data.subscription.features,
-        },
-      };
+        session.user = {
+          id: data.id,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          username: data.username,
+          profileImage: data.profileImage,
+          generationsUsedThisMonth: data.generationsUsedThisMonth ?? 0,
+          monthlyLimit: data.monthlyLimit ?? null,
+          bypassSubscription: data.bypassSubscription,
+          subscription: {
+            planType: data.subscription.planType,
+            status: data.subscription.status,
+            interval: data.subscription.interval,
+            currentPeriodEnd: data.subscription.currentPeriodEnd,
+            cancelAtPeriodEnd: data.subscription.cancelAtPeriodEnd,
+            features: data.subscription.features,
+          },
+        };
+      } catch (err) {
+        // GET /api/user can return 403 when: (1) token invalid/expired, (2) subscription expired
+        if (axios.isAxiosError(err) && err.response?.status === 403) {
+          const body = err.response?.data as { error?: string; message?: string } | undefined;
+          if (body?.error === "subscription_expired") {
+            // Build minimal session from JWT so the app can show renewal UI instead of JWT_SESSION_ERROR
+            const decoded = jwtDecode<DecodedJWT>(accessToken);
+            const nameParts = (decoded.name ?? "").trim().split(/\s+/);
+            const firstName = nameParts[0] ?? "";
+            const lastName = nameParts.slice(1).join(" ") ?? "";
+            session.user = {
+              id: decoded.userId ?? 0,
+              firstName,
+              lastName,
+              email: "",
+              username: decoded.username ?? "",
+              profileImage: undefined,
+              subscriptionExpired: true,
+              generationsUsedThisMonth: 0,
+              monthlyLimit: null,
+              bypassSubscription: false,
+              subscription: {
+                planType: "FREE",
+                status: "expired",
+                interval: "yearly",
+                currentPeriodEnd: "",
+                cancelAtPeriodEnd: false,
+                features: [],
+              },
+            };
+          } else {
+            // Invalid/expired token or other 403 – surface so user is logged out
+            throw err;
+          }
+        } else {
+          throw err;
+        }
+      }
       session.accessToken = token.accessToken as string;
       return session;
     },
@@ -91,11 +134,21 @@ interface ProvidersProps {
   children: ReactNode;
 }
 
+const SUBSCRIPTION_EXPIRED_MESSAGE =
+  "Your subscription has expired. Please renew your subscription to continue accessing the platform.";
+
 export default async function AuthGuard({ children }: ProvidersProps) {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.accessToken) {
     redirect("/login"); // Redirect if not authenticated
+  }
+
+  // Session was built from JWT only because GET /api/user returned 403 subscription_expired
+  if (session.user?.subscriptionExpired) {
+    redirect(
+      `/login?error=subscription_expired&message=${encodeURIComponent(SUBSCRIPTION_EXPIRED_MESSAGE)}`
+    );
   }
 
   return <>{children}</>;
