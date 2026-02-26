@@ -19,7 +19,6 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { getSession, signIn } from "next-auth/react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTopLoader } from "nextjs-toploader";
 import { axiosInstance } from "@/lib/axios-instance";
@@ -47,7 +46,6 @@ interface CheckUserStatusResponse {
 }
 
 export default function LoginForm() {
-  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorType, setErrorType] = useState<string | null>(null);
