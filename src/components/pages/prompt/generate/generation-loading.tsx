@@ -20,15 +20,19 @@ const GenerationLoading = () => {
   const [fade, setFade] = useState(true);
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     const interval = setInterval(() => {
-      setFade(false); // start fade-out
-      setTimeout(() => {
+      setFade(false);
+      timeoutId = setTimeout(() => {
         setCurrentMsgIndex((prev) => (prev + 1) % messages.length);
-        setFade(true); // fade-in new text
-      }, 300); // delay to allow fade-out
+        setFade(true);
+      }, 300);
     }, 2500);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, []);
   return (
     <div className="space-y-3">
