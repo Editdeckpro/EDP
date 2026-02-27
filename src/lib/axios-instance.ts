@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosError } from "axios";
 import { getSession, signOut } from "next-auth/react";
-import { clearOnboardingFromStorage } from "@/lib/onboarding-storage";
+import { clearAllStorageOnLogout } from "@/lib/clear-storage";
 
 type SessionWithBypass = {
   user?: {
@@ -87,8 +87,8 @@ function setupSubscriptionExpirationInterceptor(axiosInstance: AxiosInstance) {
         const errorMessage = error.response.data.message || 
           "Your subscription has expired. Please renew your subscription to continue accessing the platform.";
 
-        // Clear onboarding from localStorage and log out the user
-        clearOnboardingFromStorage();
+        // Clear all storage and log out the user
+        clearAllStorageOnLogout();
         signOut({
           callbackUrl: `/login?error=subscription_expired&message=${encodeURIComponent(errorMessage)}`,
           redirect: true,
