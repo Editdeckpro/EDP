@@ -17,7 +17,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { getSession, signIn } from "next-auth/react";
+import { getSession, signIn } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useTopLoader } from "nextjs-toploader";
@@ -131,31 +131,26 @@ export default function LoginForm() {
 
       // User can login, proceed with authentication
       if (statusResponse.canLogin) {
-        const res = await signIn("credentials", {
-          redirect: false,
+        const res = await signIn({
           username: data.username,
           password: data.password,
-          callbackUrl: "/",
         });
 
         if (res?.ok) {
           try {
             const session = await getSession();
-            const token = session?.accessToken as string | undefined;
-            console.log("[EditDeck] Login (credentials): session after signIn", { hasToken: !!token, hasUser: !!session?.user });
+            const token = session?.accessToken;
             if (token) {
               const onboardingStatus = await getOnboardingStatus(token);
               setOnboardingCompleteInStorage(onboardingStatus.isComplete);
-              console.log("[EditDeck] Login (credentials): onboarding", { isComplete: onboardingStatus.isComplete });
             }
           } catch {
             setOnboardingCompleteInStorage(false);
           }
           toast.success("Logged in!");
-          console.log("[EditDeck] Login (credentials): redirecting to / (full page)");
           window.location.href = "/";
         } else {
-          toast.error("Invalid username or password");
+          toast.error(res?.error ?? "Invalid username or password");
           setLoading(false);
           topLoader.done();
         }

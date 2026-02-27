@@ -8,7 +8,7 @@ import {
   MainGenerateFormSchemaType,
 } from "@/schemas/generate-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { FC, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";

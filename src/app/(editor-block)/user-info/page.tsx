@@ -2,8 +2,8 @@
 import GIcon from "@/components/g-icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
+import { Session } from "@/types/auth";
 import Image from "next/image";
 import { FC, useEffect } from "react";
 

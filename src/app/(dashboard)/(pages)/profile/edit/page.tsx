@@ -1,10 +1,9 @@
-import { authOptions } from "@/auth-guard";
 import EditProfileForm from "@/components/pages/profile/edit/edit-profile-form";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
 
 export default async function Page() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   if (!session) redirect("/login");
   return (

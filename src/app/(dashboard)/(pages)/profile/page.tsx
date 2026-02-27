@@ -1,17 +1,15 @@
-import { authOptions } from "@/auth-guard";
 import ChangePasswordDialog from "@/components/pages/profile/change-password-dialog";
 import { Button } from "@/components/ui/button";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/auth-server";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 // import DeleteAccountDialog from "@/components/pages/profile/delete-account-dialog";
 
 export default async function Page() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
-  if (!session) {
-    return;
-  }
+  if (!session) redirect("/login");
 
   return (
     <main>

@@ -1,7 +1,7 @@
 "use client";
 import OnboardingFlow from "@/components/pages/onboarding/onboarding-flow";
 import { getOnboardingStatus } from "@/components/pages/onboarding/request";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getOnboardingCompleteFromStorage, setOnboardingCompleteInStorage } from "@/lib/onboarding-storage";

@@ -7,7 +7,7 @@ import GIcon from "../g-icon";
 import ProfileDropdown from "./profile-dropdown";
 import { MobileNavSheet } from "./sidebar";
 import { sidebarSections } from "./sidebar-content";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 import { useTour } from "@/context/OnboardingTourContext";

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { pricingPlansDetails } from "@/components/pages/subscription/subscription-pricing";
 import { cn } from "@/lib/utils";
 import { memo, useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 
 interface NoActiveSubscriptionModalProps {
   generationsUsedThisMonth?: number;

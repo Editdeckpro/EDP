@@ -1,6 +1,6 @@
 "use client";
 import { Layers2Icon, Layers3Icon, StickyNoteIcon } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { useState } from "react";
 import { billingPeriod } from ".";
 import PricingCard, { PricingCardProps } from "./pricing-card";
@@ -64,7 +64,7 @@ export default function SubscriptionPricing() {
             currentPlanId={data?.user?.subscription?.planType || "FREE"}
             isLoading={status != "authenticated"}
             isCurrentPlan={
-              data?.user.subscription.planType === card.id && data?.user.subscription.interval === billingPeriod
+              data?.user?.subscription?.planType === card.id && data?.user?.subscription?.interval === billingPeriod
             }
           />
         ))}

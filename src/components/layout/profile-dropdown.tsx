@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { FC, useState, useEffect } from "react";
 import { Skeleton } from "../ui/skeleton";
-import { signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { clearOnboardingFromStorage } from "@/lib/onboarding-storage";
 
@@ -32,7 +32,7 @@ const ProfileDropdown: FC<ProfileDropdownProps> = ({ isMobile = false }) => {
     setIsLoggingOut(true);
     clearOnboardingFromStorage();
     try {
-      await signOut({ redirect: true, callbackUrl: "/login" });
+      await signOut({ callbackUrl: "/login" });
     } finally {
       setIsLoggingOut(false);
       setLogoutOpen(false);
@@ -68,7 +68,8 @@ const ProfileDropdown: FC<ProfileDropdownProps> = ({ isMobile = false }) => {
     );
   }
 
-  const user = session.data.user;
+  const user = session.data?.user;
+  if (!user) return null;
 
   return (
     <>

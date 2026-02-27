@@ -1,7 +1,7 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getSession, signIn } from "next-auth/react";
+import { getSession, signIn } from "@/lib/auth-client";
 import { Loader2Icon } from "lucide-react";
 import { SubscriptionRequiredModal } from "@/components/pages/auth/subscription-required-modal";
 import { getOnboardingStatus } from "@/components/pages/onboarding/request";
@@ -49,16 +49,13 @@ function OAuthCallback() {
 
     (async () => {
       try {
-        const result = await signIn("credentials", {
-          token,
-          redirect: false,
-        });
+        const result = await signIn({ token });
 
         if (cancelled) return;
 
         console.log("[EditDeck] OAuth callback: signIn result", { ok: result?.ok, error: result?.error });
 
-        if (result?.ok || result?.error === undefined) {
+        if (result?.ok) {
           if (subscriptionRequired) {
             console.log("[EditDeck] OAuth callback: showing subscription required modal");
             setShowSubscriptionModal(true);

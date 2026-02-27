@@ -1,18 +1,11 @@
 "use client";
-import { SessionProvider } from "next-auth/react";
+import { AuthProvider } from "@/lib/auth-client";
 import React, { FC } from "react";
 
 interface ProvidersProps {
   children: React.ReactNode;
 }
 const Providers: FC<ProvidersProps> = ({ children }) => {
-  return (
-    <SessionProvider
-      refetchOnWindowFocus={false}
-      refetchInterval={5 * 60}
-    >
-      {children}
-    </SessionProvider>
-  );
+  return <AuthProvider>{children}</AuthProvider>;
 };
 export default Providers;

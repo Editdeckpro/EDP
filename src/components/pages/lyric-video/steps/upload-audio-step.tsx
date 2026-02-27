@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Upload, FileAudio, Loader2 } from "lucide-react";
 import { uploadAudioClient } from "@/components/pages/lyric-video/api";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 
 type LyricVideoWizardData = {
   audioId?: string;

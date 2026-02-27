@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { OnboardingData } from "@/schemas/onboarding-schema";
 import { saveOnboardingData } from "./request";
 import { toast } from "sonner";

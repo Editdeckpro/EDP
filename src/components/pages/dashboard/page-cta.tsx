@@ -4,7 +4,7 @@ import { Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { FC, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { SubscriptionRequiredModal } from "@/components/pages/auth/subscription-required-modal";
 
 interface PageCtaProps {

@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { GetAxiosWithAuth } from "@/lib/axios-instance";
 import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useTopLoader } from "nextjs-toploader";
 import React, { useEffect, useRef, useState } from "react";

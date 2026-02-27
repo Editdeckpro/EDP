@@ -6,7 +6,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import RemixPage from "./remix-page";
 import RemixSidebarContent from "./sidebar-content";
 import { SidebarWrapper } from "@/components/layout/sidebar";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { NoActiveSubscriptionModal } from "../generate/modals/no-active-subscription-modal";
 
 export type RemixResType = RemixImage | null | "loading";

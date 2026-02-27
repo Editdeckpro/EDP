@@ -16,7 +16,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface PromptMobileHeaderProps {

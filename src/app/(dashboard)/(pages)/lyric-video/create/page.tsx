@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import UploadAudioStep from "@/components/pages/lyric-video/steps/upload-audio-step";
 import AddLyricsStep from "@/components/pages/lyric-video/steps/add-lyrics-step";

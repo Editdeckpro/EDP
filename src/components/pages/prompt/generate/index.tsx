@@ -6,7 +6,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import GeneratePage from "./generate-page";
 import GenerateSidebarContent from "./sidebar-content";
 import { NoActiveSubscriptionModal } from "./modals/no-active-subscription-modal";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 
 export type GenerateResType = CustomGeneratedImage | GeneratedImageRes | null | "loading";
 export type SetGenerateResType = Dispatch<SetStateAction<GenerateResType | null>>;

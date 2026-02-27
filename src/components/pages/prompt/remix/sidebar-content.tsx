@@ -20,7 +20,7 @@ import {
   Upload,
   UserRound,
 } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { FC, useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
@@ -518,7 +518,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
             type="submit"
             className="w-full"
             isLoading={isSubmitting}
-            disabled={isSubmitting || status !== "authenticated" || (!bypassSubscription && data.user && data.user.monthlyLimit !== null && data.user.generationsUsedThisMonth >= data.user.monthlyLimit)}
+            disabled={isSubmitting || status !== "authenticated" || (!bypassSubscription && data?.user && data.user.monthlyLimit !== null && data.user.generationsUsedThisMonth >= data.user.monthlyLimit)}
           >
             Remix Image <GIcon>wand_stars</GIcon>
           </Button>

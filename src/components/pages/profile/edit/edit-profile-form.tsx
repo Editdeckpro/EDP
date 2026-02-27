@@ -14,13 +14,13 @@ import { cn, fileToBase64 } from "@/lib/utils";
 import { ProfileFormType, profileSchema } from "@/schemas/edit-profile-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { editFormDataSubmit } from "./request";
-import { Session } from "next-auth";
+import { Session } from "@/types/auth";
 
 export default function EditProfileForm({ session }: { session: Session }) {
   const { data, update } = useSession();

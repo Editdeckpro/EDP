@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError } from "axios";
-import { getSession, signOut } from "next-auth/react";
+import { getSession, signOut } from "@/lib/auth-client";
 import { clearOnboardingFromStorage } from "@/lib/onboarding-storage";
 
 type SessionWithBypass = {
@@ -91,7 +91,6 @@ function setupSubscriptionExpirationInterceptor(axiosInstance: AxiosInstance) {
         clearOnboardingFromStorage();
         signOut({
           callbackUrl: `/login?error=subscription_expired&message=${encodeURIComponent(errorMessage)}`,
-          redirect: true,
         }).catch((err) => {
           console.error("Error during sign out:", err);
           // Fallback: redirect manually if signOut fails
