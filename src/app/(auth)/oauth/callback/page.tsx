@@ -59,28 +59,21 @@ function OAuthCallback() {
         console.log("[EditDeck] OAuth callback: signIn result", { ok: result?.ok, error: result?.error });
 
         if (result?.ok || result?.error === undefined) {
-          // Fetch onboarding status and store in localStorage
-          try {
-            const session = await getSession();
-            const accessToken = session?.accessToken as string | undefined;
-            console.log("[EditDeck] OAuth callback: session fetched", { hasToken: !!accessToken, hasUser: !!session?.user });
-            if (accessToken) {
-              const onboardingStatus = await getOnboardingStatus(accessToken);
-              setOnboardingCompleteInStorage(onboardingStatus.isComplete);
-              console.log("[EditDeck] OAuth callback: onboarding status", { isComplete: onboardingStatus.isComplete });
-            }
-          } catch (e) {
-            console.warn("[EditDeck] OAuth callback: onboarding fetch failed", e);
-            setOnboardingCompleteInStorage(false);
-          }
-          if (cancelled) return;
-
           if (subscriptionRequired) {
             console.log("[EditDeck] OAuth callback: showing subscription required modal");
             setShowSubscriptionModal(true);
+            // Optionally fetch onboarding in background (non-blocking)
+            getSession().then((session) => {
+              const accessToken = session?.accessToken as string | undefined;
+              if (accessToken) {
+                getOnboardingStatus(accessToken).then((s) => setOnboardingCompleteInStorage(s.isComplete)).catch(() => setOnboardingCompleteInStorage(false));
+              }
+            }).catch(() => {});
           } else {
-            console.log("[EditDeck] OAuth callback: redirecting to /onboarding (full page)");
-            window.location.href = "/onboarding";
+            // Redirect immediately so we don't block on getSession() (which triggers slow backend /user in session callback)
+            const target = typeof result?.url === "string" && result.url.length > 0 ? result.url : "/onboarding";
+            console.log("[EditDeck] OAuth callback: redirecting (full page)", target);
+            window.location.href = target;
           }
         } else {
           console.warn("[EditDeck] OAuth callback: sign-in failed, redirecting to login");

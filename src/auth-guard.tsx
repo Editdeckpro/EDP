@@ -53,6 +53,11 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
+    redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
     async jwt({ token, user }) {
       if (user?.accessToken) {
         token.accessToken = user.accessToken;
@@ -124,10 +129,12 @@ export const authOptions: NextAuthOptions = {
             const decoded = jwtDecode<DecodedJWT>(accessToken);
             session.user = buildMinimalSessionFromJwt(decoded, true);
           } else {
-            throw err;
+            // 403 but not subscription_expired: token invalid/expired – use JWT so callback doesn't hang
+            const decoded = jwtDecode<DecodedJWT>(accessToken);
+            session.user = buildMinimalSessionFromJwt(decoded);
           }
         } else {
-          // Timeout, ECONNREFUSED, or other network error: don't hang login – use JWT so user gets in
+          // 401, timeout, ECONNREFUSED, or other: don't hang – use JWT so user gets in
           const decoded = jwtDecode<DecodedJWT>(accessToken);
           session.user = buildMinimalSessionFromJwt(decoded);
         }
