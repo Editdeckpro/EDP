@@ -70,8 +70,8 @@ function OAuthCallback() {
               }
             }).catch(() => {});
           } else {
-            // Redirect immediately so we don't block on getSession() (which triggers slow backend /user in session callback)
-            const target = typeof result?.url === "string" && result.url.length > 0 ? result.url : "/onboarding";
+            // Always go to /onboarding from this page; never use result.url – it can be the current URL (oauth/callback) and cause a reload loop
+            const target = "/onboarding";
             console.log("[EditDeck] OAuth callback: redirecting (full page)", target);
             window.location.href = target;
           }
