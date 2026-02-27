@@ -5,6 +5,7 @@
 import type { Session } from "@/types/auth";
 
 const SESSION_CACHE_MS = 15_000; // 15 seconds – avoid repeated GETs when many components need session
+const SESSION_FETCH_TIMEOUT_MS = 12_000; // 12s – avoid hanging forever if Next.js or backend is stuck
 let cached: { session: Session | null; at: number } | null = null;
 let inFlight: Promise<Session | null> | null = null;
 
@@ -29,7 +30,13 @@ export async function fetchSessionFromApi(): Promise<Session | null> {
 
   inFlight = (async () => {
     try {
-      const res = await fetch("/api/auth/session", { credentials: "include" });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), SESSION_FETCH_TIMEOUT_MS);
+      const res = await fetch("/api/auth/session", {
+        credentials: "include",
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
       const json = await res.json();
       const session = (json?.session ?? null) as Session | null;
       cached = { session, at: Date.now() };

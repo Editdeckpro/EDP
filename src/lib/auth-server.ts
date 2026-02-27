@@ -2,6 +2,7 @@ import axios from "axios";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import { cookies } from "next/headers";
 import { Session, SessionUser } from "@/types/auth";
+import { backendHttpAgent, backendHttpsAgent } from "@/lib/backend-http-agents";
 
 export const AUTH_COOKIE_NAME = "edp_auth_token";
 const AUTH_COOKIE_OPTIONS = {
@@ -69,6 +70,8 @@ export async function getSessionFromToken(accessToken: string): Promise<Session>
     const { data } = await axios.get<SessionUser>(`${baseUrl}/api/user`, {
       headers: { Authorization: `Bearer ${accessToken}` },
       timeout: timeoutMs,
+      httpAgent: backendHttpAgent,
+      httpsAgent: backendHttpsAgent,
     });
     return {
       user: {
