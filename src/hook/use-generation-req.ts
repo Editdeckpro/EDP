@@ -1,6 +1,7 @@
 "use server";
 import GetServerAxiosWithAuth from "@/lib/axios-instance-server";
-import { ApiResponse, GenerationType } from "./use-generation";
+import { getGenerationsList } from "@/lib/api/generations";
+import type { ApiResponse, GenerationType } from "./use-generation";
 
 export async function getGeneration({
   limit,
@@ -12,13 +13,18 @@ export async function getGeneration({
   type: GenerationType;
 }) {
   const axios = await GetServerAxiosWithAuth();
-  const res = await axios.get<ApiResponse>(`generations`, {
-    params: {
-      page,
-      limit,
-      ...(type ? { type } : {}),
-    },
+  const result = await getGenerationsList(axios, {
+    page,
+    limit,
+    ...(type ? { generationType: type } : {}),
   });
-
-  return res;
+  const data: ApiResponse = {
+    data: result.data.map((item) => ({
+      id: String(item.id),
+      imageGenerationId: String(item.imageGenerationId),
+      imagePath: item.imagePath,
+    })),
+    pagination: result.pagination,
+  };
+  return { data };
 }

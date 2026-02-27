@@ -1,8 +1,9 @@
 "use client";
 import { GetAxiosWithAuth } from "@/lib/axios-instance";
+import { getGenerationsList } from "@/lib/api/generations";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation"; // <-- Add this
+import { useSearchParams } from "next/navigation";
 
 export type GenerationType = "custom" | "filter" | "remix" | "custom,filter";
 
@@ -62,20 +63,21 @@ export function useGenerations({
 
       try {
         const axios = await GetAxiosWithAuth();
-        const res = await axios.get<ApiResponse>(`generations`, {
-          params: {
-            page,
-            limit,
-            ...(generationType ? { generationType } : {}),
-            ...(search ? { search } : {}),
-            ...(sortBy ? { sort: sortBy } : {}),
-          },
+        const res = await getGenerationsList(axios, {
+          page,
+          limit,
+          ...(generationType ? { generationType } : {}),
+          ...(search ? { search } : {}),
+          ...(sortBy ? { sort: sortBy as "asc" | "desc" } : {}),
         });
 
-        setGenerations((prev) =>
-          page === 1 ? res.data.data : [...prev, ...res.data.data]
-        );
-        setHasNextPage(res.data.pagination.hasNextPage);
+        const mapped = res.data.map((item) => ({
+          id: String(item.id),
+          imageGenerationId: String(item.imageGenerationId),
+          imagePath: item.imagePath,
+        }));
+        setGenerations((prev) => (page === 1 ? mapped : [...prev, ...mapped]));
+        setHasNextPage(res.pagination.hasNextPage);
         setError(null);
       } catch (e) {
         const err = e as AxiosError<{ message: string }>;
