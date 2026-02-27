@@ -2,7 +2,7 @@ import axios from "axios";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import { cookies } from "next/headers";
 import { Session, SessionUser } from "@/types/auth";
-import { backendHttpAgent, backendHttpsAgent } from "@/lib/backend-http-agents";
+import { createServerBackendAxios, createAbortSignal } from "@/lib/server-backend-client";
 
 export const AUTH_COOKIE_NAME = "edp_auth_token";
 const AUTH_COOKIE_OPTIONS = {
@@ -61,18 +61,22 @@ function buildMinimalSessionFromJwt(
   };
 }
 
+const SESSION_FETCH_TIMEOUT_MS = 10_000;
+
 /** Build full session from access token (call backend /user or fallback to JWT). */
 export async function getSessionFromToken(accessToken: string): Promise<Session> {
   const baseUrl = process.env.NEXT_PUBLIC_BE_URL;
-  const timeoutMs = 15_000;
+  if (!baseUrl) throw new Error("NEXT_PUBLIC_BE_URL is not set");
+
+  const client = createServerBackendAxios({
+    baseURL: baseUrl,
+    timeout: SESSION_FETCH_TIMEOUT_MS,
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  const signal = createAbortSignal(SESSION_FETCH_TIMEOUT_MS);
 
   try {
-    const { data } = await axios.get<SessionUser>(`${baseUrl}/api/user`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-      timeout: timeoutMs,
-      httpAgent: backendHttpAgent,
-      httpsAgent: backendHttpsAgent,
-    });
+    const { data } = await client.get<SessionUser>("/api/user", { signal });
     return {
       user: {
         id: data.id,
@@ -113,13 +117,19 @@ export async function getSessionFromToken(accessToken: string): Promise<Session>
   }
 }
 
-/** Read session from auth cookie (for RSC and API routes). Returns null if no cookie or invalid. */
+/**
+ * Read session from auth cookie (for RSC and API routes).
+ * Uses JWT decode only — no backend call — so the app never blocks on the API server.
+ * Returns null if no cookie or invalid token.
+ */
 export async function getServerSession(): Promise<Session | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
   if (!token) return null;
   try {
-    return await getSessionFromToken(token);
+    const decoded = jwtDecode<DecodedJWT>(token);
+    const user = buildMinimalSessionFromJwt(decoded);
+    return { user, accessToken: token };
   } catch {
     return null;
   }
