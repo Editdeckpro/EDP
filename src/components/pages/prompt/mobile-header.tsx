@@ -17,6 +17,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useSession } from "@/lib/auth-client";
+import { useUserUsage } from "@/hook/use-user-usage";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface PromptMobileHeaderProps {
@@ -27,6 +28,7 @@ const PromptMobileHeader = ({ SidebarContent }: PromptMobileHeaderProps) => {
   const pathname = usePathname();
   const pathParts = pathname.split("/").filter(Boolean);
   const { status, data } = useSession();
+  const { generationsUsedThisMonth, monthlyLimit, isLoading: usageLoading } = useUserUsage();
 
   const breadcrumbs = pathParts.map((part, index) => {
     const linkPath = "/" + pathParts.slice(0, index + 1).join("/");
@@ -79,10 +81,12 @@ const PromptMobileHeader = ({ SidebarContent }: PromptMobileHeaderProps) => {
               Generations this month:{" "}
               <span className="font-bold text-primary">
                 {status === "authenticated" && data?.user ? (
-                  data.user.monthlyLimit === null ? (
-                    `${data.user.generationsUsedThisMonth} (Unlimited)`
+                  usageLoading ? (
+                    <Skeleton className="w-16 h-3" />
+                  ) : monthlyLimit === null ? (
+                    `${generationsUsedThisMonth} (Unlimited)`
                   ) : (
-                    `${data.user.generationsUsedThisMonth} / ${data.user.monthlyLimit}`
+                    `${generationsUsedThisMonth} / ${monthlyLimit}`
                   )
                 ) : (
                   <Skeleton className="w-16 h-3" />

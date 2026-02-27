@@ -3,18 +3,20 @@ import GIcon from "@/components/g-icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth-client";
+import { useUserUsage } from "@/hook/use-user-usage";
 import { Session } from "@/types/auth";
 import Image from "next/image";
 import { FC, useEffect } from "react";
 
 const Page = () => {
   const { status, data } = useSession();
+  const { generationsUsedThisMonth, monthlyLimit, isLoading: usageLoading } = useUserUsage();
   const loading = status !== "authenticated" || !data;
   const generationsLabel =
-    status === "authenticated" && data?.user
-      ? data.user.monthlyLimit === null
-        ? `${data.user.generationsUsedThisMonth} (Unlimited)`
-        : `${data.user.generationsUsedThisMonth} / ${data.user.monthlyLimit}`
+    !usageLoading && status === "authenticated"
+      ? monthlyLimit === null
+        ? `${generationsUsedThisMonth} (Unlimited)`
+        : `${generationsUsedThisMonth} / ${monthlyLimit}`
       : null;
 
   useEffect(() => {
@@ -48,10 +50,12 @@ const Page = () => {
               </div>
               <div className="font-semibold text-xs leading-tight text-primary">
                 {status === "authenticated" && data?.user ? (
-                  data.user.monthlyLimit === null ? (
-                    `${data.user.generationsUsedThisMonth} (Unlimited)`
+                  usageLoading ? (
+                    <Skeleton className="w-16 h-3" />
+                  ) : monthlyLimit === null ? (
+                    `${generationsUsedThisMonth} (Unlimited)`
                   ) : (
-                    `${data.user.generationsUsedThisMonth} / ${data.user.monthlyLimit}`
+                    `${generationsUsedThisMonth} / ${monthlyLimit}`
                   )
                 ) : (
                   <Skeleton className="w-16 h-3" />
@@ -78,10 +82,12 @@ const Page = () => {
               <div className="text-xs text-gray-500">
                 <span className="font-bold text-primary">
                   {status === "authenticated" && data?.user ? (
-                    data.user.monthlyLimit === null ? (
-                      `${data.user.generationsUsedThisMonth} (Unlimited)`
+                    usageLoading ? (
+                      <Skeleton className="w-16 h-3" />
+                    ) : monthlyLimit === null ? (
+                      `${generationsUsedThisMonth} (Unlimited)`
                     ) : (
-                      `${data.user.generationsUsedThisMonth} / ${data.user.monthlyLimit}`
+                      `${generationsUsedThisMonth} / ${monthlyLimit}`
                     )
                   ) : (
                     <Skeleton className="w-16 h-3" />

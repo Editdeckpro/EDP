@@ -9,6 +9,7 @@ import {
 } from "@/schemas/generate-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "@/lib/auth-client";
+import { useUserUsage } from "@/hook/use-user-usage";
 import { FC, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -28,7 +29,9 @@ interface GenerateFormProps {
 const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { data, status, update } = useSession();
+  const { generationsUsedThisMonth, monthlyLimit, refetch: refetchUsage } = useUserUsage();
   const bypassSubscription = Boolean(data?.user?.bypassSubscription);
+  const atMonthlyLimit = !bypassSubscription && monthlyLimit !== null && generationsUsedThisMonth >= monthlyLimit;
   const generateFormRef = useRef<HTMLButtonElement | null>(null);
   const mainGenerateFormRef = useRef<HTMLButtonElement | null>(null);
   const [imageGuidancesOpen, setImageGuidanceOpen] = useState<boolean>(true);
@@ -118,7 +121,6 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
   }
 
   async function mainFormSubmit(values: MainGenerateFormSchemaType) {
-    const atMonthlyLimit = !bypassSubscription && data?.user && data.user.monthlyLimit !== null && data.user.generationsUsedThisMonth >= data.user.monthlyLimit;
     if (atMonthlyLimit) {
       toast.error("Monthly limit reached", {
         description: "You've used all generations for this month. Upgrade your plan for more.",
@@ -169,6 +171,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       } else {
         console.log("[EditDeck] Generate: refreshing session after successful generation");
         update(); // Update session to refresh user data
+        refetchUsage(); // Refresh generations count in header badge
       }
       setData(result);
       return;
@@ -266,7 +269,7 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       <Button
         type="submit"
         className="w-full"
-        disabled={isSubmitting || status !== "authenticated" || (!bypassSubscription && data?.user && data.user.monthlyLimit !== null && data.user.generationsUsedThisMonth >= data.user.monthlyLimit)}
+        disabled={isSubmitting || status !== "authenticated" || atMonthlyLimit}
         onClick={submitButtonClicked}
       >
         {isSubmitting ? "Generating..." : "Generate Image"}

@@ -8,6 +8,7 @@ import ProfileDropdown from "./profile-dropdown";
 import { MobileNavSheet } from "./sidebar";
 import { sidebarSections } from "./sidebar-content";
 import { useSession } from "@/lib/auth-client";
+import { useUserUsage } from "@/hook/use-user-usage";
 import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 import { useTour } from "@/context/OnboardingTourContext";
@@ -20,6 +21,7 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { status, data } = useSession();
+  const { generationsUsedThisMonth, monthlyLimit, isLoading: usageLoading } = useUserUsage();
   const { handleStartTour } = useTour();
 
   // Split the path into parts
@@ -103,10 +105,12 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
               <div className="leading-tight text-gray-600">Generations this month</div>
               <div className="font-semibold text-xs leading-tight text-primary">
                 {status === "authenticated" && data?.user ? (
-                  data.user.monthlyLimit === null ? (
-                    `${data.user.generationsUsedThisMonth.toLocaleString()} (Unlimited)`
+                  usageLoading ? (
+                    <Skeleton className="w-16 h-3" />
+                  ) : monthlyLimit === null ? (
+                    `${generationsUsedThisMonth.toLocaleString()} (Unlimited)`
                   ) : (
-                    `${data.user.generationsUsedThisMonth.toLocaleString()} / ${data.user.monthlyLimit}`
+                    `${generationsUsedThisMonth.toLocaleString()} / ${monthlyLimit}`
                   )
                 ) : (
                   <Skeleton className="w-16 h-3" />
@@ -153,10 +157,12 @@ const DashboardHeader: FC<HeaderProps> = ({ type = "nav" }) => {
                   Generations this month:{" "}
                   <span className="font-bold text-primary">
                     {status === "authenticated" && data?.user ? (
-                      data.user.monthlyLimit === null ? (
-                        `${data.user.generationsUsedThisMonth} (Unlimited)`
+                      usageLoading ? (
+                        <Skeleton className="w-16 h-3" />
+                      ) : monthlyLimit === null ? (
+                        `${generationsUsedThisMonth} (Unlimited)`
                       ) : (
-                        `${data.user.generationsUsedThisMonth} / ${data.user.monthlyLimit}`
+                        `${generationsUsedThisMonth} / ${monthlyLimit}`
                       )
                     ) : (
                       <Skeleton className="w-16 h-3" />

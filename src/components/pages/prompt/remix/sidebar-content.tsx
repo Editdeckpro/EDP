@@ -21,6 +21,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
+import { useUserUsage } from "@/hook/use-user-usage";
 import { FC, useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
@@ -46,7 +47,9 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
   const [imageBase64, setImageBase64] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { status, data, update } = useSession();
+  const { generationsUsedThisMonth, monthlyLimit, refetch: refetchUsage } = useUserUsage();
   const bypassSubscription = Boolean(data?.user?.bypassSubscription);
+  const atMonthlyLimit = !bypassSubscription && monthlyLimit !== null && generationsUsedThisMonth >= monthlyLimit;
 
   const form = useForm<RemixFormSchemaType>({
     resolver: zodResolver(remixFormSchema),
@@ -68,7 +71,6 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
   });
 
   async function onSubmit(values: RemixFormSchemaType) {
-    const atMonthlyLimit = !bypassSubscription && data?.user && data.user.monthlyLimit !== null && data.user.generationsUsedThisMonth >= data.user.monthlyLimit;
     if (atMonthlyLimit) {
       toast.error("Monthly limit reached", {
         description: "You've used all generations for this month. Upgrade your plan for more.",
@@ -90,6 +92,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
         return;
       } else {
         update();
+        refetchUsage(); // Refresh generations count in header badge
       }
       setData(data);
     } catch (err) {
@@ -518,7 +521,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
             type="submit"
             className="w-full"
             isLoading={isSubmitting}
-            disabled={isSubmitting || status !== "authenticated" || (!bypassSubscription && data?.user && data.user.monthlyLimit !== null && data.user.generationsUsedThisMonth >= data.user.monthlyLimit)}
+            disabled={isSubmitting || status !== "authenticated" || atMonthlyLimit}
           >
             Remix Image <GIcon>wand_stars</GIcon>
           </Button>
