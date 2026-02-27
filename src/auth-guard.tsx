@@ -64,8 +64,37 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       const accessToken = token.accessToken as string;
+
+      function buildMinimalSessionFromJwt(decoded: DecodedJWT, subscriptionExpired = false): SessionUser {
+        const nameParts = (decoded.name ?? "").trim().split(/\s+/);
+        const firstName = nameParts[0] ?? "";
+        const lastName = nameParts.slice(1).join(" ") ?? "";
+        const planType = subscriptionExpired ? "FREE" : (decoded.subscriptionPlan === "STARTER" || decoded.subscriptionPlan === "NEXT_LEVEL" || decoded.subscriptionPlan === "PRO_STUDIO" ? decoded.subscriptionPlan : "FREE");
+        return {
+          id: decoded.userId ?? 0,
+          firstName,
+          lastName,
+          email: "",
+          username: decoded.username ?? "",
+          profileImage: undefined,
+          ...(subscriptionExpired && { subscriptionExpired: true }),
+          generationsUsedThisMonth: 0,
+          monthlyLimit: null,
+          bypassSubscription: false,
+          subscription: {
+            planType,
+            status: subscriptionExpired ? "expired" : (decoded.subscriptionStatus ?? "active"),
+            interval: "yearly",
+            currentPeriodEnd: "",
+            cancelAtPeriodEnd: false,
+            features: [],
+          },
+        };
+      }
+
       try {
-        const axiosWithAuth = await GetAxiosWithAuth(accessToken);
+        // Short timeout so credentials callback doesn't hang if backend /user is slow or unreachable
+        const axiosWithAuth = await GetAxiosWithAuth(accessToken, { timeoutMs: 15_000 });
         const { data } = await axiosWithAuth.get<SessionUser>("user");
 
         session.user = {
@@ -92,37 +121,15 @@ export const authOptions: NextAuthOptions = {
         if (axios.isAxiosError(err) && err.response?.status === 403) {
           const body = err.response?.data as { error?: string; message?: string } | undefined;
           if (body?.error === "subscription_expired") {
-            // Build minimal session from JWT so the app can show renewal UI instead of JWT_SESSION_ERROR
             const decoded = jwtDecode<DecodedJWT>(accessToken);
-            const nameParts = (decoded.name ?? "").trim().split(/\s+/);
-            const firstName = nameParts[0] ?? "";
-            const lastName = nameParts.slice(1).join(" ") ?? "";
-            session.user = {
-              id: decoded.userId ?? 0,
-              firstName,
-              lastName,
-              email: "",
-              username: decoded.username ?? "",
-              profileImage: undefined,
-              subscriptionExpired: true,
-              generationsUsedThisMonth: 0,
-              monthlyLimit: null,
-              bypassSubscription: false,
-              subscription: {
-                planType: "FREE",
-                status: "expired",
-                interval: "yearly",
-                currentPeriodEnd: "",
-                cancelAtPeriodEnd: false,
-                features: [],
-              },
-            };
+            session.user = buildMinimalSessionFromJwt(decoded, true);
           } else {
-            // Invalid/expired token or other 403 – surface so user is logged out
             throw err;
           }
         } else {
-          throw err;
+          // Timeout, ECONNREFUSED, or other network error: don't hang login – use JWT so user gets in
+          const decoded = jwtDecode<DecodedJWT>(accessToken);
+          session.user = buildMinimalSessionFromJwt(decoded);
         }
       }
       session.accessToken = token.accessToken as string;

@@ -108,20 +108,23 @@ function setupSubscriptionExpirationInterceptor(axiosInstance: AxiosInstance) {
   return axiosInstance;
 }
 
-export async function GetAxiosWithAuth(token?: string) {
+/** Default timeout for API calls (e.g. generation). Session callback should pass a shorter timeout. */
+const DEFAULT_AUTH_TIMEOUT_MS = 120_000;
+
+export async function GetAxiosWithAuth(token?: string, options?: { timeoutMs?: number }) {
   let accessToken = token;
 
   if (!accessToken) {
     accessToken = await waitForSession();
   }
 
-  /** Match server-side generation timeout so long requests don't hang indefinitely */
+  const timeoutMs = options?.timeoutMs ?? DEFAULT_AUTH_TIMEOUT_MS;
   const instance = axios.create({
     baseURL: `${process.env.NEXT_PUBLIC_BE_URL}/api/`,
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
-    timeout: 120_000,
+    timeout: timeoutMs,
   });
 
   // Setup subscription expiration interceptor
