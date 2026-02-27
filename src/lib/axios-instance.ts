@@ -16,28 +16,18 @@ export const axiosInstance = axios.create({
   timeout: CLIENT_API_TIMEOUT_MS,
 });
 
+/** Wait for session (uses cached/deduped getSession so we don't spam GET /api/auth/session). */
 function waitForSession(): Promise<string> {
   return new Promise(async (resolve, reject) => {
-    let tries = 0;
-    const maxTries = 5;
-    const delay = 200; // ms
+    const maxTries = 3;
+    const delayMs = 400;
 
-    while (tries < maxTries) {
+    for (let tries = 0; tries < maxTries; tries++) {
       const session = await getSession();
-
-      if (session === null) {
-        return reject(new Error("User is not authenticated"));
-      }
-
-      if (session?.accessToken) {
-        return resolve(session.accessToken as string);
-      }
-
-      // Still loading? Wait and retry
-      await new Promise((res) => setTimeout(res, delay));
-      tries++;
+      if (session?.accessToken) return resolve(session.accessToken as string);
+      if (session === null) return reject(new Error("User is not authenticated"));
+      await new Promise((r) => setTimeout(r, delayMs));
     }
-
     reject(new Error("Session loading timed out or accessToken missing"));
   });
 }

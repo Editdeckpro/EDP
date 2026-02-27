@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Session } from "@/types/auth";
+import { fetchSessionFromApi, invalidateSessionCache } from "@/lib/session-fetcher";
 
 function getBackendUrl(): string {
   return (typeof process !== "undefined" && process.env.NEXT_PUBLIC_BE_URL) || "";
@@ -22,24 +23,22 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<Session | null>(null);
   const [status, setStatus] = useState<AuthStatus>("loading");
+  const mounted = useRef(true);
 
   const fetchSession = useCallback(async (): Promise<Session | null> => {
-    try {
-      const res = await fetch("/api/auth/session", { credentials: "include" });
-      const json = await res.json();
-      const session = json?.session ?? null;
+    const session = await fetchSessionFromApi();
+    if (mounted.current) {
       setData(session);
       setStatus(session ? "authenticated" : "unauthenticated");
-      return session;
-    } catch {
-      setData(null);
-      setStatus("unauthenticated");
-      return null;
     }
+    return session;
   }, []);
 
   useEffect(() => {
     fetchSession();
+    return () => {
+      mounted.current = false;
+    };
   }, [fetchSession]);
 
   const signInCb = useCallback(
@@ -52,6 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const signOutCb = useCallback(async (options?: { callbackUrl?: string; redirect?: boolean }) => {
+    invalidateSessionCache();
     setData(null);
     setStatus("unauthenticated");
     await signOut(options);
@@ -79,11 +79,9 @@ export function useSession() {
   return ctx;
 }
 
-/** Get current session (client). Resolves with null if unauthenticated. */
+/** Get current session (client). Uses shared cache + dedupe so we don't spam GET /api/auth/session. */
 export async function getSession(): Promise<Session | null> {
-  const res = await fetch("/api/auth/session", { credentials: "include" });
-  const json = await res.json();
-  return json?.session ?? null;
+  return fetchSessionFromApi();
 }
 
 /** Standalone sign-in (usable outside AuthProvider). Sets cookie via API; redirect or refetch session after. */
@@ -121,6 +119,7 @@ export async function signIn(
       const errBody = await postRes.json().catch(() => ({}));
       return { ok: false, error: (errBody?.error as string) || "Invalid credentials" };
     }
+    invalidateSessionCache();
     const json = await postRes.json();
     return { ok: !!json?.session };
   } catch (e) {

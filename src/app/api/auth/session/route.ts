@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession, getSessionFromToken, setAuthCookie } from "@/lib/auth-server";
 
-/** GET – return current session from cookie (for useSession / getSession). */
+const NO_STORE = "no-store, no-cache, must-revalidate";
+
+/** GET – return current session from cookie. Client dedupes/caches; we avoid browser cache. */
 export async function GET() {
   const session = await getServerSession();
-  if (!session) {
-    return NextResponse.json({ session: null }, { status: 200 });
-  }
-  return NextResponse.json({ session });
+  const body = session ? { session } : { session: null };
+  return NextResponse.json(body, {
+    status: 200,
+    headers: { "Cache-Control": NO_STORE },
+  });
 }
 
-/** POST – set session (login). Body: { accessToken: string }. */
+/** POST – set session (login). Body: { accessToken: string } or { token: string }. */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -21,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
     const session = await getSessionFromToken(accessToken);
     await setAuthCookie(accessToken);
-    return NextResponse.json({ session });
+    return NextResponse.json({ session }, { headers: { "Cache-Control": NO_STORE } });
   } catch (e) {
     console.error("[auth/session] POST error:", e);
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
