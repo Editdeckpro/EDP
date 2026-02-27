@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { FC, useState, useEffect } from "react";
 import { Skeleton } from "../ui/skeleton";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { clearAllStorageOnLogout } from "@/lib/clear-storage";
 
@@ -28,11 +28,15 @@ const ProfileDropdown: FC<ProfileDropdownProps> = ({ isMobile = false }) => {
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  function handleConfirmLogout() {
+  async function handleConfirmLogout() {
     setIsLoggingOut(true);
     clearAllStorageOnLogout();
-    // Navigate to signout URL so we never hang on a stuck request; server clears session and redirects to /login
-    window.location.href = "/api/auth/signout?callbackUrl=" + encodeURIComponent("/login");
+    try {
+      await signOut({ redirect: true, callbackUrl: "/login" });
+    } finally {
+      setIsLoggingOut(false);
+      setLogoutOpen(false);
+    }
   }
 
   const showSkeleton = session.status !== "authenticated" || !session.data?.user;

@@ -6,7 +6,7 @@ import { AdapterUser } from "next-auth/adapters";
 import Credentials from "next-auth/providers/credentials";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
-import { axiosInstance } from "./lib/axios-instance";
+import { axiosInstance, GetAxiosWithAuth } from "./lib/axios-instance";
 import { SessionUser } from "@type/next-auth";
 
 interface DecodedJWT extends JwtPayload {
@@ -65,7 +65,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       const accessToken = token.accessToken as string;
 
-      function buildSessionFromJwt(decoded: DecodedJWT, subscriptionExpired = false): SessionUser {
+      function buildMinimalSessionFromJwt(decoded: DecodedJWT, subscriptionExpired = false): SessionUser {
         const nameParts = (decoded.name ?? "").trim().split(/\s+/);
         const firstName = nameParts[0] ?? "";
         const lastName = nameParts.slice(1).join(" ") ?? "";
@@ -92,10 +92,46 @@ export const authOptions: NextAuthOptions = {
         };
       }
 
-      // Build session from JWT only so /api/auth/callback/credentials never hangs on backend /user.
-      // Full user details (email, profileImage, usage) are loaded client-side where needed.
-      const decoded = jwtDecode<DecodedJWT>(accessToken);
-      session.user = buildSessionFromJwt(decoded);
+      try {
+        // Short timeout so credentials callback doesn't hang if backend /user is slow or unreachable
+        const axiosWithAuth = await GetAxiosWithAuth(accessToken, { timeoutMs: 15_000 });
+        const { data } = await axiosWithAuth.get<SessionUser>("user");
+
+        session.user = {
+          id: data.id,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          username: data.username,
+          profileImage: data.profileImage,
+          generationsUsedThisMonth: data.generationsUsedThisMonth ?? 0,
+          monthlyLimit: data.monthlyLimit ?? null,
+          bypassSubscription: data.bypassSubscription,
+          subscription: {
+            planType: data.subscription.planType,
+            status: data.subscription.status,
+            interval: data.subscription.interval,
+            currentPeriodEnd: data.subscription.currentPeriodEnd,
+            cancelAtPeriodEnd: data.subscription.cancelAtPeriodEnd,
+            features: data.subscription.features,
+          },
+        };
+      } catch (err) {
+        // GET /api/user can return 403 when: (1) token invalid/expired, (2) subscription expired
+        if (axios.isAxiosError(err) && err.response?.status === 403) {
+          const body = err.response?.data as { error?: string; message?: string } | undefined;
+          if (body?.error === "subscription_expired") {
+            const decoded = jwtDecode<DecodedJWT>(accessToken);
+            session.user = buildMinimalSessionFromJwt(decoded, true);
+          } else {
+            throw err;
+          }
+        } else {
+          // Timeout, ECONNREFUSED, or other network error: don't hang login – use JWT so user gets in
+          const decoded = jwtDecode<DecodedJWT>(accessToken);
+          session.user = buildMinimalSessionFromJwt(decoded);
+        }
+      }
       session.accessToken = token.accessToken as string;
       return session;
     },
