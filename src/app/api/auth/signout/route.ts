@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
-import { clearAuthCookie } from "@/lib/auth-server";
+import { buildClearCookieHeader } from "@/lib/auth-route-helpers";
+
+/** Use Node runtime; clear cookie via header only (no next/headers cookies() call). */
+export const runtime = "nodejs";
 
 /** POST – clear auth cookie (sign out). */
 export async function POST() {
-  await clearAuthCookie();
-  return NextResponse.json({ ok: true });
+  const setCookie = buildClearCookieHeader();
+  return NextResponse.json({ ok: true }, {
+    headers: { "Set-Cookie": setCookie },
+  });
 }

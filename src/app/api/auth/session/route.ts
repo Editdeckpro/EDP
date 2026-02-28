@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession, getSessionFromTokenJwtOnly, setAuthCookie } from "@/lib/auth-server";
+import {
+  AUTH_COOKIE_NAME,
+  getSessionFromTokenString,
+  buildSetCookieHeader,
+} from "@/lib/auth-route-helpers";
 
-/** Use Node runtime so cookies() and imports are stable (avoids Edge serialization/syntax issues). */
+/** Use Node runtime; avoid next/headers cookies() to prevent serialization SyntaxError. */
 export const runtime = "nodejs";
 
 const NO_STORE = "no-store, no-cache, must-revalidate";
 
-/** Clone to plain object so JSON serialization never hits getters/proxies (avoids "missing ) after argument list" etc.). */
+/** Plain object only so JSON never hits getters/proxies. */
 function plainSession(session: { user: unknown; accessToken: string } | null): { session: unknown } {
   if (!session) return { session: null };
   try {
@@ -16,10 +20,11 @@ function plainSession(session: { user: unknown; accessToken: string } | null): {
   }
 }
 
-/** GET – return current session from cookie. Any error (including SyntaxError from getters) returns 200 { session: null }. */
-export async function GET() {
+/** GET – read cookie from request (no cookies() call). */
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+    const session = getSessionFromTokenString(token);
     const body = plainSession(session);
     return NextResponse.json(body, {
       status: 200,
@@ -32,8 +37,7 @@ export async function GET() {
         status: 200,
         headers: { "Cache-Control": NO_STORE },
       });
-    } catch (fallbackErr) {
-      console.error("[auth/session] GET fallback error:", fallbackErr);
+    } catch {
       return new NextResponse('{"session":null}', {
         status: 200,
         headers: { "Content-Type": "application/json", "Cache-Control": NO_STORE },
@@ -42,7 +46,7 @@ export async function GET() {
   }
 }
 
-/** POST – set session (login). Body: { accessToken: string } or { token: string }. Uses JWT only so it never hangs when backend is stuck. */
+/** POST – set session (login). Set cookie via header (no cookies() call). */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -51,9 +55,15 @@ export async function POST(request: NextRequest) {
     if (!accessToken) {
       return NextResponse.json({ error: "Missing accessToken" }, { status: 400 });
     }
-    const session = getSessionFromTokenJwtOnly(accessToken);
-    await setAuthCookie(accessToken);
-    return NextResponse.json(plainSession(session), { headers: { "Cache-Control": NO_STORE } });
+    const session = getSessionFromTokenString(accessToken);
+    if (!session) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+    const setCookie = buildSetCookieHeader(accessToken);
+    return NextResponse.json(plainSession(session), {
+      status: 200,
+      headers: { "Cache-Control": NO_STORE, "Set-Cookie": setCookie },
+    });
   } catch (e) {
     console.error("[auth/session] POST error:", e);
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });

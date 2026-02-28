@@ -128,10 +128,21 @@ export async function signIn(
   }
 }
 
+const SIGNOUT_TIMEOUT_MS = 8_000;
+
 /** Standalone sign-out (usable outside AuthProvider). Clears cookie and redirects. */
 export async function signOut(options?: { callbackUrl?: string; redirect?: boolean }): Promise<void> {
   try {
-    await fetch("/api/auth/signout", { method: "POST", credentials: "include" });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), SIGNOUT_TIMEOUT_MS);
+    await fetch("/api/auth/signout", {
+      method: "POST",
+      credentials: "include",
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+  } catch (_) {
+    // Timeout or network error: still redirect so user is not stuck on "Logging out..."
   } finally {
     const url = options?.callbackUrl ?? "/login";
     if (options?.redirect !== false && typeof window !== "undefined") {
