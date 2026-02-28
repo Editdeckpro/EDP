@@ -109,12 +109,16 @@ export async function signIn(
       accessToken = json?.accessToken;
       if (!accessToken) return { ok: false, error: "Invalid response" };
     }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15_000);
     const postRes = await fetch("/api/auth/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ accessToken }),
       credentials: "include",
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
     if (!postRes.ok) {
       const errBody = await postRes.json().catch(() => ({}));
       return { ok: false, error: (errBody?.error as string) || "Invalid credentials" };
