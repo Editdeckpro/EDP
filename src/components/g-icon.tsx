@@ -25,10 +25,17 @@ export default function GIcon({
   style = {},
   children,
 }: IconProps) {
+  const sizePx = typeof size === "number" ? `${size}px` : size;
   return (
     <span
-      className={`material-symbols-outlined ${className}`}
-      style={{ fontSize: size, ...style }}
+      className={`material-symbols-outlined g-icon-contain ${className}`}
+      style={{
+        fontSize: size,
+        width: sizePx,
+        minWidth: sizePx,
+        height: sizePx,
+        ...style,
+      }}
       aria-hidden="true"
     >
       {name ?? children}

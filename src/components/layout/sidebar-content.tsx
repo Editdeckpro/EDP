@@ -77,9 +77,9 @@ const SidebarLinkButton = ({
             )}
             tabIndex={-1}
           >
-            <div data-active={!isActive} className="flex items-center gap-1 group">
+            <div data-active={!isActive} className="flex items-center gap-2 min-w-0 flex-1 group">
               {icon}
-              <div className="text-wrap font-semibold">{text}</div>
+              <span className="font-semibold truncate">{text}</span>
             </div>
             {isNew && (
               <span
