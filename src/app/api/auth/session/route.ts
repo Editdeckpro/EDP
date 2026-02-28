@@ -1,19 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession, getSessionFromToken, setAuthCookie } from "@/lib/auth-server";
+import { getServerSession, getSessionFromTokenJwtOnly, setAuthCookie } from "@/lib/auth-server";
+
+/** Use Node runtime so cookies() and imports are stable (avoids Edge serialization/syntax issues). */
+export const runtime = "nodejs";
 
 const NO_STORE = "no-store, no-cache, must-revalidate";
 
-/** GET – return current session from cookie. Client dedupes/caches; we avoid browser cache. */
-export async function GET() {
-  const session = await getServerSession();
-  const body = session ? { session } : { session: null };
-  return NextResponse.json(body, {
-    status: 200,
-    headers: { "Cache-Control": NO_STORE },
-  });
+/** Clone to plain object so JSON serialization never hits getters/proxies (avoids "missing ) after argument list" etc.). */
+function plainSession(session: { user: unknown; accessToken: string } | null): { session: unknown } {
+  if (!session) return { session: null };
+  try {
+    return { session: JSON.parse(JSON.stringify(session)) };
+  } catch {
+    return { session: null };
+  }
 }
 
-/** POST – set session (login). Body: { accessToken: string } or { token: string }. */
+/** GET – return current session from cookie. Client dedupes/caches; we avoid browser cache. */
+export async function GET() {
+  try {
+    const session = await getServerSession();
+    const body = plainSession(session);
+    return NextResponse.json(body, {
+      status: 200,
+      headers: { "Cache-Control": NO_STORE },
+    });
+  } catch (e) {
+    console.error("[auth/session] GET error:", e);
+    return NextResponse.json({ session: null }, {
+      status: 200,
+      headers: { "Cache-Control": NO_STORE },
+    });
+  }
+}
+
+/** POST – set session (login). Body: { accessToken: string } or { token: string }. Uses JWT only so it never hangs when backend is stuck. */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -22,9 +43,9 @@ export async function POST(request: NextRequest) {
     if (!accessToken) {
       return NextResponse.json({ error: "Missing accessToken" }, { status: 400 });
     }
-    const session = await getSessionFromToken(accessToken);
+    const session = getSessionFromTokenJwtOnly(accessToken);
     await setAuthCookie(accessToken);
-    return NextResponse.json({ session }, { headers: { "Cache-Control": NO_STORE } });
+    return NextResponse.json(plainSession(session), { headers: { "Cache-Control": NO_STORE } });
   } catch (e) {
     console.error("[auth/session] POST error:", e);
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });

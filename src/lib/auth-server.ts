@@ -63,6 +63,13 @@ function buildMinimalSessionFromJwt(
 
 const SESSION_FETCH_TIMEOUT_MS = 10_000;
 
+/** Build session from JWT only (no backend call). Use for POST /api/auth/session so login never hangs when backend is stuck. */
+export function getSessionFromTokenJwtOnly(accessToken: string): Session {
+  const decoded = jwtDecode<DecodedJWT>(accessToken);
+  const user = buildMinimalSessionFromJwt(decoded);
+  return { user, accessToken };
+}
+
 /** Build full session from access token (call backend /user or fallback to JWT). */
 export async function getSessionFromToken(accessToken: string): Promise<Session> {
   const baseUrl = process.env.NEXT_PUBLIC_BE_URL;
