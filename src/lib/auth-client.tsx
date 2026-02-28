@@ -141,7 +141,7 @@ export async function signOut(options?: { callbackUrl?: string; redirect?: boole
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
-  } catch (_) {
+  } catch {
     // Timeout or network error: still redirect so user is not stuck on "Logging out..."
   } finally {
     const url = options?.callbackUrl ?? "/login";
