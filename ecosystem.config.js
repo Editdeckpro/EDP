@@ -5,16 +5,15 @@ module.exports = {
       cwd: __dirname,
       script: './node_modules/next/dist/bin/next',
       args: 'start',
-      // Use 1 instance to avoid session/cookie issues with NextAuth; scale via nginx/load balancer if needed
-      instances: 1,
-      exec_mode: 'fork',
+      // Cluster mode: if one worker hits the session SyntaxError and blocks, the other still serves requests
+      instances: 2,
+      exec_mode: 'cluster',
       autorestart: true,
       watch: false,
       max_memory_restart: '1G',
       env: {
         NODE_ENV: 'production',
       },
-      // Next.js loads .env from cwd when running `next start`; ensure .env has NEXTAUTH_URL and NEXTAUTH_SECRET
     },
   ],
 };

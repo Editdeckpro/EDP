@@ -16,7 +16,7 @@ function plainSession(session: { user: unknown; accessToken: string } | null): {
   }
 }
 
-/** GET – return current session from cookie. Client dedupes/caches; we avoid browser cache. */
+/** GET – return current session from cookie. Any error (including SyntaxError from getters) returns 200 { session: null }. */
 export async function GET() {
   try {
     const session = await getServerSession();
@@ -27,10 +27,18 @@ export async function GET() {
     });
   } catch (e) {
     console.error("[auth/session] GET error:", e);
-    return NextResponse.json({ session: null }, {
-      status: 200,
-      headers: { "Cache-Control": NO_STORE },
-    });
+    try {
+      return NextResponse.json({ session: null }, {
+        status: 200,
+        headers: { "Cache-Control": NO_STORE },
+      });
+    } catch (fallbackErr) {
+      console.error("[auth/session] GET fallback error:", fallbackErr);
+      return new NextResponse('{"session":null}', {
+        status: 200,
+        headers: { "Content-Type": "application/json", "Cache-Control": NO_STORE },
+      });
+    }
   }
 }
 

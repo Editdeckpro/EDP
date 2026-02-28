@@ -5,16 +5,17 @@ import { Session, SessionUser } from "@/types/auth";
 import { createServerBackendAxios, createAbortSignal } from "@/lib/server-backend-client";
 
 export const AUTH_COOKIE_NAME = "edp_auth_token";
-const AUTH_COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const,
-  path: "/",
-  maxAge: 30 * 24 * 60 * 60, // 30 days
-};
 
-export function getAuthCookieOptions() {
-  return AUTH_COOKIE_OPTIONS;
+/** Return a fresh plain object each time so no getters/env leak into serialization (avoids SyntaxError in session route). */
+export function getAuthCookieOptions(): { httpOnly: boolean; secure: boolean; sameSite: "lax"; path: string; maxAge: number } {
+  const nodeEnv = typeof process !== "undefined" ? String(process.env.NODE_ENV ?? "") : "";
+  return {
+    httpOnly: true,
+    secure: nodeEnv === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  };
 }
 
 interface DecodedJWT extends JwtPayload {
