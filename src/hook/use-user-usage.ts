@@ -76,7 +76,6 @@ export function useUserUsage(): {
         }
       }
     }
-    }
     setError(lastErr);
     setGenerationsUsedThisMonth(0);
     setMonthlyLimit(null);
