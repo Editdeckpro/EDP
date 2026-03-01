@@ -172,9 +172,9 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       }
       if (isGenerationSuccess(result)) {
         console.log("[EditDeck] Generate: refreshing session after successful generation");
-        update();
-        refetchUsage();
-        setTimeout(() => refetchUsage(), 2000);
+        const count = result?.images?.length ?? values.numberOfImages ?? 1;
+        refetchUsage(count);
+        setTimeout(() => refetchUsage(), 1500);
         setData(result);
         return;
       }

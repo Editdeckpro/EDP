@@ -112,9 +112,8 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
         return;
       }
       if (isGenerationSuccess(result)) {
-        update();
-        refetchUsage();
-        setTimeout(() => refetchUsage(), 2000);
+        refetchUsage(1);
+        setTimeout(() => refetchUsage(), 1500);
         setData(result);
         return;
       }

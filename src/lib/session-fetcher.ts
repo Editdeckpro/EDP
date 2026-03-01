@@ -4,7 +4,7 @@
  */
 import type { Session, SessionUser } from "@/types/auth";
 
-const SESSION_CACHE_MS = 15_000;
+const SESSION_CACHE_MS = 120_000; // 2 min – avoid repeated GET /api/user; refetch after generation/remix
 const SESSION_FETCH_TIMEOUT_MS = 12_000;
 let cached: { session: Session | null; at: number } | null = null;
 let inFlight: Promise<Session | null> | null = null;
