@@ -103,11 +103,17 @@ export function useUserUsage(): {
     }
   }, [status, data?.accessToken, fetchUsage]);
 
+  // refetch bypasses cache so after a generation we get the new count immediately
+  const refetch = useCallback(() => {
+    cache = null;
+    return fetchUsage();
+  }, [fetchUsage]);
+
   return {
     generationsUsedThisMonth,
     monthlyLimit,
     isLoading,
     error,
-    refetch: fetchUsage,
+    refetch,
   };
 }
