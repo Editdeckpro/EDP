@@ -10,6 +10,21 @@ export const runtime = "nodejs";
 
 const NO_STORE = "no-store, no-cache, must-revalidate";
 
+/** Parse token from raw Cookie header to avoid request.cookies proxy (can trigger SyntaxError in Next). */
+function getTokenFromCookieHeader(cookieHeader: string | null): string | null {
+  if (!cookieHeader || typeof cookieHeader !== "string") return null;
+  const prefix = `${AUTH_COOKIE_NAME}=`;
+  const parts = cookieHeader.split(";");
+  for (const part of parts) {
+    const trimmed = part.trim();
+    if (trimmed.startsWith(prefix)) {
+      const value = trimmed.slice(prefix.length).trim();
+      return value.length > 0 ? value : null;
+    }
+  }
+  return null;
+}
+
 /** Plain object only so JSON never hits getters/proxies. */
 function plainSession(session: { user: unknown; accessToken: string } | null): { session: unknown } {
   if (!session) return { session: null };
@@ -20,11 +35,11 @@ function plainSession(session: { user: unknown; accessToken: string } | null): {
   }
 }
 
-/** GET – read cookie from request (no cookies() call). */
+/** GET – read token from Cookie header only (no request.cookies proxy). */
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
-    const session = getSessionFromTokenString(token);
+    const token = getTokenFromCookieHeader(request.headers.get("cookie"));
+    const session = getSessionFromTokenString(token ?? undefined);
     const body = plainSession(session);
     return NextResponse.json(body, {
       status: 200,
