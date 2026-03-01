@@ -17,9 +17,9 @@ export interface OnboardingResponse {
   };
 }
 
-export async function saveOnboardingData(data: OnboardingData, accessToken: string): Promise<OnboardingResponse> {
+export async function saveOnboardingData(data: OnboardingData): Promise<OnboardingResponse> {
   try {
-    const axios = await GetAxiosWithAuth(accessToken);
+    const axios = await GetAxiosWithAuth();
     const response = await axios.post<OnboardingResponse>("onboarding", data);
     return response.data;
   } catch (error) {
@@ -37,9 +37,11 @@ export interface OnboardingStatusResponse {
   lastUpdated?: string;
 }
 
-export async function getOnboardingStatus(accessToken: string): Promise<OnboardingStatusResponse> {
+const ONBOARDING_STATUS_TIMEOUT_MS = 15_000;
+
+export async function getOnboardingStatus(): Promise<OnboardingStatusResponse> {
   try {
-    const axios = await GetAxiosWithAuth(accessToken);
+    const axios = await GetAxiosWithAuth(undefined, { timeoutMs: ONBOARDING_STATUS_TIMEOUT_MS });
     const response = await axios.get<OnboardingStatusResponse>("onboarding/status");
     return response.data;
   } catch (error) {
@@ -54,9 +56,9 @@ export async function getOnboardingStatus(accessToken: string): Promise<Onboardi
   }
 }
 
-export async function getOnboardingData(accessToken: string): Promise<OnboardingResponse["data"] | null> {
+export async function getOnboardingData(): Promise<OnboardingResponse["data"] | null> {
   try {
-    const axios = await GetAxiosWithAuth(accessToken);
+    const axios = await GetAxiosWithAuth();
     const response = await axios.get<{ data: OnboardingResponse["data"] }>("onboarding");
     return response.data.data;
   } catch (error) {

@@ -8,48 +8,41 @@ type SessionWithBypass = {
   };
 };
 
-/** Timeout for client-side API calls (login, check-user-status, etc.) - 30s */
+/** Timeout for client-side API calls - 30s */
 const CLIENT_API_TIMEOUT_MS = 30_000;
 
-export const axiosInstance = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_BE_URL}/`,
-  timeout: CLIENT_API_TIMEOUT_MS,
-});
-
-/** Wait for session (uses cached/deduped getSession so we don't spam GET /api/auth/session). */
-function waitForSession(): Promise<string> {
-  return new Promise(async (resolve, reject) => {
-    const maxTries = 3;
-    const delayMs = 400;
-
-    for (let tries = 0; tries < maxTries; tries++) {
-      const session = await getSession();
-      if (session?.accessToken) return resolve(session.accessToken as string);
-      if (session === null) return reject(new Error("User is not authenticated"));
-      await new Promise((r) => setTimeout(r, delayMs));
-    }
-    reject(new Error("Session loading timed out or accessToken missing"));
-  });
+function getBackendRoot(): string {
+  const url = typeof process !== "undefined" ? process.env.NEXT_PUBLIC_BE_URL : "";
+  return (url || "").replace(/\/$/, "") + "/";
 }
 
-/**
- * Sets up response interceptor to handle subscription expiration
- * Automatically logs out users when subscription expires
- * Only works on client-side (browser environment)
- */
-function setupSubscriptionExpirationInterceptor(axiosInstance: AxiosInstance) {
-  // Use a flag to prevent multiple redirects
-  let isRedirecting = false;
+const getBackendBaseUrl = (): string => getBackendRoot() + "api/";
 
-  // Only setup interceptor on client-side
-  if (typeof window === "undefined") {
-    return axiosInstance;
+export const axiosInstance = axios.create({
+  baseURL: getBackendRoot(),
+  timeout: CLIENT_API_TIMEOUT_MS,
+  withCredentials: true,
+});
+
+/** Wait until session is available (backend cookie auth). */
+async function waitForSession(): Promise<string> {
+  const maxTries = 3;
+  const delayMs = 400;
+  for (let tries = 0; tries < maxTries; tries++) {
+    const session = await getSession();
+    if (session) return ""; // Cookie is sent automatically; no token needed in header
+    await new Promise((r) => setTimeout(r, delayMs));
   }
+  throw new Error("User is not authenticated");
+}
 
-  axiosInstance.interceptors.response.use(
+function setupSubscriptionExpirationInterceptor(instance: AxiosInstance) {
+  if (typeof window === "undefined") return instance;
+
+  let isRedirecting = false;
+  instance.interceptors.response.use(
     (response) => response,
     async (error: AxiosError<{ error?: string; message?: string }>) => {
-      // Check if it's a subscription expired error
       if (
         error.response?.status === 403 &&
         error.response?.data &&
@@ -57,65 +50,45 @@ function setupSubscriptionExpirationInterceptor(axiosInstance: AxiosInstance) {
         "error" in error.response.data &&
         error.response.data.error === "subscription_expired"
       ) {
-        // If user is in bypass list, do not auto-logout/redirect
         try {
           const session = await getSession();
           const s = session as unknown as SessionWithBypass | null;
-          if (s?.user?.bypassSubscription) {
-            return Promise.reject(error);
-          }
+          if (s?.user?.bypassSubscription) return Promise.reject(error);
         } catch {
-          // ignore and fall through to default behavior
+          // ignore
         }
-
-        // Prevent multiple redirects
-        if (isRedirecting) {
-          return Promise.reject(error);
-        }
+        if (isRedirecting) return Promise.reject(error);
         isRedirecting = true;
-
-        const errorMessage = error.response.data.message || 
+        const message =
+          error.response.data.message ||
           "Your subscription has expired. Please renew your subscription to continue accessing the platform.";
-
-        // Clear onboarding from localStorage and log out the user
         clearOnboardingFromStorage();
         signOut({
-          callbackUrl: `/login?error=subscription_expired&message=${encodeURIComponent(errorMessage)}`,
-        }).catch((err) => {
-          console.error("Error during sign out:", err);
-          // Fallback: redirect manually if signOut fails
-          window.location.href = `/login?error=subscription_expired&message=${encodeURIComponent(errorMessage)}`;
+          callbackUrl: `/login?error=subscription_expired&message=${encodeURIComponent(message)}`,
+        }).catch(() => {
+          window.location.href = `/login?error=subscription_expired&message=${encodeURIComponent(message)}`;
         });
-
         return Promise.reject(error);
       }
-
       return Promise.reject(error);
     }
   );
-
-  return axiosInstance;
+  return instance;
 }
 
-/** Default timeout for API calls (e.g. generation). Session callback should pass a shorter timeout. */
 const DEFAULT_AUTH_TIMEOUT_MS = 120_000;
 
-export async function GetAxiosWithAuth(token?: string, options?: { timeoutMs?: number }) {
-  let accessToken = token;
-
-  if (!accessToken) {
-    accessToken = await waitForSession();
-  }
-
+/**
+ * Get axios instance for backend API calls. Uses cookie (credentials) for auth; no token in header.
+ * Options: timeoutMs. Token param is ignored when using cookie auth.
+ */
+export async function GetAxiosWithAuth(_token?: string, options?: { timeoutMs?: number }): Promise<AxiosInstance> {
+  await waitForSession();
   const timeoutMs = options?.timeoutMs ?? DEFAULT_AUTH_TIMEOUT_MS;
   const instance = axios.create({
-    baseURL: `${process.env.NEXT_PUBLIC_BE_URL}/api/`,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
+    baseURL: getBackendBaseUrl(),
     timeout: timeoutMs,
+    withCredentials: true,
   });
-
-  // Setup subscription expiration interceptor
   return setupSubscriptionExpirationInterceptor(instance);
 }

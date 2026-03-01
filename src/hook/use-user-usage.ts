@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "@/lib/auth-client";
 import { GetAxiosWithAuth } from "@/lib/axios-instance";
 
@@ -27,16 +27,14 @@ export function useUserUsage(): {
   error: Error | null;
   refetch: () => Promise<void>;
 } {
-  const { status, data } = useSession();
+  const { status } = useSession();
   const [generationsUsedThisMonth, setGenerationsUsedThisMonth] = useState(0);
   const [monthlyLimit, setMonthlyLimit] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const lastTokenRef = useRef<string | null>(null);
 
   const fetchUsage = useCallback(async () => {
-    const accessToken = data?.accessToken;
-    if (status !== "authenticated" || !accessToken) {
+    if (status !== "authenticated") {
       setGenerationsUsedThisMonth(0);
       setMonthlyLimit(null);
       setIsLoading(false);
@@ -56,8 +54,8 @@ export function useUserUsage(): {
     try {
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       try {
-        // Use token from session so we don't depend on waitForSession() / GET /api/auth/session
-        const axios = await GetAxiosWithAuth(accessToken, { timeoutMs: 15_000 });
+        // Auth via backend cookie; GetAxiosWithAuth uses credentials
+        const axios = await GetAxiosWithAuth(undefined, { timeoutMs: 15_000 });
         const res = await axios.get("user");
         // Backend returns flat { generationsUsedThisMonth, monthlyLimit }; accept number or string
         const raw = res?.data ?? res;
@@ -71,7 +69,6 @@ export function useUserUsage(): {
         cache = { generationsUsedThisMonth: used, monthlyLimit: limit, at: Date.now() };
         setGenerationsUsedThisMonth(used);
         setMonthlyLimit(limit);
-        lastTokenRef.current = accessToken;
         return;
       } catch (e) {
         lastErr = e instanceof Error ? e : new Error("Failed to load usage");
@@ -88,7 +85,7 @@ export function useUserUsage(): {
     } finally {
       setIsLoading(false);
     }
-  }, [status, data?.accessToken]);
+  }, [status]);
 
   useEffect(() => {
     fetchUsage();
@@ -96,12 +93,11 @@ export function useUserUsage(): {
 
   // Refetch when we get a token for the first time (e.g. after login) so we don't show 0 forever
   useEffect(() => {
-    if (status === "authenticated" && data?.accessToken && lastTokenRef.current !== data.accessToken) {
+    if (status === "authenticated") {
       cache = null;
-      lastTokenRef.current = data.accessToken;
       fetchUsage();
     }
-  }, [status, data?.accessToken, fetchUsage]);
+  }, [status, fetchUsage]);
 
   // refetch bypasses cache so after a generation we get the new count immediately
   const refetch = useCallback(() => {

@@ -13,8 +13,8 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     const checkAndRedirect = async () => {
-      // Wait for authentication
-      if (status !== "authenticated" || !session?.accessToken) {
+      // Wait for authentication (cookie auth: session may have empty accessToken)
+      if (status !== "authenticated" || !session?.user) {
         if (status === "unauthenticated") {
           router.push("/login");
         }
@@ -28,7 +28,7 @@ export default function OnboardingPage() {
       }
 
       try {
-        const statusResponse = await getOnboardingStatus(session.accessToken);
+        const statusResponse = await getOnboardingStatus();
 
         if (statusResponse.isComplete) {
           setOnboardingCompleteInStorage(true);

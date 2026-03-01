@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signOut(options);
   }, []);
 
-  const value = useMemo<AuthContextValue>(
+  const value = useMemo(
     () => ({
       data,
       status,
@@ -79,53 +79,45 @@ export function useSession() {
   return ctx;
 }
 
-/** Get current session (client). Uses shared cache + dedupe so we don't spam GET /api/auth/session. */
 export async function getSession(): Promise<Session | null> {
   return fetchSessionFromApi();
 }
 
-/** Standalone sign-in (usable outside AuthProvider). Sets cookie via API; redirect or refetch session after. */
+/** Sign in via backend (cookie set by backend). No frontend API routes. */
 export async function signIn(
   args: { username: string; password: string } | { token: string }
 ): Promise<{ ok: boolean; error?: string }> {
+  const base = getBackendUrl().replace(/\/$/, "");
+  if (!base) return { ok: false, error: "Backend URL not configured" };
+
   try {
-    let accessToken: string;
     if ("token" in args) {
-      accessToken = args.token;
+      const res = await fetch(`${base}/auth/session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: args.token }),
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        return { ok: false, error: (err?.error as string) || "Invalid token" };
+      }
     } else {
-      const base = getBackendUrl().replace(/\/$/, "");
       const res = await fetch(`${base}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: args.username, password: args.password }),
+        credentials: "include",
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         if (res.status === 400) return { ok: false, error: "User not found" };
-        if (res.status === 403) return { ok: false, error: "Invalid password" };
+        if (res.status === 403) return { ok: false, error: (err?.message as string) || "Invalid password" };
         return { ok: false, error: (err?.message as string) || "Login failed" };
       }
-      const json = await res.json();
-      accessToken = json?.accessToken;
-      if (!accessToken) return { ok: false, error: "Invalid response" };
-    }
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15_000);
-    const postRes = await fetch("/api/auth/session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ accessToken }),
-      credentials: "include",
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    if (!postRes.ok) {
-      const errBody = await postRes.json().catch(() => ({}));
-      return { ok: false, error: (errBody?.error as string) || "Invalid credentials" };
     }
     invalidateSessionCache();
-    const json = await postRes.json();
-    return { ok: !!json?.session };
+    return { ok: true };
   } catch (e) {
     const message = e instanceof Error ? e.message : "Server error";
     return { ok: false, error: message };
@@ -134,19 +126,22 @@ export async function signIn(
 
 const SIGNOUT_TIMEOUT_MS = 8_000;
 
-/** Standalone sign-out (usable outside AuthProvider). Clears cookie and redirects. */
+/** Sign out via backend (cookie cleared by backend). No frontend API routes. */
 export async function signOut(options?: { callbackUrl?: string; redirect?: boolean }): Promise<void> {
+  const base = getBackendUrl().replace(/\/$/, "");
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), SIGNOUT_TIMEOUT_MS);
-    await fetch("/api/auth/signout", {
-      method: "POST",
-      credentials: "include",
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
+    if (base) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), SIGNOUT_TIMEOUT_MS);
+      await fetch(`${base}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+    }
   } catch {
-    // Timeout or network error: still redirect so user is not stuck on "Logging out..."
+    // Timeout or network: still redirect
   } finally {
     const url = options?.callbackUrl ?? "/login";
     if (options?.redirect !== false && typeof window !== "undefined") {

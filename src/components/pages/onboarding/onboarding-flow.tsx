@@ -52,7 +52,7 @@ export default function OnboardingFlow() {
   };
 
   const handleSaveOnboarding = async (data: OnboardingData) => {
-    if (!session?.accessToken) {
+    if (!session?.user) {
       toast.error("Session expired. Please log in again.");
       router.push("/login");
       return;
@@ -60,7 +60,7 @@ export default function OnboardingFlow() {
 
     setIsSubmitting(true);
     try {
-      await saveOnboardingData(data, session.accessToken);
+      await saveOnboardingData(data);
       setOnboardingCompleteInStorage(true);
       toast.success("Onboarding completed!");
       setIsSubmitting(false);

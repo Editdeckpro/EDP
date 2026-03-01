@@ -18,7 +18,7 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       // Skip check if not authenticated
-      if (status !== "authenticated" || !session?.accessToken) {
+      if (status !== "authenticated" || !session?.user) {
         setIsChecking(false);
         return;
       }
@@ -37,7 +37,7 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
 
       try {
         // Check onboarding status using the new status endpoint
-        const statusResponse = await getOnboardingStatus(session.accessToken);
+        const statusResponse = await getOnboardingStatus();
 
         if (!statusResponse.isComplete) {
           // Redirect to onboarding if not completed

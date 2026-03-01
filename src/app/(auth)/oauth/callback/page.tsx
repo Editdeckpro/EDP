@@ -42,52 +42,54 @@ function OAuthCallback() {
     }
   }, [detailsParam]);
 
+  const success = searchParams.get("success") === "1";
+
   useEffect(() => {
-    if (!token) {
-      console.log("[EditDeck] OAuth callback: no token, redirecting to login");
+    // Backend sets cookie and redirects with ?success=1 (no token in URL). Otherwise legacy ?token=...
+    if (!success && !token) {
+      console.log("[EditDeck] OAuth callback: no success and no token, redirecting to login");
       router.push("/login");
       return;
     }
 
     let cancelled = false;
-    console.log("[EditDeck] OAuth callback: token present, signing in...", { subscriptionRequired });
+    console.log("[EditDeck] OAuth callback:", success ? "success=1 (cookie set by backend)" : "token present", { subscriptionRequired });
 
-    // If validation takes too long (e.g. server stuck after 20–30 min), let user escape
     timeoutRef.current = setTimeout(() => {
       if (!cancelled) setTimedOut(true);
     }, VALIDATION_TIMEOUT_MS);
 
     (async () => {
       try {
-        const result = await signIn({ token });
-
-        if (cancelled) return;
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-          timeoutRef.current = null;
-        }
-
-        console.log("[EditDeck] OAuth callback: signIn result", { ok: result?.ok, error: result?.error });
-
-        if (result?.ok) {
-          if (subscriptionRequired) {
-            console.log("[EditDeck] OAuth callback: showing subscription required modal");
-            setShowSubscriptionModal(true);
-            // Optionally fetch onboarding in background (non-blocking)
-            getSession().then((session) => {
-              const accessToken = session?.accessToken as string | undefined;
-              if (accessToken) {
-                getOnboardingStatus(accessToken).then((s) => setOnboardingCompleteInStorage(s.isComplete)).catch(() => setOnboardingCompleteInStorage(false));
-              }
-            }).catch(() => {});
-          } else {
-            // Always go to /onboarding from this page; never use result.url – it can be the current URL (oauth/callback) and cause a reload loop
-            const target = "/onboarding";
-            console.log("[EditDeck] OAuth callback: redirecting (full page)", target);
-            window.location.href = target;
+        if (token) {
+          const result = await signIn({ token });
+          if (cancelled) return;
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+          }
+          if (!result?.ok) {
+            console.warn("[EditDeck] OAuth callback: sign-in failed, redirecting to login");
+            router.push("/login");
+            return;
           }
         } else {
-          console.warn("[EditDeck] OAuth callback: sign-in failed, redirecting to login");
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+          }
+        }
+
+        const session = await getSession();
+        if (cancelled) return;
+        if (session) {
+          if (subscriptionRequired) {
+            setShowSubscriptionModal(true);
+            getOnboardingStatus().then((s) => setOnboardingCompleteInStorage(s.isComplete)).catch(() => setOnboardingCompleteInStorage(false));
+          } else {
+            window.location.href = "/onboarding";
+          }
+        } else {
           router.push("/login");
         }
       } catch (error) {
@@ -107,7 +109,7 @@ function OAuthCallback() {
         timeoutRef.current = null;
       }
     };
-  }, [token, subscriptionRequired, router]);
+  }, [success, token, subscriptionRequired, router]);
 
   if (timedOut) {
     return (

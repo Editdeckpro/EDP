@@ -12,7 +12,7 @@ interface AuthGuardProps {
 export default async function AuthGuard({ children }: AuthGuardProps) {
   const session = await getServerSession();
 
-  if (!session || !session.accessToken) {
+  if (!session?.user) {
     redirect("/login");
   }
 

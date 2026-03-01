@@ -139,9 +139,8 @@ export default function LoginForm() {
         if (res?.ok) {
           try {
             const session = await getSession();
-            const token = session?.accessToken;
-            if (token) {
-              const onboardingStatus = await getOnboardingStatus(token);
+            if (session?.user) {
+              const onboardingStatus = await getOnboardingStatus();
               setOnboardingCompleteInStorage(onboardingStatus.isComplete);
             }
           } catch {
