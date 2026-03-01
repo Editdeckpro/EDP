@@ -58,12 +58,16 @@ export function useUserUsage(): {
       try {
         // Use token from session so we don't depend on waitForSession() / GET /api/auth/session
         const axios = await GetAxiosWithAuth(accessToken, { timeoutMs: 15_000 });
-        const { data: user } = await axios.get<{
-          generationsUsedThisMonth?: number;
-          monthlyLimit?: number | null;
-        }>("user");
-        const used = typeof user?.generationsUsedThisMonth === "number" ? user.generationsUsedThisMonth : 0;
-        const limit = user?.monthlyLimit !== undefined && user?.monthlyLimit !== null ? user.monthlyLimit : null;
+        const res = await axios.get("user");
+        // Backend returns flat { generationsUsedThisMonth, monthlyLimit }; accept number or string
+        const raw = res?.data ?? res;
+        const usedRaw = raw?.generationsUsedThisMonth ?? (raw?.data as { generationsUsedThisMonth?: number })?.generationsUsedThisMonth;
+        const limitRaw = raw?.monthlyLimit ?? (raw?.data as { monthlyLimit?: number | null })?.monthlyLimit;
+        const used = Math.max(0, Number(usedRaw) || 0);
+        const limit =
+          limitRaw === null || limitRaw === undefined || limitRaw === ""
+            ? null
+            : Math.max(0, Number(limitRaw) || 0);
         cache = { generationsUsedThisMonth: used, monthlyLimit: limit, at: Date.now() };
         setGenerationsUsedThisMonth(used);
         setMonthlyLimit(limit);
@@ -77,8 +81,10 @@ export function useUserUsage(): {
       }
     }
     setError(lastErr);
-    setGenerationsUsedThisMonth(0);
-    setMonthlyLimit(null);
+    if (!cache) {
+      setGenerationsUsedThisMonth(0);
+      setMonthlyLimit(null);
+    }
     } finally {
       setIsLoading(false);
     }
