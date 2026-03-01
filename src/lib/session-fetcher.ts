@@ -70,6 +70,13 @@ export async function fetchSessionFromApi(): Promise<Session | null> {
       clearTimeout(timeoutId);
       if (!res.ok) {
         cached = { session: null, at: Date.now() };
+        if (res.status === 401 && typeof window !== "undefined") {
+          invalidateSessionCache();
+          const path = window.location.pathname || "";
+          if (!path.startsWith("/login") && !path.startsWith("/signup")) {
+            window.location.href = "/login?error=session_expired";
+          }
+        }
         return null;
       }
       const data = (await res.json()) as Record<string, unknown>;

@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosError } from "axios";
 import { getSession, signOut } from "@/lib/auth-client";
+import { invalidateSessionCache } from "@/lib/session-fetcher";
 import { clearOnboardingFromStorage } from "@/lib/onboarding-storage";
 
 type SessionWithBypass = {
@@ -43,8 +44,25 @@ function setupSubscriptionExpirationInterceptor(instance: AxiosInstance) {
   instance.interceptors.response.use(
     (response) => response,
     async (error: AxiosError<{ error?: string; message?: string }>) => {
+      const status = error.response?.status;
+
+      // 401: session expired or not authenticated → auto logout and redirect to login
+      if (status === 401) {
+        if (isRedirecting) return Promise.reject(error);
+        isRedirecting = true;
+        invalidateSessionCache();
+        clearOnboardingFromStorage();
+        signOut({
+          callbackUrl: "/login?error=session_expired",
+        }).catch(() => {
+          window.location.href = "/login?error=session_expired";
+        });
+        return Promise.reject(error);
+      }
+
+      // 403 subscription_expired → logout and redirect with message
       if (
-        error.response?.status === 403 &&
+        status === 403 &&
         error.response?.data &&
         typeof error.response.data === "object" &&
         "error" in error.response.data &&
