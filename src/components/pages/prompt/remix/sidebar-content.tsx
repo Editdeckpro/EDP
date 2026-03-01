@@ -26,7 +26,13 @@ import { FC, useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { SetRemixResType } from ".";
-import { remixFormDataSubmit } from "./request";
+import { GetAxiosWithAuth } from "@/lib/axios-instance";
+import {
+  submitRemix,
+  isGenerationSuccess,
+  isInsufficientCredits,
+  isGenerationError,
+} from "@/lib/api/generations";
 import { elementSuggestions, genreSuggestions } from "../generate/generation-form/generation-form";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -81,21 +87,39 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
       setIsSubmitting(true);
       setData("loading");
       setPrompt(values.customPrompt);
-      const data = await remixFormDataSubmit(values);
+      const axios = await GetAxiosWithAuth();
+      const result = await submitRemix(axios, {
+        userPrompt: values.customPrompt,
+        imgSimilarityPercentage: values.imageSimilarity,
+        noOfImages: 1,
+        apiProvider: values.apiProvider ?? "nano_banana",
+        imageUrl: values.imageUrl ?? undefined,
+        imageFile: values.referenceImage,
+      });
       setIsSubmitting(false);
 
-      if (data === "error") {
-        toast.error("Something went wrong", {
-          description: "Please try submitting form again",
+      if (isInsufficientCredits(result)) {
+        toast.error("Monthly limit reached", {
+          description: "You've used all generations for this month. Upgrade your plan for more.",
         });
-        form.reset();
+        setData(null);
         return;
-      } else {
-        update();
-        refetchUsage(); // Refresh generations count in header badge (bypasses cache)
-        setTimeout(() => refetchUsage(), 2000); // Refetch again in case backend committed after first response
       }
-      setData(data);
+      if (isGenerationError(result)) {
+        toast.error("Something went wrong", { description: result.message });
+        form.reset();
+        setData(null);
+        return;
+      }
+      if (isGenerationSuccess(result)) {
+        update();
+        refetchUsage();
+        setTimeout(() => refetchUsage(), 2000);
+        setData(result);
+        return;
+      }
+      toast.error("Something went wrong", { description: "Please try submitting form again" });
+      setData(null);
     } catch (err) {
       console.error(err);
       setIsSubmitting(false);

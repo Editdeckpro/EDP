@@ -14,7 +14,13 @@ import { FC, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { SetGenerateResType } from "..";
-import { generateFormDataSubmit } from "../request";
+import { GetAxiosWithAuth } from "@/lib/axios-instance";
+import {
+  submitCustom,
+  isGenerationSuccess,
+  isInsufficientCredits,
+  isGenerationError,
+} from "@/lib/api/generations";
 import { uploadReferenceImageClient } from "../upload-reference";
 import GenerateForm from "./generation-form";
 import MainGenerateForm from "./main-generation-form";
@@ -143,38 +149,37 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
           return;
         }
       }
-      // Only pass serializable fields – no referenceImage (File) so payload never triggers 403
-      const result = await generateFormDataSubmit({
-        numberOfImages: values.numberOfImages,
-        apiProvider: values.apiProvider,
-        customPrompt: values.customPrompt,
+      const axios = await GetAxiosWithAuth();
+      const result = await submitCustom(axios, {
+        userPrompt: values.customPrompt,
+        noOfImages: values.numberOfImages,
+        apiProvider: values.apiProvider ?? "nano_banana",
         imageUrl,
       });
       setIsSubmitting(false);
 
-      if (result === "insufficient_credits") {
+      if (isInsufficientCredits(result)) {
         toast.error("Monthly limit reached", {
           description: "You've used all generations for this month. Upgrade your plan for more.",
         });
         setData(null);
         return;
       }
-      if (result === "error" || (typeof result === "object" && result !== null && "error" in result)) {
-        const message = typeof result === "object" && result !== null && "error" in result
-          ? (result as { error: string }).error
-          : "Please try submitting form again";
-        toast.error("Generation failed", {
-          description: message,
-        });
+      if (isGenerationError(result)) {
+        toast.error("Generation failed", { description: result.message });
         setData(null);
         return;
-      } else {
-        console.log("[EditDeck] Generate: refreshing session after successful generation");
-        update(); // Update session to refresh user data
-        refetchUsage(); // Refresh generations count in header badge (bypasses cache)
-        setTimeout(() => refetchUsage(), 2000); // Refetch again in case backend committed after first response
       }
-      setData(result);
+      if (isGenerationSuccess(result)) {
+        console.log("[EditDeck] Generate: refreshing session after successful generation");
+        update();
+        refetchUsage();
+        setTimeout(() => refetchUsage(), 2000);
+        setData(result);
+        return;
+      }
+      toast.error("Generation failed", { description: "Please try submitting form again" });
+      setData(null);
       return;
     } catch (err) {
       setIsSubmitting(false);
