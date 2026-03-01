@@ -52,7 +52,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
   const [modelOpen, setModelOpen] = useState<boolean>(true);
   const [imageBase64, setImageBase64] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const { status, data, update } = useSession();
+  const { status, data } = useSession();
   const { generationsUsedThisMonth, monthlyLimit, refetch: refetchUsage } = useUserUsage();
   const bypassSubscription = Boolean(data?.user?.bypassSubscription);
   const atMonthlyLimit = !bypassSubscription && monthlyLimit !== null && generationsUsedThisMonth >= monthlyLimit;

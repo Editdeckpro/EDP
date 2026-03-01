@@ -34,7 +34,7 @@ interface GenerateFormProps {
 
 const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const { data, status, update } = useSession();
+  const { data, status } = useSession();
   const { generationsUsedThisMonth, monthlyLimit, refetch: refetchUsage } = useUserUsage();
   const bypassSubscription = Boolean(data?.user?.bypassSubscription);
   const atMonthlyLimit = !bypassSubscription && monthlyLimit !== null && generationsUsedThisMonth >= monthlyLimit;
