@@ -171,7 +171,8 @@ const GenerateFilterForm: FC<GenerateFormProps> = ({ setData }) => {
       } else {
         console.log("[EditDeck] Generate: refreshing session after successful generation");
         update(); // Update session to refresh user data
-        refetchUsage(); // Refresh generations count in header badge
+        refetchUsage(); // Refresh generations count in header badge (bypasses cache)
+        setTimeout(() => refetchUsage(), 2000); // Refetch again in case backend committed after first response
       }
       setData(result);
       return;

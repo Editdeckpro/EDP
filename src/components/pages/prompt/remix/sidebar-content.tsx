@@ -92,7 +92,8 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
         return;
       } else {
         update();
-        refetchUsage(); // Refresh generations count in header badge
+        refetchUsage(); // Refresh generations count in header badge (bypasses cache)
+        setTimeout(() => refetchUsage(), 2000); // Refetch again in case backend committed after first response
       }
       setData(data);
     } catch (err) {
