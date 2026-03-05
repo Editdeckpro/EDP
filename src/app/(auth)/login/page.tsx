@@ -15,7 +15,7 @@ export default function Page() {
         <h2 className="text-2xl font-bold text-foreground">
           Log in to Edit Deck Pro!
         </h2>
-        <p className="text-muted-foreground">Login. Create. Inspire.</p>
+        <p className="text-muted-foreground">Design. Release. Repeat.</p>
       </div>
 
       {/* Login Form */}
