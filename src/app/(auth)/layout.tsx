@@ -20,7 +20,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
       </section>
 
       {/* Login Form Section */}
-      <section className="w-full md:w-1/3 flex items-center justify-center bg-white p-8 md:relative">
+      <section className="w-full md:w-1/3 flex items-center justify-center bg-[#0a0a0a] text-white p-8 md:relative">
         <div className="w-full max-w-md space-y-8">
           {/* Logo */}
           <div className="flex justify-center">

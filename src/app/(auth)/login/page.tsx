@@ -12,10 +12,10 @@ export default function Page() {
       
       {/* Login Header */}
       <div className="text-center space-y-1">
-        <h2 className="text-2xl font-bold text-foreground">
+        <h2 className="text-2xl font-bold text-white">
           Log in to Edit Deck Pro!
         </h2>
-        <p className="text-muted-foreground">Design. Release. Repeat.</p>
+        <p className="text-white/60">Design. Release. Repeat.</p>
       </div>
 
       {/* Login Form */}
@@ -27,7 +27,7 @@ export default function Page() {
           <div className="w-full border-t border-border"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-background text-muted-foreground">Or</span>
+          <span className="px-2 bg-[#0a0a0a] text-white/60">Or</span>
         </div>
       </div>
 
@@ -36,7 +36,7 @@ export default function Page() {
 
       {/* Register Link */}
       <div className="text-center">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-white/60">
           Don&apos;t have an account?{" "}
           <a
             href="https://editdeckpro.com/pricing-plans/"
