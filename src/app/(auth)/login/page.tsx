@@ -13,7 +13,7 @@ export default function Page() {
       {/* Login Header */}
       <div className="text-center space-y-1">
         <h2 className="text-2xl font-bold text-foreground">
-          Log in to Editdeck!
+          Log in to Edit Deck Pro!
         </h2>
         <p className="text-muted-foreground">Login. Create. Inspire.</p>
       </div>
