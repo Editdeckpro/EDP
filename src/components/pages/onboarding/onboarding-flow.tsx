@@ -72,6 +72,11 @@ export default function OnboardingFlow() {
     }
   };
 
+  const handleSkip = () => {
+    setOnboardingCompleteInStorage(true);
+    router.push("/");
+  };
+
   const handleGenerateFirstImage = () => {
     router.push("/image-generation/generate");
   };
@@ -129,6 +134,13 @@ export default function OnboardingFlow() {
       {/* Right blurs */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/50 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-indigo-500/45 rounded-full blur-3xl -z-10" />
+      {/* Skip button */}
+      <button
+        onClick={handleSkip}
+        className="absolute top-5 right-6 z-20 text-sm text-gray-500 hover:text-gray-800 underline underline-offset-2 transition-colors"
+      >
+        Skip for now
+      </button>
       <div className="w-full max-w-2xl relative z-10">{renderStep()}</div>
     </div>
   );

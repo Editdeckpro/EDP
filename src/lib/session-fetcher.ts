@@ -63,9 +63,11 @@ export async function fetchSessionFromApi(): Promise<Session | null> {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), SESSION_FETCH_TIMEOUT_MS);
+      const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
       const res = await fetch(`${base}/api/user`, {
         credentials: "include",
         signal: controller.signal,
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       clearTimeout(timeoutId);
       if (!res.ok) {

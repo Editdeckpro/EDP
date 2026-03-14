@@ -115,6 +115,15 @@ export async function signIn(
         if (res.status === 403) return { ok: false, error: (err?.message as string) || "Invalid password" };
         return { ok: false, error: (err?.message as string) || "Login failed" };
       }
+      const data = await res.json().catch(() => ({}));
+      if (data?.accessToken && typeof window !== "undefined") {
+        localStorage.setItem("auth_token", data.accessToken);
+        await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: data.accessToken }),
+        });
+      }
     }
     invalidateSessionCache();
     return { ok: true };
@@ -129,6 +138,14 @@ const SIGNOUT_TIMEOUT_MS = 8_000;
 /** Sign out via backend (cookie cleared by backend). No frontend API routes. */
 export async function signOut(options?: { callbackUrl?: string; redirect?: boolean }): Promise<void> {
   const base = getBackendUrl().replace(/\/$/, "");
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("auth_token");
+  }
+  try {
+    await fetch("/api/auth/signout", { method: "POST" });
+  } catch {
+    // best-effort
+  }
   try {
     if (base) {
       const controller = new AbortController();

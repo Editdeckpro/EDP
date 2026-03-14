@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
+import { clearAuthCookie } from "@/lib/auth-server";
 
-/**
- * Auth is handled entirely on the backend. Use POST backend /auth/logout with credentials to sign out.
- */
 export async function POST() {
-  return NextResponse.json(
-    { error: "moved", message: "Use backend POST /auth/logout with credentials" },
-    { status: 410 }
-  );
+  try {
+    await clearAuthCookie();
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: "Failed to clear session" }, { status: 500 });
+  }
 }
