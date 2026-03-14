@@ -47,6 +47,15 @@ export async function createLyricVideoClient(data: {
 }
 
 /**
+ * Transcribe audio to text using Whisper (client-side)
+ */
+export async function transcribeAudioClient(audioId: string): Promise<{ transcript: string }> {
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.post<{ transcript: string }>("lyric-videos/transcribe", { audioId });
+  return response.data;
+}
+
+/**
  * Align lyrics timing (client-side)
  */
 export async function alignTimingClient(audioId: string, lyrics: string): Promise<TimingData> {

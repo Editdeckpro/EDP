@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { FileText, Upload } from "lucide-react";
-import { createLyricVideoClient, alignTimingClient } from "@/components/pages/lyric-video/api";
+import { FileText, Loader2, Upload } from "lucide-react";
+import { createLyricVideoClient, transcribeAudioClient } from "@/components/pages/lyric-video/api";
 
 type LyricVideoWizardData = {
   audioId?: string;
@@ -24,6 +24,21 @@ interface AddLyricsStepProps {
 export default function AddLyricsStep({ onNext, onPrev, onDataUpdate, videoData }: AddLyricsStepProps) {
   const [lyrics, setLyrics] = useState<string>(videoData.lyrics || "");
   const [loading, setLoading] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
+
+  useEffect(() => {
+    if (!videoData.audioId || videoData.lyrics) return;
+
+    setTranscribing(true);
+    transcribeAudioClient(videoData.audioId)
+      .then(({ transcript }) => {
+        if (transcript) setLyrics(transcript);
+      })
+      .catch(() => {
+        toast.error("Auto-transcription failed — you can type your lyrics manually");
+      })
+      .finally(() => setTranscribing(false));
+  }, [videoData.audioId, videoData.lyrics]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -63,22 +78,10 @@ export default function AddLyricsStep({ onNext, onPrev, onDataUpdate, videoData 
         return;
       }
 
-      // Wait a bit for AI timing alignment to start
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Get timing data (it might still be processing)
-      let timingResult = null;
-      try {
-        timingResult = await alignTimingClient(videoData.audioId, lyrics.trim());
-      } catch (timingError: unknown) {
-        console.warn("Timing alignment may still be processing:", timingError);
-        // Continue even if timing isn't ready yet - user can regenerate later
-      }
-
       onDataUpdate({
         lyrics: lyrics.trim(),
         lyricVideoId: createResult.lyricVideoId,
-        timingData: timingResult || null,
+        timingData: null,
       });
 
       toast.success("Lyrics added successfully");
@@ -104,7 +107,16 @@ export default function AddLyricsStep({ onNext, onPrev, onDataUpdate, videoData 
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <Label htmlFor="lyrics">Lyrics</Label>
+          <Label htmlFor="lyrics">
+            {transcribing ? (
+              <span className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Transcribing lyrics...
+              </span>
+            ) : (
+              "Lyrics"
+            )}
+          </Label>
           <div className="flex items-center gap-2">
             <Label
               htmlFor="file-upload"
@@ -127,7 +139,8 @@ export default function AddLyricsStep({ onNext, onPrev, onDataUpdate, videoData 
           id="lyrics"
           value={lyrics}
           onChange={(e) => setLyrics(e.target.value)}
-          placeholder="Enter your lyrics here...&#10;Each line will be displayed separately&#10;&#10;Example:&#10;Hello world&#10;This is a test&#10;Of lyric videos"
+          disabled={transcribing}
+          placeholder={transcribing ? "Transcribing your audio..." : "Enter your lyrics here...\nEach line will be displayed separately\n\nExample:\nHello world\nThis is a test\nOf lyric videos"}
           className="min-h-[300px] font-mono text-sm"
         />
 
@@ -144,7 +157,7 @@ export default function AddLyricsStep({ onNext, onPrev, onDataUpdate, videoData 
         <Button variant="outline" onClick={onPrev} disabled={loading}>
           Previous
         </Button>
-        <Button onClick={handleNext} disabled={!lyrics.trim() || loading}>
+        <Button onClick={handleNext} disabled={!lyrics.trim() || loading || transcribing}>
           {loading ? "Processing..." : "Next: Edit Timing"}
         </Button>
       </div>
