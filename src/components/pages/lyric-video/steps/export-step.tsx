@@ -214,14 +214,27 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
     pollingIntervalRef.current = interval;
   };
 
-  const handleDownload = () => {
-    if (finalVideoUrl) {
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    if (!finalVideoUrl) return;
+    setDownloading(true);
+    try {
+      const response = await fetch(finalVideoUrl);
+      if (!response.ok) throw new Error("Failed to fetch video");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.href = finalVideoUrl;
+      link.href = url;
       link.download = `lyric-video-${videoData.lyricVideoId || ""}.mp4`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Download failed. Try right-clicking the video and saving.");
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -310,9 +323,12 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
             <ReactPlayer url={finalVideoUrl} controls width="100%" height="100%" />
           </div>
           <div className="flex gap-2">
-            <Button onClick={handleDownload} className="flex-1">
-              <Download className="h-4 w-4 mr-2" />
-              Download Video
+            <Button onClick={handleDownload} disabled={downloading} className="flex-1">
+              {downloading ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Downloading...</>
+              ) : (
+                <><Download className="h-4 w-4 mr-2" />Download Video</>
+              )}
             </Button>
             <Button onClick={onComplete} variant="outline" className="flex-1">
               <CheckCircle2 className="h-4 w-4 mr-2" />
