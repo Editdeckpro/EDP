@@ -81,13 +81,7 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
 
     try {
       const result = await generateFinalVideoClient(videoData.lyricVideoId, aspectRatio);
-      if (result.finalUrl) {
-        setFinalVideoUrl(result.finalUrl);
-        setGenerating(false);
-        setStatus("completed");
-        toast.success("Video generated successfully!");
-        return;
-      }
+      // Always poll — render runs in background on the server
       pollJobStatus(result.jobId, lyricVideoId);
     } catch (error: unknown) {
       const err = error as { message?: string };
@@ -320,7 +314,16 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
       {finalVideoUrl && status === "completed" && (
         <div className="space-y-4">
           <div className="bg-black rounded-lg overflow-hidden aspect-video">
-            <ReactPlayer url={finalVideoUrl} controls width="100%" height="100%" />
+            <ReactPlayer
+              url={finalVideoUrl}
+              controls
+              width="100%"
+              height="100%"
+              onError={(e: unknown) => {
+                console.error("ReactPlayer error:", e);
+                toast.error("Video failed to load. Try downloading directly.");
+              }}
+            />
           </div>
           <div className="flex gap-2">
             <Button onClick={handleDownload} disabled={downloading} className="flex-1">

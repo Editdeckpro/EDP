@@ -81,18 +81,7 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
 
     try {
       const result = await generatePreviewClient(videoData.lyricVideoId);
-      
-      // If preview URL is already available (sync job completed), use it immediately
-      if (result.previewUrl) {
-        setPreviewUrl(result.previewUrl);
-        onDataUpdate({ previewUrl: result.previewUrl });
-        setStatus("completed");
-        setGenerating(false);
-        toast.success("Preview generated successfully");
-        return;
-      }
-      
-      // For sync jobs, check immediately; for async jobs, start polling
+      // Always poll — render runs in background on the server
       await pollJobStatus(result.jobId);
     } catch (error: unknown) {
       console.error("Error generating preview:", error);
@@ -302,7 +291,16 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData, o
       {previewUrl && status === "completed" && (
         <div className="space-y-4">
           <div className="bg-black rounded-lg overflow-hidden aspect-video">
-            <ReactPlayer url={previewUrl} controls width="100%" height="100%" />
+            <ReactPlayer
+              url={previewUrl}
+              controls
+              width="100%"
+              height="100%"
+              onError={(e: unknown) => {
+                console.error("ReactPlayer error:", e);
+                toast.error("Video failed to load. Try regenerating the preview.");
+              }}
+            />
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleGeneratePreview} disabled={generating}>
