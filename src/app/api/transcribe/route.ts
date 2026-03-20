@@ -40,12 +40,12 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-Save with **Ctrl+S**, then go to Git Bash and run:
+Save with **Ctrl+S**, then in Git Bash:
 ```
 git add .
 ```
 ```
-git commit -m "fix transcribe build error"
+git commit -m "fix route.ts syntax error"
 ```
 ```
 git push origin main
