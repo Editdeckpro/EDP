@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     if (audio.size > 25 * 1024 * 1024) {
       return NextResponse.json(
-        { error: "File exceeds Whisper's 25MB limit. Please use a smaller file." },
+        { error: "File exceeds Whisper's 25MB limit." },
         { status: 400 }
       );
     }
@@ -38,14 +38,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-```
-
-Save with **Ctrl+S**, then in Git Bash:
-```
-git add .
-```
-```
-git commit -m "fix route.ts syntax error"
-```
-```
-git push origin main
