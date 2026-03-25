@@ -118,7 +118,7 @@ export async function signIn(
       const data = await res.json().catch(() => ({}));
       if (data?.accessToken && typeof window !== "undefined") {
         localStorage.setItem("auth_token", data.accessToken);
-        await fetch("/api/auth/session", {
+        fetch("/api/auth/session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token: data.accessToken }),
