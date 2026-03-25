@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { setAuthCookie } from "@/lib/auth-server";
+
 export const runtime = "nodejs";
+
 export async function GET() {
   return NextResponse.json(
-    { error: "moved", message: "Use backend GET /api/user with credentials for session" },
+    { error: "moved" },
     { status: 410 }
   );
 }
@@ -14,8 +15,15 @@ export async function POST(req: NextRequest) {
     if (!token || typeof token !== "string") {
       return NextResponse.json({ error: "Token required" }, { status: 400 });
     }
-    await setAuthCookie(token);
-    return NextResponse.json({ ok: true });
+    const response = NextResponse.json({ ok: true });
+    response.cookies.set("edp_auth_token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 30 * 24 * 60 * 60,
+    });
+    return response;
   } catch {
     return NextResponse.json({ error: "Failed to set session" }, { status: 500 });
   }
