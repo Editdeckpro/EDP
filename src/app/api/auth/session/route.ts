@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { setAuthCookie } from "@/lib/auth-server";
-
+export const runtime = "nodejs";
 export async function GET() {
   return NextResponse.json(
     { error: "moved", message: "Use backend GET /api/user with credentials for session" },

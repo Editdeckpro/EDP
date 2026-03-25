@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     if (audio.size > 25 * 1024 * 1024) {
       return NextResponse.json(
-        { error: "File exceeds Whisper's 25MB limit." },
+        { error: "File exceeds Whisper's 25MB limit. Please use a smaller file." },
         { status: 400 }
       );
     }
