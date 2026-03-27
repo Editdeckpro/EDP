@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import UploadAudioStep from "@/components/pages/lyric-video/steps/upload-audio-step";
-import TrimAudioStep from "@/components/pages/lyric-video/steps/trim-audio-step";
 import AddLyricsStep from "@/components/pages/lyric-video/steps/add-lyrics-step";
 import TimingEditorStep from "@/components/pages/lyric-video/steps/timing-editor-step";
 import StyleSelectionStep from "@/components/pages/lyric-video/steps/style-selection-step";
@@ -12,14 +11,12 @@ import PreviewStep from "@/components/pages/lyric-video/steps/preview-step";
 import ExportStep from "@/components/pages/lyric-video/steps/export-step";
 import { SubscriptionRequiredModal } from "@/components/pages/auth/subscription-required-modal";
 
-type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 interface LyricVideoData {
   audioId?: string;
   audioUrl?: string;
   audioDuration?: number;
-  trimStart?: number;
-  trimEnd?: number;
   lyrics?: string;
   lyricVideoId?: number;
   timingData?: unknown;
@@ -41,6 +38,7 @@ export default function CreateLyricVideoPage() {
   const planType = session?.user?.subscription?.planType || "FREE";
   const bypassSubscription = Boolean(session?.user?.bypassSubscription);
 
+  // Check plan access
   if (!bypassSubscription && (planType === "STARTER" || planType === "FREE")) {
     return (
       <>
@@ -75,7 +73,7 @@ export default function CreateLyricVideoPage() {
   };
 
   const nextStep = () => {
-    if (currentStep < 8) {
+    if (currentStep < 7) {
       setCurrentStep((prev) => (prev + 1) as Step);
     }
   };
@@ -95,14 +93,14 @@ export default function CreateLyricVideoPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Create Lyric Video</h1>
         <p className="text-muted-foreground">
-          Step {currentStep} of 8: {getStepTitle(currentStep)}
+          Step {currentStep} of 7: {getStepTitle(currentStep)}
         </p>
       </div>
 
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => (
+          {[1, 2, 3, 4, 5, 6, 7].map((step) => (
             <div
               key={step}
               className={`flex-1 h-2 mx-1 rounded ${
@@ -113,7 +111,6 @@ export default function CreateLyricVideoPage() {
         </div>
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>Upload</span>
-          <span>Trim</span>
           <span>Lyrics</span>
           <span>Timing</span>
           <span>Style</span>
@@ -133,14 +130,6 @@ export default function CreateLyricVideoPage() {
           />
         )}
         {currentStep === 2 && (
-          <TrimAudioStep
-            onNext={nextStep}
-            onPrev={prevStep}
-            onDataUpdate={updateVideoData}
-            videoData={videoData}
-          />
-        )}
-        {currentStep === 3 && (
           <AddLyricsStep
             onNext={nextStep}
             onPrev={prevStep}
@@ -148,7 +137,7 @@ export default function CreateLyricVideoPage() {
             videoData={videoData}
           />
         )}
-        {currentStep === 4 && (
+        {currentStep === 3 && (
           <TimingEditorStep
             onNext={nextStep}
             onPrev={prevStep}
@@ -156,7 +145,7 @@ export default function CreateLyricVideoPage() {
             videoData={videoData}
           />
         )}
-        {currentStep === 5 && (
+        {currentStep === 4 && (
           <StyleSelectionStep
             onNext={nextStep}
             onPrev={prevStep}
@@ -164,7 +153,7 @@ export default function CreateLyricVideoPage() {
             videoData={videoData}
           />
         )}
-        {currentStep === 6 && (
+        {currentStep === 5 && (
           <CustomizationStep
             onNext={nextStep}
             onPrev={prevStep}
@@ -172,16 +161,16 @@ export default function CreateLyricVideoPage() {
             videoData={videoData}
           />
         )}
-        {currentStep === 7 && (
+        {currentStep === 6 && (
           <PreviewStep
             onNext={nextStep}
             onPrev={prevStep}
             onDataUpdate={updateVideoData}
             videoData={videoData}
-            onEditTiming={() => goToStep(4)}
+            onEditTiming={() => goToStep(3)}
           />
         )}
-        {currentStep === 8 && (
+        {currentStep === 7 && (
           <ExportStep
             onPrev={prevStep}
             onComplete={() => router.push("/lyric-videos")}
@@ -196,13 +185,12 @@ export default function CreateLyricVideoPage() {
 function getStepTitle(step: Step): string {
   const titles: Record<Step, string> = {
     1: "Upload Audio",
-    2: "Trim Audio",
-    3: "Add Lyrics",
-    4: "Edit Timing",
-    5: "Choose Style",
-    6: "Customize",
-    7: "Preview",
-    8: "Export",
+    2: "Add Lyrics",
+    3: "Edit Timing",
+    4: "Choose Style",
+    5: "Customize",
+    6: "Preview",
+    7: "Export",
   };
   return titles[step];
 }

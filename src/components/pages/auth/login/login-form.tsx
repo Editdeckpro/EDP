@@ -17,13 +17,14 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { signIn } from "@/lib/auth-client";
+import { getSession, signIn } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useTopLoader } from "nextjs-toploader";
 import { axiosInstance } from "@/lib/axios-instance";
 import axios, { AxiosError } from "axios";
 import { OAuthErrorModal } from "./oauth-error-modal";
+import { getOnboardingStatus } from "@/components/pages/onboarding/request";
 import { setOnboardingCompleteInStorage } from "@/lib/onboarding-storage";
 
 interface CheckUserStatusResponse {
@@ -51,6 +52,7 @@ export default function LoginForm() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const topLoader = useTopLoader();
 
+  // 1. Define your form.
   const form = useForm<loginFormSchemaType>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -59,10 +61,12 @@ export default function LoginForm() {
     },
   });
 
+  // Helper function to determine if input is email or username
   const isEmail = (input: string): boolean => {
     return input.includes("@");
   };
 
+  // 2. Check user status before attempting login
   async function checkUserStatus(usernameOrEmail: string): Promise<CheckUserStatusResponse | null> {
     try {
       const requestBody = isEmail(usernameOrEmail)
@@ -86,20 +90,24 @@ export default function LoginForm() {
     }
   }
 
+  // 3. Define a submit handler.
   async function onSubmit(data: loginFormSchemaType) {
     setLoading(true);
     topLoader.start();
 
     try {
+      // First, check user status
       const statusResponse = await checkUserStatus(data.username);
 
       if (!statusResponse) {
+        // Network or unexpected error
         toast.error("Unable to verify account. Please try again.");
         setLoading(false);
         topLoader.done();
         return;
       }
 
+      // Handle user not found
       if (!statusResponse.exists || statusResponse.error === "user_not_found") {
         setErrorType("user_not_found");
         setErrorMessage(
@@ -111,6 +119,7 @@ export default function LoginForm() {
         return;
       }
 
+      // Handle subscription-related errors
       if (!statusResponse.canLogin && statusResponse.error) {
         setErrorType(statusResponse.error);
         setErrorMessage(statusResponse.message || null);
@@ -120,6 +129,7 @@ export default function LoginForm() {
         return;
       }
 
+      // User can login, proceed with authentication
       if (statusResponse.canLogin) {
         const res = await signIn({
           username: data.username,
@@ -127,7 +137,15 @@ export default function LoginForm() {
         });
 
         if (res?.ok) {
-          setOnboardingCompleteInStorage(false);
+          try {
+            const session = await getSession();
+            if (session?.user) {
+              const onboardingStatus = await getOnboardingStatus();
+              setOnboardingCompleteInStorage(onboardingStatus.isComplete);
+            }
+          } catch {
+            setOnboardingCompleteInStorage(false);
+          }
           toast.success("Logged in!");
           window.location.href = "/";
         } else {
@@ -136,6 +154,7 @@ export default function LoginForm() {
           topLoader.done();
         }
       } else {
+        // Fallback: unexpected state
         toast.error("Unable to login. Please try again.");
         setLoading(false);
         topLoader.done();
