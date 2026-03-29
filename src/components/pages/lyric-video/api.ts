@@ -152,6 +152,34 @@ export async function getJobStatusClient(jobId: string): Promise<JobStatusRespon
 }
 
 /**
+ * Upload a background image (client-side)
+ */
+export async function uploadBackgroundImageClient(file: File): Promise<{ imageUrl: string }> {
+  const formData = new FormData();
+  formData.append("image", file);
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.post<{ imageUrl: string }>("lyric-videos/upload-background", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data;
+}
+
+/**
+ * Generate an AI background image for a lyric video (client-side)
+ */
+export async function generateBackgroundImageClient(
+  lyricVideoId: number,
+  prompt: string
+): Promise<{ imageUrl: string }> {
+  const axios = await GetAxiosWithAuth();
+  const response = await axios.post<{ imageUrl: string }>(
+    `lyric-videos/${lyricVideoId}/generate-background`,
+    { prompt }
+  );
+  return response.data;
+}
+
+/**
  * Update lyric video settings (client-side)
  */
 export async function updateLyricVideoClient(

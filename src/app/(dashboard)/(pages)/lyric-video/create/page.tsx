@@ -2,34 +2,46 @@
 import { useState } from "react";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { Check } from "lucide-react";
 import UploadAudioStep from "@/components/pages/lyric-video/steps/upload-audio-step";
-import TrimAudioStep from "@/components/pages/lyric-video/steps/trim-audio-step";
+import TranscribeStep from "@/components/pages/lyric-video/steps/transcribe-step";
 import AddLyricsStep from "@/components/pages/lyric-video/steps/add-lyrics-step";
-import TimingEditorStep from "@/components/pages/lyric-video/steps/timing-editor-step";
+import TrimAudioStep from "@/components/pages/lyric-video/steps/trim-audio-step";
 import StyleSelectionStep from "@/components/pages/lyric-video/steps/style-selection-step";
-import CustomizationStep from "@/components/pages/lyric-video/steps/customization-step";
+import BackgroundSelectionStep from "@/components/pages/lyric-video/steps/background-selection-step";
 import PreviewStep from "@/components/pages/lyric-video/steps/preview-step";
 import ExportStep from "@/components/pages/lyric-video/steps/export-step";
 import { SubscriptionRequiredModal } from "@/components/pages/auth/subscription-required-modal";
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-interface LyricVideoData {
+export interface LyricVideoData {
   audioId?: string;
   audioUrl?: string;
   audioDuration?: number;
-  trimStart?: number;
-  trimEnd?: number;
   lyrics?: string;
   lyricVideoId?: number;
-  timingData?: unknown;
+  trimStart?: number;
+  trimEnd?: number;
   style?: string;
   font?: string;
   textColor?: string;
   highlightColor?: string;
   backgroundColor?: string;
   backgroundImage?: string;
+  previewUrl?: string;
 }
+
+const STEPS = [
+  { num: 1, label: "Upload" },
+  { num: 2, label: "Transcribe" },
+  { num: 3, label: "Lyrics" },
+  { num: 4, label: "Trim" },
+  { num: 5, label: "Style" },
+  { num: 6, label: "Background" },
+  { num: 7, label: "Preview" },
+  { num: 8, label: "Export" },
+];
 
 export default function CreateLyricVideoPage() {
   const { data: session } = useSession();
@@ -44,14 +56,15 @@ export default function CreateLyricVideoPage() {
   if (!bypassSubscription && (planType === "STARTER" || planType === "FREE")) {
     return (
       <>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
-          <h1 className="text-2xl font-bold">Lyric Videos Not Available</h1>
-          <p className="text-muted-foreground">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center">
+          <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center text-3xl">🎬</div>
+          <h1 className="text-2xl font-bold">Lyric Videos</h1>
+          <p className="text-muted-foreground max-w-sm">
             Lyric videos are available on Next Level and Pro Studio plans.
           </p>
           <button
             onClick={() => setShowUpgradeModal(true)}
-            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+            className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
           >
             Upgrade Plan
           </button>
@@ -61,7 +74,7 @@ export default function CreateLyricVideoPage() {
           onOpenChange={setShowUpgradeModal}
           details={{
             title: "Upgrade Required",
-            message: "Lyric videos are not available on your current plan. Please upgrade to Next Level or Pro Studio plan.",
+            message: "Lyric videos are not available on your current plan. Please upgrade to Next Level or Pro Studio.",
             actionLink: "/subscription",
             actionText: "View Plans",
           }}
@@ -75,134 +88,84 @@ export default function CreateLyricVideoPage() {
   };
 
   const nextStep = () => {
-    if (currentStep < 8) {
-      setCurrentStep((prev) => (prev + 1) as Step);
-    }
+    if (currentStep < 8) setCurrentStep((prev) => (prev + 1) as Step);
   };
 
   const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep((prev) => (prev - 1) as Step);
-    }
-  };
-
-  const goToStep = (step: Step) => {
-    setCurrentStep(step);
+    if (currentStep > 1) setCurrentStep((prev) => (prev - 1) as Step);
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto px-4 py-8 max-w-3xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Create Lyric Video</h1>
-        <p className="text-muted-foreground">
-          Step {currentStep} of 8: {getStepTitle(currentStep)}
-        </p>
+        <h1 className="text-2xl font-bold">Create Lyric Video</h1>
+        <p className="text-sm text-muted-foreground mt-1">Step {currentStep} of 8</p>
       </div>
 
-      {/* Progress Bar */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => (
-            <div
-              key={step}
-              className={`flex-1 h-2 mx-1 rounded ${
-                step <= currentStep ? "bg-primary" : "bg-muted"
-              }`}
-            />
+      {/* Stepper */}
+      <div className="mb-10">
+        <div className="flex items-start">
+          {STEPS.map((step, i) => (
+            <div key={step.num} className="flex items-start flex-1 min-w-0">
+              <div className="flex flex-col items-center w-full">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold border-2 transition-all shrink-0 ${
+                    step.num < currentStep
+                      ? "bg-primary border-primary text-primary-foreground"
+                      : step.num === currentStep
+                      ? "border-primary text-primary bg-primary/10"
+                      : "border-border text-muted-foreground"
+                  }`}
+                >
+                  {step.num < currentStep ? <Check className="w-3.5 h-3.5" /> : step.num}
+                </div>
+                <span
+                  className={`text-xs mt-1.5 text-center hidden sm:block truncate max-w-full px-0.5 ${
+                    step.num === currentStep ? "text-foreground font-medium" : "text-muted-foreground"
+                  }`}
+                >
+                  {step.label}
+                </span>
+              </div>
+              {i < STEPS.length - 1 && (
+                <div
+                  className={`flex-1 h-px mt-4 mx-0.5 transition-colors ${
+                    step.num < currentStep ? "bg-primary" : "bg-border"
+                  }`}
+                />
+              )}
+            </div>
           ))}
         </div>
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Upload</span>
-          <span>Trim</span>
-          <span>Lyrics</span>
-          <span>Timing</span>
-          <span>Style</span>
-          <span>Customize</span>
-          <span>Preview</span>
-          <span>Export</span>
-        </div>
       </div>
 
-      {/* Step Content */}
-      <div className="bg-card rounded-lg p-6">
+      {/* Step content */}
+      <div className="bg-card border rounded-xl p-6 shadow-sm">
         {currentStep === 1 && (
-          <UploadAudioStep
-            onNext={nextStep}
-            onDataUpdate={updateVideoData}
-            videoData={videoData}
-          />
+          <UploadAudioStep onNext={nextStep} onDataUpdate={updateVideoData} videoData={videoData} />
         )}
         {currentStep === 2 && (
-          <TrimAudioStep
-            onNext={nextStep}
-            onPrev={prevStep}
-            onDataUpdate={updateVideoData}
-            videoData={videoData}
-          />
+          <TranscribeStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
         )}
         {currentStep === 3 && (
-          <AddLyricsStep
-            onNext={nextStep}
-            onPrev={prevStep}
-            onDataUpdate={updateVideoData}
-            videoData={videoData}
-          />
+          <AddLyricsStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
         )}
         {currentStep === 4 && (
-          <TimingEditorStep
-            onNext={nextStep}
-            onPrev={prevStep}
-            onDataUpdate={updateVideoData}
-            videoData={videoData}
-          />
+          <TrimAudioStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
         )}
         {currentStep === 5 && (
-          <StyleSelectionStep
-            onNext={nextStep}
-            onPrev={prevStep}
-            onDataUpdate={updateVideoData}
-            videoData={videoData}
-          />
+          <StyleSelectionStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
         )}
         {currentStep === 6 && (
-          <CustomizationStep
-            onNext={nextStep}
-            onPrev={prevStep}
-            onDataUpdate={updateVideoData}
-            videoData={videoData}
-          />
+          <BackgroundSelectionStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
         )}
         {currentStep === 7 && (
-          <PreviewStep
-            onNext={nextStep}
-            onPrev={prevStep}
-            onDataUpdate={updateVideoData}
-            videoData={videoData}
-            onEditTiming={() => goToStep(4)}
-          />
+          <PreviewStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
         )}
         {currentStep === 8 && (
-          <ExportStep
-            onPrev={prevStep}
-            onComplete={() => router.push("/lyric-videos")}
-            videoData={videoData}
-          />
+          <ExportStep onPrev={prevStep} onComplete={() => router.push("/lyric-videos")} videoData={videoData} />
         )}
       </div>
     </div>
   );
-}
-
-function getStepTitle(step: Step): string {
-  const titles: Record<Step, string> = {
-    1: "Upload Audio",
-    2: "Trim Audio",
-    3: "Add Lyrics",
-    4: "Edit Timing",
-    5: "Choose Style",
-    6: "Customize",
-    7: "Preview",
-    8: "Export",
-  };
-  return titles[step];
 }

@@ -2,15 +2,20 @@
 import { useEffect, useRef, useState } from "react";
 import type { ComponentType } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Download, CheckCircle2 } from "lucide-react";
-import { generateFinalVideoClient, getJobStatusClient, getLyricVideoByIdClient } from "@/components/pages/lyric-video/api";
+import { Loader2, Download, CheckCircle2, Video } from "lucide-react";
+import {
+  generateFinalVideoClient,
+  getJobStatusClient,
+  getLyricVideoByIdClient,
+} from "@/components/pages/lyric-video/api";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import { Check } from "lucide-react";
 
-const ReactPlayer = dynamic(() => import("react-player"), { ssr: false }) as unknown as ComponentType<Record<string, unknown>>;
+const ReactPlayer = dynamic(() => import("react-player"), {
+  ssr: false,
+}) as unknown as ComponentType<Record<string, unknown>>;
 
 interface ExportStepProps {
   onPrev: () => void;
@@ -18,59 +23,108 @@ interface ExportStepProps {
   videoData: { lyricVideoId?: number };
 }
 
-const ASPECT_RATIOS = [
-  { value: "1:1", label: "1:1 (Instagram)", description: "1080x1080" },
-  { value: "9:16", label: "9:16 (TikTok/Reels)", description: "1080x1920" },
-  { value: "16:9", label: "16:9 (YouTube)", description: "1920x1080" },
+const ASPECT_RATIOS: { value: "1:1" | "9:16" | "16:9"; label: string; sub: string; icon: string }[] = [
+  { value: "1:1", label: "Square", sub: "Instagram · 1080×1080", icon: "⬜" },
+  { value: "9:16", label: "Portrait", sub: "TikTok · Reels · 1080×1920", icon: "📱" },
+  { value: "16:9", label: "Landscape", sub: "YouTube · 1920×1080", icon: "🖥" },
 ];
 
 export default function ExportStep({ onPrev, onComplete, videoData }: ExportStepProps) {
   const [aspectRatio, setAspectRatio] = useState<"1:1" | "9:16" | "16:9">("16:9");
   const [generating, setGenerating] = useState(false);
-  const [finalVideoUrl, setFinalVideoUrl] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
-  const [progressPercent, setProgressPercent] = useState<number>(0);
-  const [progressStage, setProgressStage] = useState<string>("");
-  const [framesDone, setFramesDone] = useState<number>(0);
-  const [totalFrames, setTotalFrames] = useState<number>(0);
-  const [previewFrameUrl, setPreviewFrameUrl] = useState<string>("");
-  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [finalVideoUrl, setFinalVideoUrl] = useState("");
+  const [status, setStatus] = useState("");
+  const [progressPercent, setProgressPercent] = useState(0);
+  const [progressStage, setProgressStage] = useState("");
+  const [framesDone, setFramesDone] = useState(0);
+  const [totalFrames, setTotalFrames] = useState(0);
+  const [previewFrameUrl, setPreviewFrameUrl] = useState("");
+  const [downloading, setDownloading] = useState(false);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-        pollingIntervalRef.current = null;
-      }
-    };
+    return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
   }, []);
 
   useEffect(() => {
-    const checkExistingFinal = async () => {
-      if (!videoData.lyricVideoId) return;
-      try {
-        const result = await getLyricVideoByIdClient(videoData.lyricVideoId);
+    if (!videoData.lyricVideoId || finalVideoUrl) return;
+    getLyricVideoByIdClient(videoData.lyricVideoId)
+      .then((result) => {
         if (result.finalVideoUrl) {
           setFinalVideoUrl(result.finalVideoUrl);
           setStatus("completed");
         }
-      } catch {
-        console.error("Error checking final video");
-      }
-    };
-    if (videoData.lyricVideoId && !finalVideoUrl) {
-      checkExistingFinal();
-    }
+      })
+      .catch(() => {});
   }, [finalVideoUrl, videoData.lyricVideoId]);
+
+  const applyProgress = (p: unknown) => {
+    if (p && typeof p === "object") {
+      const prog = p as {
+        percent?: unknown;
+        stage?: unknown;
+        frame?: unknown;
+        totalFrames?: unknown;
+        previewImageUrl?: unknown;
+      };
+      if (typeof prog.percent === "number") setProgressPercent(Math.max(0, Math.min(100, Math.round(prog.percent))));
+      if (typeof prog.stage === "string") setProgressStage(prog.stage);
+      if (typeof prog.frame === "number") setFramesDone(prog.frame);
+      if (typeof prog.totalFrames === "number") setTotalFrames(prog.totalFrames);
+      if (typeof prog.previewImageUrl === "string") {
+        const be = process.env.NEXT_PUBLIC_BE_URL || "";
+        const url = `${be}${prog.previewImageUrl}`;
+        setPreviewFrameUrl(`${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`);
+      }
+    } else if (typeof p === "number") {
+      setProgressPercent(Math.max(0, Math.min(100, Math.round(p))));
+    }
+  };
+
+  const finishWithSuccess = async (lyricVideoId: number) => {
+    setGenerating(false);
+    setStatus("completed");
+    const result = await getLyricVideoByIdClient(lyricVideoId);
+    if (result.finalVideoUrl) setFinalVideoUrl(result.finalVideoUrl);
+    toast.success("Video ready to download!");
+  };
+
+  const startPolling = (jobId: string, lyricVideoId: number) => {
+    if (pollingRef.current) clearInterval(pollingRef.current);
+    const startedAt = Date.now();
+    const interval = setInterval(async () => {
+      if (Date.now() - startedAt > 10 * 60 * 1000) {
+        clearInterval(interval);
+        setGenerating(false);
+        setStatus("failed");
+        toast.error("Export is taking too long. Please try again.");
+        return;
+      }
+      try {
+        const result = await getJobStatusClient(jobId);
+        applyProgress(result.progress);
+        if (result.state === "completed") {
+          clearInterval(interval);
+          await finishWithSuccess(lyricVideoId);
+        } else if (result.state === "failed") {
+          clearInterval(interval);
+          setGenerating(false);
+          setStatus("failed");
+          toast.error(result.failedReason || "Export failed");
+        }
+      } catch {
+        // continue polling
+      }
+    }, 2000);
+    pollingRef.current = interval;
+  };
 
   const handleGenerate = async () => {
     if (!videoData.lyricVideoId) {
       toast.error("Lyric video not found");
       return;
     }
-
     const lyricVideoId = videoData.lyricVideoId;
-
     setGenerating(true);
     setStatus("generating");
     setProgressPercent(0);
@@ -80,153 +134,51 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
     setPreviewFrameUrl("");
 
     try {
-      const result = await generateFinalVideoClient(videoData.lyricVideoId, aspectRatio);
-      // Always poll — render runs in background on the server
-      pollJobStatus(result.jobId, lyricVideoId);
+      const result = await generateFinalVideoClient(lyricVideoId, aspectRatio);
+      if (result.jobId.startsWith("sync-")) {
+        await new Promise((r) => setTimeout(r, 1000));
+        try {
+          const jobResult = await getJobStatusClient(result.jobId);
+          applyProgress(jobResult.progress);
+          if (jobResult.state === "completed") {
+            await finishWithSuccess(lyricVideoId);
+            return;
+          } else if (jobResult.state === "failed") {
+            setGenerating(false);
+            setStatus("failed");
+            toast.error("Export failed");
+            return;
+          }
+        } catch {
+          // fall through to polling
+        }
+      }
+      startPolling(result.jobId, lyricVideoId);
     } catch (error: unknown) {
       const err = error as { message?: string };
-      toast.error(err?.message || "Failed to generate video");
+      toast.error(err?.message || "Failed to start export");
       setGenerating(false);
       setStatus("");
     }
   };
-
-  const pollJobStatus = async (jobId: string, lyricVideoId: number) => {
-    if (jobId.startsWith("sync-")) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      try {
-        const result = await getJobStatusClient(jobId);
-        const p = (result as { progress?: unknown }).progress;
-        if (p && typeof p === "object") {
-          const prog = p as {
-            percent?: unknown;
-            stage?: unknown;
-            frame?: unknown;
-            totalFrames?: unknown;
-            previewImageUrl?: unknown;
-          };
-          if (typeof prog.percent === "number") setProgressPercent(Math.max(0, Math.min(100, Math.round(prog.percent))));
-          if (typeof prog.stage === "string") setProgressStage(prog.stage);
-          if (typeof prog.frame === "number") setFramesDone(prog.frame);
-          if (typeof prog.totalFrames === "number") setTotalFrames(prog.totalFrames);
-          if (typeof prog.previewImageUrl === "string") {
-            const be = process.env.NEXT_PUBLIC_BE_URL || "";
-            const url = `${be}${prog.previewImageUrl}`;
-            setPreviewFrameUrl(`${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`);
-          }
-        } else if (typeof p === "number") {
-          setProgressPercent(Math.max(0, Math.min(100, Math.round(p))));
-        }
-
-        if (result.state === "completed") {
-          setGenerating(false);
-          setStatus("completed");
-          const videoResult = await getLyricVideoByIdClient(lyricVideoId);
-          if (videoResult.finalVideoUrl) {
-            setFinalVideoUrl(videoResult.finalVideoUrl);
-          }
-          toast.success("Video generated successfully!");
-        } else if (result.state === "failed") {
-          setGenerating(false);
-          setStatus("failed");
-          toast.error("Video generation failed");
-        } else {
-          startPolling(jobId, lyricVideoId);
-        }
-      } catch (error) {
-        console.error("Error checking sync job status:", error);
-        startPolling(jobId, lyricVideoId);
-      }
-      return;
-    }
-
-    startPolling(jobId, lyricVideoId);
-  };
-
-  const startPolling = (jobId: string, lyricVideoId: number) => {
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-      pollingIntervalRef.current = null;
-    }
-    const startedAt = Date.now();
-    const timeoutMs = 10 * 60 * 1000;
-    const interval = setInterval(async () => {
-      try {
-        if (Date.now() - startedAt > timeoutMs) {
-          if (pollingIntervalRef.current === interval) pollingIntervalRef.current = null;
-          clearInterval(interval);
-          setGenerating(false);
-          setStatus("failed");
-          toast.error("Video generation is taking too long. Please try again.");
-          return;
-        }
-
-        const result = await getJobStatusClient(jobId);
-        const p = (result as { progress?: unknown }).progress;
-        if (p && typeof p === "object") {
-          const prog = p as {
-            percent?: unknown;
-            stage?: unknown;
-            frame?: unknown;
-            totalFrames?: unknown;
-            previewImageUrl?: unknown;
-          };
-          if (typeof prog.percent === "number") setProgressPercent(Math.max(0, Math.min(100, Math.round(prog.percent))));
-          if (typeof prog.stage === "string") setProgressStage(prog.stage);
-          if (typeof prog.frame === "number") setFramesDone(prog.frame);
-          if (typeof prog.totalFrames === "number") setTotalFrames(prog.totalFrames);
-          if (typeof prog.previewImageUrl === "string") {
-            const be = process.env.NEXT_PUBLIC_BE_URL || "";
-            const url = `${be}${prog.previewImageUrl}`;
-            setPreviewFrameUrl(`${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`);
-          }
-        } else if (typeof p === "number") {
-          setProgressPercent(Math.max(0, Math.min(100, Math.round(p))));
-        }
-
-        if (result.state === "completed") {
-          if (pollingIntervalRef.current === interval) pollingIntervalRef.current = null;
-          clearInterval(interval);
-          setGenerating(false);
-          setStatus("completed");
-          const videoResult = await getLyricVideoByIdClient(lyricVideoId);
-          if (videoResult.finalVideoUrl) {
-            setFinalVideoUrl(videoResult.finalVideoUrl);
-          }
-          toast.success("Video generated successfully!");
-        } else if (result.state === "failed") {
-          if (pollingIntervalRef.current === interval) pollingIntervalRef.current = null;
-          clearInterval(interval);
-          setGenerating(false);
-          setStatus("failed");
-          toast.error(result.failedReason || "Video generation failed");
-        }
-      } catch (error) {
-        console.error("Error polling job status:", error);
-      }
-    }, 2000);
-    pollingIntervalRef.current = interval;
-  };
-
-  const [downloading, setDownloading] = useState(false);
 
   const handleDownload = async () => {
     if (!finalVideoUrl) return;
     setDownloading(true);
     try {
       const response = await fetch(finalVideoUrl);
-      if (!response.ok) throw new Error("Failed to fetch video");
+      if (!response.ok) throw new Error("Fetch failed");
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `lyric-video-${videoData.lyricVideoId || ""}.mp4`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `lyric-video-${videoData.lyricVideoId || "export"}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch {
-      toast.error("Download failed. Try right-clicking the video and saving.");
+      toast.error("Download failed. Try right-clicking the video to save.");
     } finally {
       setDownloading(false);
     }
@@ -235,85 +187,102 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold mb-2">Export Video</h2>
-        <p className="text-muted-foreground">
-          Choose the aspect ratio and generate your final lyric video. This counts as 1 generation toward your monthly limit.
+        <h2 className="text-xl font-semibold">Export</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Choose your format and generate the final video. This counts as 1 generation toward your monthly limit.
         </p>
       </div>
 
+      {/* Aspect ratio selection */}
       {!finalVideoUrl && status !== "generating" && (
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="aspectRatio">Aspect Ratio</Label>
-            <Select value={aspectRatio} onValueChange={(value) => setAspectRatio(value as "1:1" | "9:16" | "16:9")}>
-              <SelectTrigger id="aspectRatio">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ASPECT_RATIOS.map((ratio) => (
-                  <SelectItem key={ratio.value} value={ratio.value}>
-                    <div>
-                      <div className="font-medium">{ratio.label}</div>
-                      <div className="text-xs text-muted-foreground">{ratio.description}</div>
+        <div className="space-y-5">
+          <div className="space-y-3">
+            <p className="text-sm font-medium">Format</p>
+            <div className="grid grid-cols-3 gap-3">
+              {ASPECT_RATIOS.map((r) => (
+                <button
+                  key={r.value}
+                  onClick={() => setAspectRatio(r.value)}
+                  className={`relative flex flex-col items-center gap-2 py-5 px-3 rounded-xl border-2 transition-all ${
+                    aspectRatio === r.value
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/40 hover:bg-accent/20"
+                  }`}
+                >
+                  {aspectRatio === r.value && (
+                    <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="w-2.5 h-2.5 text-primary-foreground" />
                     </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  )}
+                  <span className="text-xl">{r.icon}</span>
+                  <span className="font-medium text-sm">{r.label}</span>
+                  <span className="text-xs text-muted-foreground text-center leading-tight">{r.sub}</span>
+                </button>
+              ))}
+            </div>
           </div>
-
-          <Button onClick={handleGenerate} disabled={generating} className="w-full">
-            {generating ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              "Generate Final Video"
-            )}
+          <Button onClick={handleGenerate} disabled={generating} className="w-full py-5 text-base">
+            <Video className="w-4 h-4 mr-2" />
+            Generate Final Video
           </Button>
         </div>
       )}
 
+      {/* Generating */}
       {status === "generating" && (
-        <div className="flex flex-col items-center justify-center py-12 space-y-4">
-          <div className="flex flex-col items-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">Generating final video...</p>
-            <p className="text-sm text-muted-foreground mt-2">This may take several minutes</p>
+        <div className="flex flex-col items-center py-12 gap-6">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <Video className="w-8 h-8 text-primary" />
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-card border flex items-center justify-center">
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+            </div>
           </div>
-
-          <div className="w-full max-w-md space-y-2">
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className="text-center">
+            <p className="font-semibold">Rendering final video...</p>
+            <p className="text-sm text-muted-foreground mt-1">This may take several minutes</p>
+          </div>
+          <div className="w-full max-w-sm space-y-2">
+            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
               <div
-                className="h-full bg-primary transition-all duration-300"
+                className="h-full bg-primary transition-all duration-300 rounded-full"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{progressStage ? `Stage: ${progressStage}` : "Stage: starting"}</span>
+              <span>{progressStage || "Starting..."}</span>
               <span>{progressPercent}%</span>
             </div>
             {totalFrames > 0 && (
-              <div className="text-xs text-muted-foreground">
-                Frames: {framesDone}/{totalFrames}
-              </div>
+              <p className="text-xs text-muted-foreground">
+                Frames: {framesDone} / {totalFrames}
+              </p>
             )}
           </div>
-
           {previewFrameUrl && (
-            <div className="w-full max-w-md">
-              <div className="relative aspect-video rounded-md overflow-hidden border">
-                <Image src={previewFrameUrl} alt="Rendering preview" fill className="object-contain" />
-              </div>
+            <div className="w-full max-w-sm rounded-xl overflow-hidden border">
+              <Image
+                src={previewFrameUrl}
+                alt="Rendering frame"
+                width={640}
+                height={360}
+                className="w-full object-cover"
+                unoptimized
+              />
             </div>
           )}
         </div>
       )}
 
+      {/* Completed */}
       {finalVideoUrl && status === "completed" && (
         <div className="space-y-4">
-          <div className="bg-black rounded-lg overflow-hidden aspect-video">
+          <div className="flex items-center gap-2 text-green-500 text-sm font-medium">
+            <CheckCircle2 className="w-4 h-4" />
+            Video ready
+          </div>
+          <div className="rounded-xl overflow-hidden bg-black aspect-video">
             <ReactPlayer
               url={finalVideoUrl}
               controls
@@ -325,28 +294,30 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
               }}
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Button onClick={handleDownload} disabled={downloading} className="flex-1">
               {downloading ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Downloading...</>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Downloading...</>
               ) : (
-                <><Download className="h-4 w-4 mr-2" />Download Video</>
+                <><Download className="w-4 h-4 mr-2" />Download MP4</>
               )}
             </Button>
-            <Button onClick={onComplete} variant="outline" className="flex-1">
-              <CheckCircle2 className="h-4 w-4 mr-2" />
+            <Button variant="outline" onClick={onComplete} className="flex-1">
               Done
             </Button>
           </div>
         </div>
       )}
 
-      <div className="flex justify-between">
+      <div className="flex justify-between pt-1">
         <Button variant="outline" onClick={onPrev} disabled={generating}>
-          Previous
+          Back
         </Button>
         {status === "completed" && (
-          <Button onClick={onComplete}>View All Videos</Button>
+          <Button onClick={onComplete}>
+            <CheckCircle2 className="w-4 h-4 mr-2" />
+            View All Videos
+          </Button>
         )}
       </div>
     </div>

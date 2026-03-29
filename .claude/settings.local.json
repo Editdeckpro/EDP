@@ -4,7 +4,9 @@
       "Bash(node:*)",
       "Bash(npx prisma:*)",
       "Bash(npx kill-port:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(find /c/Projects/EDP/src/components/pages/lyric-video -type f -name *.tsx -o -name *.ts)",
+      "Bash(git add:*)"
     ]
   }
 }
