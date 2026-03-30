@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { FileText, Upload, Loader2, RotateCcw } from "lucide-react";
+import { FileText, Upload, Loader2, RotateCcw, Trash2, Pencil } from "lucide-react";
 import { transcribeAudioClient } from "@/components/pages/lyric-video/api";
 
 type LyricVideoWizardData = {
@@ -70,7 +70,15 @@ export default function AddLyricsStep({ onNext, onPrev, onDataUpdate, videoData 
         </p>
       </div>
 
-      <div className="space-y-3">
+      {/* Edit hint banner */}
+      <div className="flex items-start gap-2.5 rounded-lg bg-primary/8 border border-primary/20 px-4 py-3">
+        <Pencil className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+        <p className="text-sm text-primary/90">
+          <span className="font-medium">Edit freely</span> — fix any mistakes, add missing lines, ad-libs, or section labels like <span className="font-mono text-xs bg-primary/10 px-1 rounded">[Chorus]</span> before continuing.
+        </p>
+      </div>
+
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <FileText className="w-3.5 h-3.5" />
@@ -98,15 +106,29 @@ export default function AddLyricsStep({ onNext, onPrev, onDataUpdate, videoData 
               Import .txt
               <input type="file" accept=".txt" onChange={handleFileUpload} className="hidden" />
             </label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLyrics("")}
+              disabled={!lyrics}
+              className="h-7 text-xs gap-1.5 text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 className="w-3 h-3" />
+              Clear all
+            </Button>
           </div>
         </div>
 
         <Textarea
           value={lyrics}
           onChange={(e) => setLyrics(e.target.value)}
-          placeholder={"Enter your lyrics here...\n\nEach line will appear separately in the video.\n\nExample:\nVerse one starts here\nAnother line below it\n\nChorus here\nSing it loud"}
-          className="min-h-[300px] font-mono text-sm resize-none leading-relaxed"
+          placeholder="Edit lyrics here — add any missing lines or ad-libs"
+          className="min-h-[420px] font-mono text-sm resize-y leading-relaxed"
         />
+
+        <p className="text-xs text-muted-foreground text-right">
+          {lyrics.length} characters
+        </p>
       </div>
 
       <div className="flex justify-between pt-1">
