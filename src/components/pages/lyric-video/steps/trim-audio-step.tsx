@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Play, Pause, Scissors, Loader2 } from "lucide-react";
-import { uploadAudioClient, createLyricVideoClient } from "@/components/pages/lyric-video/api";
+import { uploadAudioClient, createLyricVideoClient, getLyricVideoByIdClient } from "@/components/pages/lyric-video/api";
 
 type LyricVideoWizardData = {
   audioId?: string;
@@ -36,6 +36,7 @@ export default function TrimAudioStep({ onNext, onPrev, onDataUpdate, videoData 
     videoData.trimEnd ?? Math.min(MAX_DURATION, videoData.audioDuration ?? MAX_DURATION)
   );
   const [uploading, setUploading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [waveformBars, setWaveformBars] = useState<number[]>([]);
   const [dragging, setDragging] = useState<"start" | "end" | null>(null);
   const duration = videoData.audioDuration ?? 0;
@@ -180,13 +181,38 @@ export default function TrimAudioStep({ onNext, onPrev, onDataUpdate, videoData 
         lyricVideoId: createResult.lyricVideoId,
       });
 
-      toast.success("Audio trimmed");
+      // Poll until lyricsData words are ready (backend runs alignLyricsToAudio async)
+      setSyncing(true);
+      const POLL_INTERVAL = 3000;
+      const MAX_WAIT = 60000;
+      const deadline = Date.now() + MAX_WAIT;
+      let wordsReady = false;
+      while (Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, POLL_INTERVAL));
+        try {
+          const video = await getLyricVideoByIdClient(createResult.lyricVideoId);
+          if (video.words && video.words.length > 0) {
+            wordsReady = true;
+            break;
+          }
+        } catch {
+          // ignore poll errors, keep trying
+        }
+      }
+      setSyncing(false);
+
+      if (!wordsReady) {
+        toast.warning("Lyrics sync timed out — you can adjust timing manually.");
+      } else {
+        toast.success("Audio trimmed");
+      }
       onNext();
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } }; message?: string };
       toast.error(err?.response?.data?.message || err?.message || "Failed to trim audio. Please try again.");
     } finally {
       setUploading(false);
+      setSyncing(false);
     }
   }, [videoData.audioUrl, videoData.lyrics, isValid, trimStart, trimEnd, onDataUpdate, onNext]);
 
@@ -308,21 +334,23 @@ export default function TrimAudioStep({ onNext, onPrev, onDataUpdate, videoData 
 
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
-          <Button variant="outline" onClick={onPrev} disabled={uploading}>
+          <Button variant="outline" onClick={onPrev} disabled={uploading || syncing}>
             Back
           </Button>
           <Button
             variant="outline"
             size="icon"
             onClick={togglePlay}
-            disabled={!videoData.audioUrl || uploading}
+            disabled={!videoData.audioUrl || uploading || syncing}
             title={isPlaying ? "Pause" : "Preview selection"}
           >
             {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           </Button>
         </div>
-        <Button onClick={handleTrimAndUpload} disabled={!isValid || uploading}>
-          {uploading ? (
+        <Button onClick={handleTrimAndUpload} disabled={!isValid || uploading || syncing}>
+          {syncing ? (
+            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Syncing lyrics to audio...</>
+          ) : uploading ? (
             <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
           ) : (
             <><Scissors className="w-4 h-4 mr-2" />Trim & Continue</>

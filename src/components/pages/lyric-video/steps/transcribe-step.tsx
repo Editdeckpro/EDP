@@ -59,7 +59,7 @@ export default function TranscribeStep({ onNext, onPrev, onDataUpdate, videoData
       <div>
         <h2 className="text-xl font-semibold">Transcribing Audio</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Using Gemini AI to detect lyrics from your audio
+          Using AssemblyAI to detect lyrics from your audio
         </p>
       </div>
 
@@ -77,7 +77,7 @@ export default function TranscribeStep({ onNext, onPrev, onDataUpdate, videoData
             <div className="text-center">
               <p className="font-semibold text-lg">Analyzing your audio...</p>
               <p className="text-sm text-muted-foreground mt-1 max-w-xs">
-                Gemini AI is detecting lyrics. This usually takes 10–30 seconds.
+                AssemblyAI is detecting lyrics. This usually takes 10–30 seconds.
               </p>
             </div>
             <div className="flex gap-1.5">
