@@ -146,7 +146,6 @@ export default function TrimAudioStep({ onNext, onPrev, onDataUpdate, videoData 
       const buf = await res.arrayBuffer();
       const ctx = new AudioContext();
       const decoded = await ctx.decodeAudioData(buf);
-      await ctx.close();
 
       const sr = decoded.sampleRate;
       const startSample = Math.floor(trimStart * sr);
@@ -156,6 +155,7 @@ export default function TrimAudioStep({ onNext, onPrev, onDataUpdate, videoData 
       for (let ch = 0; ch < decoded.numberOfChannels; ch++) {
         trimmed.copyToChannel(decoded.getChannelData(ch).slice(startSample, endSample), ch);
       }
+      await ctx.close();
 
       const wavBlob = audioBufferToWav(trimmed);
       const file = new File([wavBlob], "trimmed.wav", { type: "audio/wav" });
