@@ -40,6 +40,19 @@ export default function Page() {
             message: "Upgrade to Next Level or Pro Studio to create lyric videos"
           }}
         />
+        <PageCta
+          title="Beat Producer"
+          description="Generate professional beats with melody, chords, and drums using AI."
+          buttonText="Produce Beat"
+          buttonIcon="sparkles"
+          imageSrc="/images/cta-lyric-video.svg"
+          bgImgSrc="/images/cta-2.jpg"
+          btnLink="/beat-producer"
+          planRestriction={{
+            allowedPlans: ["NEXT_LEVEL", "PRO_STUDIO"],
+            message: "Upgrade to Next Level or Pro Studio to use Beat Producer"
+          }}
+        />
       </div>
       <ImageCardGrid generationType="custom,filter" />
       {/* <ImageGridPagination /> */}

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { GetAxiosWithAuth } from "@/lib/axios-instance";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -195,23 +196,13 @@ export default function BeatProducerPage() {
     stopAll();
     setBeats([]);
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BE_URL}/api/beat/generate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ genre, mood, tempo }),
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error((body as { error?: string }).error || `Server error ${res.status}`);
-      }
-      const data = (await res.json()) as { beats: Beat[] };
+      const axios = await GetAxiosWithAuth();
+      const { data } = await axios.post<{ beats: Beat[] }>("beat/generate", { genre, mood, tempo });
       setBeats(data.beats.slice(0, 2));
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Generation failed");
+      const msg = (e as { response?: { data?: { error?: string } }; message?: string })
+        ?.response?.data?.error || (e instanceof Error ? e.message : "Generation failed");
+      setError(msg);
     } finally {
       setLoading(false);
     }
