@@ -163,6 +163,18 @@ export const sidebarSections: SidebarSectionType[] = [
         bgClassName: "bg-purple-600/10 hover:bg-purple-600/20",
         tooltip: "Create lyric videos with AI-powered timing.",
       },
+      {
+        icon: (
+          <GIcon size={22} className="group-data-[active=true]:text-blue-500">
+            graphic_eq
+          </GIcon>
+        ),
+        text: "Beat Producer",
+        link: "/beat-producer",
+        isNew: true,
+        bgClassName: "bg-blue-500/10 hover:bg-blue-500/20",
+        tooltip: "Generate beats with AI using music theory.",
+      },
     ],
   },
   {
@@ -201,6 +213,11 @@ export const sidebarSections: SidebarSectionType[] = [
   {
     header: false,
     links: [
+      {
+        icon: <></>,
+        text: "Beat Producer",
+        link: "/beat-producer",
+      },
       {
         icon: <></>,
         text: "My Profile",
