@@ -260,6 +260,7 @@ export default function BeatProducerClient() {
     try {
       const axios = await GetAxiosWithAuth();
       const { data } = await axios.post<{ beats: Beat[] }>("beat/generate", { genre, mood, tempo });
+      console.log("[BeatProducer] raw API response:", JSON.stringify(data, null, 2));
       setBeats(data.beats.slice(0, 2));
     } catch (e: unknown) {
       const msg =
