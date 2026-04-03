@@ -7,13 +7,11 @@ import UploadAudioStep from "@/components/pages/lyric-video/steps/upload-audio-s
 import TranscribeStep from "@/components/pages/lyric-video/steps/transcribe-step";
 import AddLyricsStep from "@/components/pages/lyric-video/steps/add-lyrics-step";
 import TrimAudioStep from "@/components/pages/lyric-video/steps/trim-audio-step";
-import StyleSelectionStep from "@/components/pages/lyric-video/steps/style-selection-step";
-import BackgroundSelectionStep from "@/components/pages/lyric-video/steps/background-selection-step";
 import PreviewStep from "@/components/pages/lyric-video/steps/preview-step";
 import ExportStep from "@/components/pages/lyric-video/steps/export-step";
 import { SubscriptionRequiredModal } from "@/components/pages/auth/subscription-required-modal";
 
-type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface LyricVideoData {
   audioId?: string;
@@ -23,12 +21,6 @@ export interface LyricVideoData {
   lyricVideoId?: number;
   trimStart?: number;
   trimEnd?: number;
-  style?: string;
-  font?: string;
-  textColor?: string;
-  highlightColor?: string;
-  backgroundColor?: string;
-  backgroundImage?: string;
   previewUrl?: string;
 }
 
@@ -37,10 +29,8 @@ const STEPS = [
   { num: 2, label: "Transcribe" },
   { num: 3, label: "Lyrics" },
   { num: 4, label: "Trim" },
-  { num: 5, label: "Style" },
-  { num: 6, label: "Background" },
-  { num: 7, label: "Preview" },
-  { num: 8, label: "Export" },
+  { num: 5, label: "Preview" },
+  { num: 6, label: "Export" },
 ];
 
 export default function CreateLyricVideoPage() {
@@ -88,7 +78,7 @@ export default function CreateLyricVideoPage() {
   };
 
   const nextStep = () => {
-    if (currentStep < 8) setCurrentStep((prev) => (prev + 1) as Step);
+    if (currentStep < 6) setCurrentStep((prev) => (prev + 1) as Step);
   };
 
   const prevStep = () => {
@@ -99,7 +89,7 @@ export default function CreateLyricVideoPage() {
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <div className="mb-8">
         <h1 className="text-2xl font-bold">Create Lyric Video</h1>
-        <p className="text-sm text-muted-foreground mt-1">Step {currentStep} of 8</p>
+        <p className="text-sm text-muted-foreground mt-1">Step {currentStep} of 6</p>
       </div>
 
       {/* Stepper */}
@@ -154,15 +144,9 @@ export default function CreateLyricVideoPage() {
           <TrimAudioStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
         )}
         {currentStep === 5 && (
-          <StyleSelectionStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
-        )}
-        {currentStep === 6 && (
-          <BackgroundSelectionStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
-        )}
-        {currentStep === 7 && (
           <PreviewStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
         )}
-        {currentStep === 8 && (
+        {currentStep === 6 && (
           <ExportStep onPrev={prevStep} onComplete={() => router.push("/lyric-videos")} videoData={videoData} />
         )}
       </div>
