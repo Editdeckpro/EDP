@@ -4,8 +4,8 @@ import { GetAxiosWithAuth } from "@/lib/axios-instance";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-interface NoteEvent   { note: string; step: number; duration: string; }
-interface ChordEvent  { notes: string[]; step: number; duration: string; }
+interface NoteEvent  { note: string; step: number; duration: string; }
+interface ChordEvent { notes: string[]; step: number; duration: string; }
 
 interface Beat {
   id: string;
@@ -23,7 +23,7 @@ interface Beat {
   melody:  NoteEvent[];
 }
 
-// ── WAV encoder ───────────────────────────────────────────────────────────────
+// ── WAV encoder (16-bit PCM) ──────────────────────────────────────────────────
 
 function audioBufferToWav(buffer: AudioBuffer): ArrayBuffer {
   const numCh = buffer.numberOfChannels;
@@ -31,15 +31,15 @@ function audioBufferToWav(buffer: AudioBuffer): ArrayBuffer {
   const len   = buffer.length * numCh * 2;
   const ab    = new ArrayBuffer(44 + len);
   const view  = new DataView(ab);
-  const ws    = (off: number, s: string) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
-
+  const ws    = (off: number, s: string) => {
+    for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i));
+  };
   ws(0, "RIFF"); view.setUint32(4, 36 + len, true);
   ws(8, "WAVE"); ws(12, "fmt "); view.setUint32(16, 16, true);
   view.setUint16(20, 1, true); view.setUint16(22, numCh, true);
   view.setUint32(24, sr, true); view.setUint32(28, sr * numCh * 2, true);
   view.setUint16(32, numCh * 2, true); view.setUint16(34, 16, true);
   ws(36, "data"); view.setUint32(40, len, true);
-
   let off = 44;
   for (let i = 0; i < buffer.length; i++) {
     for (let ch = 0; ch < numCh; ch++) {
@@ -51,30 +51,93 @@ function audioBufferToWav(buffer: AudioBuffer): ArrayBuffer {
   return ab;
 }
 
-// ── Sequencer grid ─────────────────────────────────────────────────────────────
+// ── Synth factory — identical params for live playback and offline render ─────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildSynths(Tone: any) {
+  const kick = new Tone.MembraneSynth({
+    pitchDecay: 0.05,
+    octaves: 10,
+    envelope: { attack: 0.001, decay: 0.4, sustain: 0, release: 0.1 },
+  }).toDestination();
+  kick.volume.value = -4;
+
+  const snare = new Tone.NoiseSynth({
+    noise: { type: "white" },
+    envelope: { attack: 0.001, decay: 0.15, sustain: 0, release: 0.01 },
+  }).toDestination();
+  snare.volume.value = -8;
+
+  const hihat = new Tone.MetalSynth({
+    envelope: { attack: 0.001, decay: 0.04, release: 0.01 },
+    harmonicity: 5.1,
+    modulationIndex: 32,
+    resonance: 4000,
+    octaves: 1.5,
+  }).toDestination();
+  hihat.volume.value = -20;
+
+  const openHat = new Tone.MetalSynth({
+    envelope: { attack: 0.001, decay: 0.3, release: 0.1 },
+    harmonicity: 5.1,
+    modulationIndex: 32,
+    resonance: 4000,
+    octaves: 1.5,
+  }).toDestination();
+  openHat.volume.value = -18;
+
+  // 808-style bass: sine wave, long sustain and release
+  const bass = new Tone.Synth({
+    oscillator: { type: "sine" },
+    envelope: { attack: 0.001, decay: 0.1, sustain: 0.9, release: 1.5 },
+  }).toDestination();
+  bass.volume.value = -8;
+
+  // Soft pad chords: triangle wave, slow attack
+  const chordSynth = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: "triangle" },
+    envelope: { attack: 0.1, decay: 0.3, sustain: 0.5, release: 1.5 },
+  }).toDestination();
+  chordSynth.volume.value = -14;
+
+  // Clean melody: sine, soft envelope
+  const melodySynth = new Tone.Synth({
+    oscillator: { type: "sine" },
+    envelope: { attack: 0.01, decay: 0.1, sustain: 0.3, release: 0.8 },
+  }).toDestination();
+  melodySynth.volume.value = -10;
+
+  return { kick, snare, hihat, openHat, bass, chordSynth, melodySynth };
+}
+
+// ── Sequencer grid (visual) ───────────────────────────────────────────────────
 
 const ROW_LABELS = ["Kick", "Snare", "Hi-Hat", "Open"];
-const ROW_COLORS = [
-  "bg-violet-500",
-  "bg-blue-500",
-  "bg-cyan-400",
-  "bg-teal-400",
-];
+const ROW_COLORS = ["bg-violet-500", "bg-blue-500", "bg-cyan-400", "bg-teal-400"];
 
 function SequencerGrid({ beat }: { beat: Beat }) {
-  const rows = [beat.kick, beat.snare, beat.hihat, beat.openHat ?? Array(16).fill(0)];
+  const rows = [
+    beat.kick,
+    beat.snare,
+    beat.hihat,
+    beat.openHat ?? Array(16).fill(0),
+  ];
   return (
     <div className="space-y-1.5 mt-4">
       {rows.map((row, ri) => (
         <div key={ri} className="flex items-center gap-2">
-          <span className="text-[10px] text-white/40 w-10 text-right shrink-0">{ROW_LABELS[ri]}</span>
+          <span className="text-[10px] text-white/40 w-10 text-right shrink-0">
+            {ROW_LABELS[ri]}
+          </span>
           <div className="flex gap-[3px] flex-1">
             {row.map((on, si) => (
               <div
                 key={si}
-                className={`flex-1 h-5 rounded-sm transition-colors ${
-                  on ? ROW_COLORS[ri] : "bg-white/10"
-                } ${si === 4 || si === 8 || si === 12 ? "ml-1" : ""}`}
+                className={[
+                  "flex-1 h-5 rounded-sm transition-colors",
+                  on ? ROW_COLORS[ri] : "bg-white/10",
+                  si === 4 || si === 8 || si === 12 ? "ml-1" : "",
+                ].join(" ")}
               />
             ))}
           </div>
@@ -84,15 +147,10 @@ function SequencerGrid({ beat }: { beat: Beat }) {
   );
 }
 
-// ── Beat card ──────────────────────────────────────────────────────────────────
+// ── Beat card ─────────────────────────────────────────────────────────────────
 
 function BeatCard({
-  beat,
-  isPlaying,
-  onPlay,
-  onStop,
-  onExport,
-  exporting,
+  beat, isPlaying, onPlay, onStop, onExport, exporting,
 }: {
   beat: Beat;
   isPlaying: boolean;
@@ -160,36 +218,40 @@ function BeatCard({
   );
 }
 
-// ── Main page ──────────────────────────────────────────────────────────────────
+// ── Main component ────────────────────────────────────────────────────────────
 
-export default function BeatProducerPage() {
-  const [genre, setGenre] = useState("");
-  const [mood, setMood] = useState("");
-  const [tempo, setTempo] = useState("");
-  const [beats, setBeats] = useState<Beat[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [playingId, setPlayingId] = useState<string | null>(null);
+export default function BeatProducerClient() {
+  const [genre, setGenre]             = useState("");
+  const [mood, setMood]               = useState("");
+  const [tempo, setTempo]             = useState("");
+  const [beats, setBeats]             = useState<Beat[]>([]);
+  const [loading, setLoading]         = useState(false);
+  const [playingId, setPlayingId]     = useState<string | null>(null);
   const [exportingId, setExportingId] = useState<string | null>(null);
-  const [error, setError] = useState("");
+  const [error, setError]             = useState("");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const synthsRef = useRef<any[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const seqRef    = useRef<any>(null);
 
+  // ── Stop all audio ────────────────────────────────────────────────────────
   const stopAll = () => {
     import("tone").then(({ getTransport }) => {
-      getTransport().stop();
-      getTransport().cancel();
+      try { getTransport().stop(); getTransport().cancel(); } catch { /* ignore */ }
     }).catch(() => {});
-    if (seqRef.current) { try { seqRef.current.dispose(); } catch {} seqRef.current = null; }
-    synthsRef.current.forEach(s => { try { s.dispose(); } catch {} });
+    if (seqRef.current) {
+      try { seqRef.current.stop(); seqRef.current.dispose(); } catch { /* ignore */ }
+      seqRef.current = null;
+    }
+    synthsRef.current.forEach(s => { try { s.dispose(); } catch { /* ignore */ } });
     synthsRef.current = [];
     setPlayingId(null);
   };
 
   useEffect(() => () => stopAll(), []);
 
+  // ── Generate ──────────────────────────────────────────────────────────────
   const generate = async () => {
     setLoading(true);
     setError("");
@@ -200,14 +262,16 @@ export default function BeatProducerPage() {
       const { data } = await axios.post<{ beats: Beat[] }>("beat/generate", { genre, mood, tempo });
       setBeats(data.beats.slice(0, 2));
     } catch (e: unknown) {
-      const msg = (e as { response?: { data?: { error?: string } }; message?: string })
-        ?.response?.data?.error || (e instanceof Error ? e.message : "Generation failed");
+      const msg =
+        (e as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        (e instanceof Error ? e.message : "Generation failed");
       setError(msg);
     } finally {
       setLoading(false);
     }
   };
 
+  // ── Live playback via Tone.Sequence (loops perfectly) ─────────────────────
   const playBeat = async (beat: Beat) => {
     stopAll();
     const Tone = await import("tone");
@@ -215,119 +279,106 @@ export default function BeatProducerPage() {
 
     Tone.getTransport().bpm.value = beat.bpm;
 
-    const kick    = new Tone.MembraneSynth({ pitchDecay: 0.08, octaves: 6 }).toDestination();
-    const snare   = new Tone.NoiseSynth({ noise: { type: "white" }, envelope: { attack: 0.001, decay: 0.18, sustain: 0, release: 0.01 } }).toDestination();
-    const hihat   = new Tone.MetalSynth({ envelope: { attack: 0.001, decay: 0.05, release: 0.01 }, harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5 }).toDestination();
-    const openHat = new Tone.MetalSynth({ envelope: { attack: 0.001, decay: 0.3, release: 0.1 }, harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5 }).toDestination();
-    const bass    = new Tone.MonoSynth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.7, release: 0.3 }, filterEnvelope: { attack: 0.01, decay: 0.1, sustain: 0.5, release: 0.2, baseFrequency: 200, octaves: 2 } }).toDestination();
-    const chordsSynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "triangle" }, envelope: { attack: 0.05, decay: 0.3, sustain: 0.4, release: 1.2 } }).toDestination();
-    const melodySynth = new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.01, decay: 0.15, sustain: 0.3, release: 0.5 } }).toDestination();
+    const { kick, snare, hihat, openHat, bass, chordSynth, melodySynth } = buildSynths(Tone);
+    synthsRef.current = [kick, snare, hihat, openHat, bass, chordSynth, melodySynth];
 
-    // Lower volume so mix isn't harsh
-    kick.volume.value    = -6;
-    snare.volume.value   = -8;
-    hihat.volume.value   = -14;
-    openHat.volume.value = -14;
-    bass.volume.value    = -10;
-    chordsSynth.volume.value = -12;
-    melodySynth.volume.value = -10;
-
-    synthsRef.current = [kick, snare, hihat, openHat, bass, chordsSynth, melodySynth];
-
-    const steps = [...Array(16).keys()];
+    // Steps 0-15, Tone.Sequence loops the bar automatically
     const seq = new Tone.Sequence(
       (time: number, step: number) => {
-        if (beat.kick[step])       kick.triggerAttackRelease("C1", "8n", time);
-        if (beat.snare[step])      snare.triggerAttackRelease("8n", time);
-        if (beat.hihat[step])      hihat.triggerAttackRelease("C6", "32n", time);
-        if (beat.openHat?.[step])  openHat.triggerAttackRelease("C6", "8n", time);
+        // Drums snap to exact grid position — zero humanization
+        if (beat.kick[step])      kick.triggerAttackRelease("C1", "8n", time);
+        if (beat.snare[step])     snare.triggerAttackRelease("8n", time);
+        if (beat.hihat[step])     hihat.triggerAttackRelease("C6", "32n", time);
+        if (beat.openHat?.[step]) openHat.triggerAttackRelease("C6", "8n", time);
+
+        // Pitched instruments — exact step match only
         beat.bass.filter(n => n.step === step).forEach(n =>
           bass.triggerAttackRelease(n.note, n.duration, time)
         );
         beat.chords.filter(n => n.step === step).forEach(n =>
-          chordsSynth.triggerAttackRelease(n.notes, n.duration, time)
+          chordSynth.triggerAttackRelease(n.notes, n.duration, time)
         );
         beat.melody.filter(n => n.step === step).forEach(n =>
           melodySynth.triggerAttackRelease(n.note, n.duration, time)
         );
       },
-      steps,
+      [...Array(16).keys()],
       "16n"
     );
+
     seqRef.current = seq;
     seq.start(0);
     Tone.getTransport().start();
     setPlayingId(beat.id);
   };
 
+  // ── WAV export via Tone.Offline ───────────────────────────────────────────
   const exportWav = async (beat: Beat) => {
     if (exportingId) return;
     setExportingId(beat.id);
     try {
       const Tone = await import("tone");
-      const bars = 4;
-      const durationSec = (60 / beat.bpm) * 4 * bars + 0.5; // 4 bars + 0.5s tail
 
+      const BARS    = 8;
+      const stepSec = 60 / beat.bpm / 4;   // one 16th note in seconds
+      const barSec  = stepSec * 16;
+      const totalSec = BARS * barSec + 2;   // +2s for long release tails
+
+      // Offline render — schedule every step at absolute AudioContext times
       const toneBuffer = await Tone.Offline(async () => {
-        Tone.getTransport().bpm.value = beat.bpm;
+        const { kick, snare, hihat, openHat, bass, chordSynth, melodySynth } = buildSynths(Tone);
 
-        const kick    = new Tone.MembraneSynth({ pitchDecay: 0.08, octaves: 6 }).toDestination();
-        const snare   = new Tone.NoiseSynth({ noise: { type: "white" }, envelope: { attack: 0.001, decay: 0.18, sustain: 0, release: 0.01 } }).toDestination();
-        const hihat   = new Tone.MetalSynth({ envelope: { attack: 0.001, decay: 0.05, release: 0.01 }, harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5 }).toDestination();
-        const openHat = new Tone.MetalSynth({ envelope: { attack: 0.001, decay: 0.3, release: 0.1 }, harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5 }).toDestination();
-        const bass    = new Tone.MonoSynth({ oscillator: { type: "sawtooth" }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.7, release: 0.3 }, filterEnvelope: { attack: 0.01, decay: 0.1, sustain: 0.5, release: 0.2, baseFrequency: 200, octaves: 2 } }).toDestination();
-        const chordsSynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "triangle" }, envelope: { attack: 0.05, decay: 0.3, sustain: 0.4, release: 1.2 } }).toDestination();
-        const melodySynth = new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.01, decay: 0.15, sustain: 0.3, release: 0.5 } }).toDestination();
-
-        kick.volume.value = -6; snare.volume.value = -8; hihat.volume.value = -14;
-        openHat.volume.value = -14; bass.volume.value = -10;
-        chordsSynth.volume.value = -12; melodySynth.volume.value = -10;
-
-        const seq = new Tone.Sequence(
-          (time: number, step: number) => {
-            if (beat.kick[step])      kick.triggerAttackRelease("C1", "8n", time);
-            if (beat.snare[step])     snare.triggerAttackRelease("8n", time);
-            if (beat.hihat[step])     hihat.triggerAttackRelease("C6", "32n", time);
-            if (beat.openHat?.[step]) openHat.triggerAttackRelease("C6", "8n", time);
-            beat.bass.filter(n => n.step === step).forEach(n =>
-              bass.triggerAttackRelease(n.note, n.duration, time)
+        for (let bar = 0; bar < BARS; bar++) {
+          for (let s = 0; s < 16; s++) {
+            const t = bar * barSec + s * stepSec;
+            if (beat.kick[s])      kick.triggerAttackRelease("C1", "8n", t);
+            if (beat.snare[s])     snare.triggerAttackRelease("8n", t);
+            if (beat.hihat[s])     hihat.triggerAttackRelease("C6", "32n", t);
+            if (beat.openHat?.[s]) openHat.triggerAttackRelease("C6", "8n", t);
+            beat.bass.filter(n => n.step === s).forEach(n =>
+              bass.triggerAttackRelease(n.note, n.duration, t)
             );
-            beat.chords.filter(n => n.step === step).forEach(n =>
-              chordsSynth.triggerAttackRelease(n.notes, n.duration, time)
+            beat.chords.filter(n => n.step === s).forEach(n =>
+              chordSynth.triggerAttackRelease(n.notes, n.duration, t)
             );
-            beat.melody.filter(n => n.step === step).forEach(n =>
-              melodySynth.triggerAttackRelease(n.note, n.duration, time)
+            beat.melody.filter(n => n.step === s).forEach(n =>
+              melodySynth.triggerAttackRelease(n.note, n.duration, t)
             );
-          },
-          [...Array(16).keys()],
-          "16n"
-        );
-        seq.loop = bars;
-        seq.start(0);
-        Tone.getTransport().start(0);
-      }, durationSec);
+          }
+        }
+      }, totalSec);
 
       const audioBuffer = toneBuffer.get();
-      if (!audioBuffer) throw new Error("Offline render failed");
+      if (!audioBuffer) throw new Error("Offline render produced no audio");
 
       const wav  = audioBufferToWav(audioBuffer);
       const blob = new Blob([wav], { type: "audio/wav" });
       const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href     = url;
-      a.download = `${beat.name.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_-]/g, "")}.wav`;
+
+      const safeName = beat.name
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `editdeck-${safeName}.wav`;
+      document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(url);
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 1000);
     } catch (e) {
-      console.error("WAV export failed:", e);
+      console.error("[BeatProducer] WAV export failed:", e);
     } finally {
       setExportingId(null);
     }
   };
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen px-4 py-8 max-w-3xl mx-auto">
-      {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 flex items-center justify-center text-xl">
@@ -336,11 +387,10 @@ export default function BeatProducerPage() {
           <h1 className="text-2xl font-bold">AI Beat Producer</h1>
         </div>
         <p className="text-muted-foreground text-sm">
-          Describe the vibe and get two fully playable beats — with melody, chords, and drums.
+          Describe the vibe and get two fully playable beats — melody, chords, and drums.
         </p>
       </div>
 
-      {/* Generation form */}
       <div className="rounded-2xl border bg-card p-5 mb-6 shadow-sm">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
           <div>
@@ -394,12 +444,9 @@ export default function BeatProducerPage() {
           )}
         </button>
 
-        {error && (
-          <p className="mt-3 text-sm text-red-400 text-center">{error}</p>
-        )}
+        {error && <p className="mt-3 text-sm text-red-400 text-center">{error}</p>}
       </div>
 
-      {/* Beat cards */}
       {beats.length > 0 && (
         <div className="space-y-4">
           <p className="text-xs text-muted-foreground text-center">
@@ -419,12 +466,11 @@ export default function BeatProducerPage() {
         </div>
       )}
 
-      {/* Empty state */}
       {beats.length === 0 && !loading && (
         <div className="text-center py-16 text-muted-foreground">
           <div className="text-5xl mb-4">🎚️</div>
           <p className="text-sm">Fill in your preferences above and hit Generate.</p>
-          <p className="text-xs mt-1 opacity-60">All fields are optional — leave them blank for a surprise.</p>
+          <p className="text-xs mt-1 opacity-60">All fields are optional — leave blank for a surprise.</p>
         </div>
       )}
     </div>
