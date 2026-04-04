@@ -141,6 +141,15 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData }:
 
     try {
       const result = await generatePreviewClient(videoData.lyricVideoId);
+
+      // Backend renders synchronously and returns previewUrl directly.
+      // No job queue involved — fetch the video record to get the URL.
+      if (result.previewUrl || !result.jobId) {
+        await finishWithSuccess();
+        return;
+      }
+
+      // Legacy job-based path (kept for compatibility)
       if (result.jobId.startsWith("sync-")) {
         await new Promise((r) => setTimeout(r, 1000));
         try {

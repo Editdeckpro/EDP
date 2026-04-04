@@ -119,9 +119,9 @@ export async function getLyricVideosClient(params?: {
  */
 export async function generatePreviewClient(
   lyricVideoId: number
-): Promise<{ jobId: string; status: string; message?: string; previewUrl?: string }> {
+): Promise<{ jobId?: string; status?: string; message?: string; previewUrl?: string }> {
   const axios = await GetAxiosWithAuth();
-  const response = await axios.post<{ jobId: string; status: string; message?: string; previewUrl?: string }>(
+  const response = await axios.post<{ jobId?: string; status?: string; message?: string; previewUrl?: string }>(
     `lyric-videos/${lyricVideoId}/preview`
   );
   return response.data;
@@ -133,9 +133,9 @@ export async function generatePreviewClient(
 export async function generateFinalVideoClient(
   lyricVideoId: number,
   aspectRatio: "1:1" | "9:16" | "16:9" = "16:9"
-): Promise<{ jobId: string; status: string; aspectRatio: string; finalUrl?: string }> {
+): Promise<{ jobId?: string; status?: string; aspectRatio?: string; finalUrl?: string; exportUrl?: string }> {
   const axios = await GetAxiosWithAuth();
-  const response = await axios.post<{ jobId: string; status: string; aspectRatio: string; finalUrl?: string }>(
+  const response = await axios.post<{ jobId?: string; status?: string; aspectRatio?: string; finalUrl?: string; exportUrl?: string }>(
     `lyric-videos/${lyricVideoId}/generate`,
     { aspectRatio }
   );

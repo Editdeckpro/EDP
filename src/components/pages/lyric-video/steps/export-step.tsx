@@ -135,6 +135,15 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
 
     try {
       const result = await generateFinalVideoClient(lyricVideoId, aspectRatio);
+
+      // Backend renders synchronously and returns exportUrl directly.
+      // No job queue involved — fetch the video record to get the URL.
+      if (result.finalUrl || result.exportUrl || !result.jobId) {
+        await finishWithSuccess(lyricVideoId);
+        return;
+      }
+
+      // Legacy job-based path (kept for compatibility)
       if (result.jobId.startsWith("sync-")) {
         await new Promise((r) => setTimeout(r, 1000));
         try {

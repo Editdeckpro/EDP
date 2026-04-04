@@ -12,6 +12,7 @@ interface Beat {
   name: string;
   bpm: number;
   key: string;
+  genre: string;
   timeSignature: string;
   description: string;
   kick:    number[];
@@ -22,6 +23,29 @@ interface Beat {
   chords:  ChordEvent[];
   melody:  NoteEvent[];
 }
+
+// ── Hardcoded drum patterns (mirrors backend — never trust API drum data) ──────
+
+const DRUM_PATTERNS: Record<string, { kick: number[]; snare: number[]; hihat: number[]; openHat: number[] }> = {
+  trap: {
+    kick:    [1,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0],
+    snare:   [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+    hihat:   [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
+    openHat: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  },
+  rb: {
+    kick:    [1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0],
+    snare:   [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+    hihat:   [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
+    openHat: [0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0],
+  },
+  pop: {
+    kick:    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+    snare:   [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+    hihat:   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    openHat: [0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0],
+  },
+};
 
 // ── WAV encoder (16-bit PCM) ──────────────────────────────────────────────────
 
@@ -51,31 +75,31 @@ function audioBufferToWav(buffer: AudioBuffer): ArrayBuffer {
   return ab;
 }
 
-// ── Synth factory — identical params for live playback and offline render ─────
+// ── Synth factory ─────────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildSynths(Tone: any) {
   const kick = new Tone.MembraneSynth({
-    pitchDecay: 0.05,
+    pitchDecay: 0.08,
     octaves: 10,
     envelope: { attack: 0.001, decay: 0.4, sustain: 0, release: 0.1 },
   }).toDestination();
-  kick.volume.value = -4;
+  kick.volume.value = -2;
 
   const snare = new Tone.NoiseSynth({
     noise: { type: "white" },
-    envelope: { attack: 0.001, decay: 0.15, sustain: 0, release: 0.01 },
+    envelope: { attack: 0.001, decay: 0.12, sustain: 0, release: 0.01 },
   }).toDestination();
-  snare.volume.value = -8;
+  snare.volume.value = -6;
 
   const hihat = new Tone.MetalSynth({
-    envelope: { attack: 0.001, decay: 0.04, release: 0.01 },
+    envelope: { attack: 0.001, decay: 0.03, release: 0.01 },
     harmonicity: 5.1,
     modulationIndex: 32,
     resonance: 4000,
     octaves: 1.5,
   }).toDestination();
-  hihat.volume.value = -20;
+  hihat.volume.value = -22;
 
   const openHat = new Tone.MetalSynth({
     envelope: { attack: 0.001, decay: 0.3, release: 0.1 },
@@ -84,44 +108,36 @@ function buildSynths(Tone: any) {
     resonance: 4000,
     octaves: 1.5,
   }).toDestination();
-  openHat.volume.value = -18;
+  openHat.volume.value = -20;
 
-  // 808-style bass: sine wave, long sustain and release
   const bass = new Tone.Synth({
     oscillator: { type: "sine" },
-    envelope: { attack: 0.001, decay: 0.1, sustain: 0.9, release: 1.5 },
+    envelope: { attack: 0.005, decay: 0.3, sustain: 0.8, release: 2.0 },
   }).toDestination();
-  bass.volume.value = -8;
+  bass.volume.value = -6;
 
-  // Soft pad chords: triangle wave, slow attack
   const chordSynth = new Tone.PolySynth(Tone.Synth, {
     oscillator: { type: "triangle" },
-    envelope: { attack: 0.1, decay: 0.3, sustain: 0.5, release: 1.5 },
+    envelope: { attack: 0.2, decay: 0.5, sustain: 0.6, release: 2.0 },
   }).toDestination();
-  chordSynth.volume.value = -14;
+  chordSynth.volume.value = -16;
 
-  // Clean melody: sine, soft envelope
   const melodySynth = new Tone.Synth({
     oscillator: { type: "sine" },
-    envelope: { attack: 0.01, decay: 0.1, sustain: 0.3, release: 0.8 },
+    envelope: { attack: 0.02, decay: 0.2, sustain: 0.4, release: 0.8 },
   }).toDestination();
-  melodySynth.volume.value = -10;
+  melodySynth.volume.value = -12;
 
   return { kick, snare, hihat, openHat, bass, chordSynth, melodySynth };
 }
 
-// ── Sequencer grid (visual) ───────────────────────────────────────────────────
+// ── Sequencer grid (visual only — uses API data which mirrors DRUM_PATTERNS) ──
 
 const ROW_LABELS = ["Kick", "Snare", "Hi-Hat", "Open"];
 const ROW_COLORS = ["bg-violet-500", "bg-blue-500", "bg-cyan-400", "bg-teal-400"];
 
 function SequencerGrid({ beat }: { beat: Beat }) {
-  const rows = [
-    beat.kick,
-    beat.snare,
-    beat.hihat,
-    beat.openHat ?? Array(16).fill(0),
-  ];
+  const rows = [beat.kick, beat.snare, beat.hihat, beat.openHat ?? Array(16).fill(0)];
   return (
     <div className="space-y-1.5 mt-4">
       {rows.map((row, ri) => (
@@ -272,7 +288,7 @@ export default function BeatProducerClient() {
     }
   };
 
-  // ── Live playback via Tone.Sequence (loops perfectly) ─────────────────────
+  // ── Live playback ─────────────────────────────────────────────────────────
   const playBeat = async (beat: Beat) => {
     stopAll();
     const Tone = await import("tone");
@@ -283,25 +299,37 @@ export default function BeatProducerClient() {
     const { kick, snare, hihat, openHat, bass, chordSynth, melodySynth } = buildSynths(Tone);
     synthsRef.current = [kick, snare, hihat, openHat, bass, chordSynth, melodySynth];
 
-    // Steps 0-15, Tone.Sequence loops the bar automatically
+    // Use hardcoded drum patterns — never trust API drum arrays for audio
+    const drums = DRUM_PATTERNS[beat.genre] || DRUM_PATTERNS.trap;
+
+    // Bass notes in order (steps 0,4,8,12)
+    const bassNotes  = beat.bass.map(n => n.note);
+    const chordNotes = beat.chords.map(n => n.notes);
+    const melNotes   = beat.melody.filter(n => n.step < 8).map(n => n.note); // 4 unique melody notes
+
     const seq = new Tone.Sequence(
       (time: number, step: number) => {
-        // Drums snap to exact grid position — zero humanization
-        if (beat.kick[step])      kick.triggerAttackRelease("C1", "8n", time);
-        if (beat.snare[step])     snare.triggerAttackRelease("8n", time);
-        if (beat.hihat[step])     hihat.triggerAttackRelease("C6", "32n", time);
-        if (beat.openHat?.[step]) openHat.triggerAttackRelease("C6", "8n", time);
+        // Drums: hardcoded patterns, rock solid timing
+        if (drums.kick[step])     kick.triggerAttackRelease("C1", "8n", time);
+        if (drums.snare[step])    snare.triggerAttackRelease("8n", time);
+        if (drums.hihat[step])    hihat.triggerAttackRelease("C6", "32n", time);
+        if (drums.openHat[step])  openHat.triggerAttackRelease("C6", "8n", time);
 
-        // Pitched instruments — exact step match only
-        beat.bass.filter(n => n.step === step).forEach(n =>
-          bass.triggerAttackRelease(n.note, n.duration, time)
-        );
-        beat.chords.filter(n => n.step === step).forEach(n =>
-          chordSynth.triggerAttackRelease(n.notes, n.duration, time)
-        );
-        beat.melody.filter(n => n.step === step).forEach(n =>
-          melodySynth.triggerAttackRelease(n.note, n.duration, time)
-        );
+        // Bass + chords: one per beat (steps 0, 4, 8, 12)
+        if (step % 4 === 0) {
+          const ci = step / 4; // 0,1,2,3
+          const bn = bassNotes[ci]  || "C2";
+          const cn = chordNotes[ci] || ["C3","E3","G3"];
+          bass.triggerAttackRelease(bn, "4n", time);
+          chordSynth.triggerAttackRelease(cn, "1n", time);
+        }
+
+        // Melody: 4-note sequence, triggers every 2 steps (0,2,4,6 → repeat 8,10,12,14)
+        if (step % 2 === 0) {
+          const mi = (step / 2) % 4;
+          const mn = melNotes[mi] || "C4";
+          melodySynth.triggerAttackRelease(mn, "8n", time);
+        }
       },
       [...Array(16).keys()],
       "16n"
@@ -320,31 +348,38 @@ export default function BeatProducerClient() {
     try {
       const Tone = await import("tone");
 
-      const BARS    = 8;
-      const stepSec = 60 / beat.bpm / 4;   // one 16th note in seconds
-      const barSec  = stepSec * 16;
+      const BARS     = 8;
+      const stepSec  = 60 / beat.bpm / 4;  // duration of one 16th note
+      const barSec   = stepSec * 16;
       const totalSec = BARS * barSec + 2;   // +2s for long release tails
 
-      // Offline render — schedule every step at absolute AudioContext times
       const toneBuffer = await Tone.Offline(async () => {
         const { kick, snare, hihat, openHat, bass, chordSynth, melodySynth } = buildSynths(Tone);
+
+        const drums     = DRUM_PATTERNS[beat.genre] || DRUM_PATTERNS.trap;
+        const bassNotes  = beat.bass.map(n => n.note);
+        const chordNotes = beat.chords.map(n => n.notes);
+        const melNotes   = beat.melody.filter(n => n.step < 8).map(n => n.note);
 
         for (let bar = 0; bar < BARS; bar++) {
           for (let s = 0; s < 16; s++) {
             const t = bar * barSec + s * stepSec;
-            if (beat.kick[s])      kick.triggerAttackRelease("C1", "8n", t);
-            if (beat.snare[s])     snare.triggerAttackRelease("8n", t);
-            if (beat.hihat[s])     hihat.triggerAttackRelease("C6", "32n", t);
-            if (beat.openHat?.[s]) openHat.triggerAttackRelease("C6", "8n", t);
-            beat.bass.filter(n => n.step === s).forEach(n =>
-              bass.triggerAttackRelease(n.note, n.duration, t)
-            );
-            beat.chords.filter(n => n.step === s).forEach(n =>
-              chordSynth.triggerAttackRelease(n.notes, n.duration, t)
-            );
-            beat.melody.filter(n => n.step === s).forEach(n =>
-              melodySynth.triggerAttackRelease(n.note, n.duration, t)
-            );
+
+            if (drums.kick[s])    kick.triggerAttackRelease("C1", "8n", t);
+            if (drums.snare[s])   snare.triggerAttackRelease("8n", t);
+            if (drums.hihat[s])   hihat.triggerAttackRelease("C6", "32n", t);
+            if (drums.openHat[s]) openHat.triggerAttackRelease("C6", "8n", t);
+
+            if (s % 4 === 0) {
+              const ci = s / 4;
+              bass.triggerAttackRelease(bassNotes[ci] || "C2", "4n", t);
+              chordSynth.triggerAttackRelease(chordNotes[ci] || ["C3","E3","G3"], "1n", t);
+            }
+
+            if (s % 2 === 0) {
+              const mi = (s / 2) % 4;
+              melodySynth.triggerAttackRelease(melNotes[mi] || "C4", "8n", t);
+            }
           }
         }
       }, totalSec);
@@ -399,7 +434,7 @@ export default function BeatProducerClient() {
             <input
               value={genre}
               onChange={e => setGenre(e.target.value)}
-              placeholder="e.g. Trap, Lo-fi, Afrobeats"
+              placeholder="e.g. Trap, R&B, Pop"
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
