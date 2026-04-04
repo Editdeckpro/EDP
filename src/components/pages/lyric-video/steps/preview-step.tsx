@@ -86,7 +86,9 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData }:
     setStatus("completed");
     if (!videoData.lyricVideoId) return;
     const videoResult = await getLyricVideoByIdClient(videoData.lyricVideoId);
+    console.log("[PreviewStep] Video record:", videoResult);
     if (videoResult.previewVideoUrl) {
+      console.log("[PreviewStep] Preview URL:", videoResult.previewVideoUrl);
       setPreviewUrl(videoResult.previewVideoUrl);
       onDataUpdate({ previewUrl: videoResult.previewVideoUrl });
     }
@@ -141,6 +143,7 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData }:
 
     try {
       const result = await generatePreviewClient(videoData.lyricVideoId);
+      console.log("[PreviewStep] API response:", result);
 
       // Backend renders synchronously and returns previewUrl directly.
       // No job queue involved — fetch the video record to get the URL.
@@ -217,8 +220,8 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData }:
             </div>
           </div>
           <div className="text-center">
-            <p className="font-semibold">Rendering preview...</p>
-            <p className="text-sm text-muted-foreground mt-1">This may take a minute</p>
+            <p className="font-semibold">Rendering your lyric video...</p>
+            <p className="text-sm text-muted-foreground mt-1">This takes 30–60 seconds</p>
           </div>
           <div className="w-full max-w-sm space-y-2">
             <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -259,6 +262,8 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData }:
             <ReactPlayer
               url={previewUrl}
               controls
+              playing
+              muted
               width="100%"
               height="100%"
               onError={(e: unknown) => {
@@ -267,6 +272,9 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData }:
               }}
             />
           </div>
+          <p className="text-xs text-muted-foreground text-center">
+            Preview is 720p · Export is full 1080p HD
+          </p>
           <Button
             variant="outline"
             size="sm"

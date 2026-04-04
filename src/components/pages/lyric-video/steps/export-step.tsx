@@ -135,6 +135,7 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
 
     try {
       const result = await generateFinalVideoClient(lyricVideoId, aspectRatio);
+      console.log("[ExportStep] API response:", result);
 
       // Backend renders synchronously and returns exportUrl directly.
       // No job queue involved — fetch the video record to get the URL.
