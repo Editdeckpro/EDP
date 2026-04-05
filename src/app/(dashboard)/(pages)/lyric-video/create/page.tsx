@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import UploadAudioStep from "@/components/pages/lyric-video/steps/upload-audio-step";
@@ -9,8 +8,6 @@ import AddLyricsStep from "@/components/pages/lyric-video/steps/add-lyrics-step"
 import TrimAudioStep from "@/components/pages/lyric-video/steps/trim-audio-step";
 import PreviewStep from "@/components/pages/lyric-video/steps/preview-step";
 import ExportStep from "@/components/pages/lyric-video/steps/export-step";
-import { SubscriptionRequiredModal } from "@/components/pages/auth/subscription-required-modal";
-
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface LyricVideoData {
@@ -34,44 +31,9 @@ const STEPS = [
 ];
 
 export default function CreateLyricVideoPage() {
-  const { data: session } = useSession();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<Step>(1);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [videoData, setVideoData] = useState<LyricVideoData>({});
-
-  const planType = session?.user?.subscription?.planType || "FREE";
-  const bypassSubscription = Boolean(session?.user?.bypassSubscription);
-
-  if (!bypassSubscription && (planType === "STARTER" || planType === "FREE")) {
-    return (
-      <>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center">
-          <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center text-3xl">🎬</div>
-          <h1 className="text-2xl font-bold">Lyric Videos</h1>
-          <p className="text-muted-foreground max-w-sm">
-            Lyric videos are available on Next Level and Pro Studio plans.
-          </p>
-          <button
-            onClick={() => setShowUpgradeModal(true)}
-            className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
-          >
-            Upgrade Plan
-          </button>
-        </div>
-        <SubscriptionRequiredModal
-          open={showUpgradeModal}
-          onOpenChange={setShowUpgradeModal}
-          details={{
-            title: "Upgrade Required",
-            message: "Lyric videos are not available on your current plan. Please upgrade to Next Level or Pro Studio.",
-            actionLink: "/subscription",
-            actionText: "View Plans",
-          }}
-        />
-      </>
-    );
-  }
 
   const updateVideoData = (data: Partial<LyricVideoData>) => {
     setVideoData((prev) => ({ ...prev, ...data }));

@@ -33,12 +33,6 @@ export default function Page() {
           imageSrc="/images/cta-lyric-video.svg"
           bgImgSrc="/images/cta-bg.jpg"
           btnLink="/lyric-video/create"
-          disabled={false}
-          upgradeRequired={false}
-          planRestriction={{
-            allowedPlans: ["NEXT_LEVEL", "PRO_STUDIO"],
-            message: "Upgrade to Next Level or Pro Studio to create lyric videos"
-          }}
         />
         <PageCta
           title="Beat Producer"
@@ -48,10 +42,6 @@ export default function Page() {
           imageSrc="/images/cta-lyric-video.svg"
           bgImgSrc="/images/cta-2.jpg"
           btnLink="/beat-producer"
-          planRestriction={{
-            allowedPlans: ["NEXT_LEVEL", "PRO_STUDIO"],
-            message: "Upgrade to Next Level or Pro Studio to use Beat Producer"
-          }}
         />
       </div>
       <ImageCardGrid generationType="custom,filter" />
