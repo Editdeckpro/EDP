@@ -5,7 +5,7 @@ import PageCta from "@/components/pages/dashboard/page-cta";
 export default function Page() {
   return (
     <section className="space-y-10">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <PageCta
           title="Image Creator"
           description="Craft stunning album covers from pure imagination."
