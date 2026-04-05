@@ -13,33 +13,35 @@ interface Beat {
   bpm: number;
   key: string;
   genre: string;
-  timeSignature: string;
   description: string;
-  kick:    number[];
-  snare:   number[];
-  hihat:   number[];
+  kick: number[];
+  snare: number[];
+  hihat: number[];
   openHat: number[];
-  bass:    NoteEvent[];
-  chords:  ChordEvent[];
-  melody:  NoteEvent[];
+  bass: NoteEvent[];
+  chords: ChordEvent[];
+  melody: NoteEvent[];
 }
 
-interface Instruments {
-  triggerKick:    (time: number) => void;
-  triggerSnare:   (time: number) => void;
-  triggerHihat:   (time: number) => void;
-  triggerOpenHat: (time: number) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  bass: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  chordSynth: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  melodySynth: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  limiter: any;
+interface ApiBeat {
+  id: string;
+  name: string;
+  description: string;
+  bpm: number;
+  genre: string;
 }
 
-// ── Hardcoded drum patterns (mirrors backend — never trust API drum data) ──────
+// ── Genre detection ────────────────────────────────────────────────────────────
+
+function detectGenre(prompt: string): "trap" | "rb" | "pop" {
+  const p = prompt.toLowerCase();
+  if (/\b(cole|kendrick|drake|travis|21 savage|gunna|lil baby|carti|drill|trap|808|dark|hard|grimy)\b/.test(p)) return "trap";
+  if (/\b(r&b|rnb|soul|smooth|chris brown|weeknd|usher|frank ocean|neo soul|love song|vibe)\b/.test(p)) return "rb";
+  if (/\b(pop|catchy|radio|upbeat|bright|happy|taylor|ariana|mainstream|dance)\b/.test(p)) return "pop";
+  return "trap";
+}
+
+// ── Fixed drum patterns ───────────────────────────────────────────────────────
 
 const DRUM_PATTERNS: Record<string, { kick: number[]; snare: number[]; hihat: number[]; openHat: number[] }> = {
   trap: {
@@ -62,15 +64,99 @@ const DRUM_PATTERNS: Record<string, { kick: number[]; snare: number[]; hihat: nu
   },
 };
 
-const SAMPLE_URLS = {
-  kick:    "https://sampleswap.org/samples-ghost/DRUMS+%28FULL+KITS%29/808+DRUM+MACHINE/50%5Bkb%5D808-kick.wav.mp3",
-  snare:   "https://sampleswap.org/samples-ghost/DRUMS+%28FULL+KITS%29/808+DRUM+MACHINE/11%5Bkb%5D808-snare.wav.mp3",
-  hihat:   "https://sampleswap.org/samples-ghost/DRUMS+%28FULL+KITS%29/808+DRUM+MACHINE/3%5Bkb%5D808-hihat-closed.wav.mp3",
-  openHat: "https://sampleswap.org/samples-ghost/DRUMS+%28FULL+KITS%29/808+DRUM+MACHINE/8%5Bkb%5D808-hihat-open.wav.mp3",
+// ── Fixed chord progressions ───────────────────────────────────────────────────
+// Beat index 0 → prog1, Beat index 1 → prog2
+
+interface Progression {
+  chords: string[][];
+  bass: string[];
+  melody: string[];
+  key: string;
+}
+
+const PROGRESSIONS: Record<string, { prog1: Progression; prog2: Progression }> = {
+  trap: {
+    prog1: {
+      chords: [["A3","C4","E4"], ["F3","A3","C4"], ["C3","E3","G3"], ["G3","B3","D4"]],
+      bass:   ["A2","F2","C2","G2"],
+      melody: ["A4","C5","D5","E5"],
+      key:    "A minor",
+    },
+    prog2: {
+      chords: [["D3","F3","A3"], ["Bb2","D3","F3"], ["F3","A3","C4"], ["C3","E3","G3"]],
+      bass:   ["D2","Bb2","F2","C2"],
+      melody: ["D5","F5","A4","C5"],
+      key:    "D minor",
+    },
+  },
+  rb: {
+    prog1: {
+      chords: [["D3","F3","A3","C4"], ["G3","B3","D4","F#4"], ["C3","E3","G3","B3"], ["F3","A3","C4","E4"]],
+      bass:   ["D2","G2","C2","F2"],
+      melody: ["D4","F4","A4","C5"],
+      key:    "D minor",
+    },
+    prog2: {
+      chords: [["A3","C4","E4","G4"], ["D3","F3","A3","C4"], ["G3","B3","D4","F4"], ["C3","E3","G3","B3"]],
+      bass:   ["A2","D2","G2","C2"],
+      melody: ["A4","C5","E5","G5"],
+      key:    "A minor",
+    },
+  },
+  pop: {
+    prog1: {
+      chords: [["C3","E3","G3"], ["G3","B3","D4"], ["A3","C4","E4"], ["F3","A3","C4"]],
+      bass:   ["C2","G2","A2","F2"],
+      melody: ["C5","E5","G5","F5"],
+      key:    "C major",
+    },
+    prog2: {
+      chords: [["G3","B3","D4"], ["D3","F#3","A3"], ["E3","G3","B3"], ["C3","E3","G3"]],
+      bass:   ["G2","D2","E2","C2"],
+      melody: ["G4","B4","D5","E5"],
+      key:    "G major",
+    },
+  },
 };
 
-const ROW_LABELS = ["Kick", "Snare", "Hi-Hat", "Open"];
-const ROW_COLORS = ["bg-violet-500", "bg-blue-500", "bg-cyan-400", "bg-teal-400"];
+// ── Enrich API response with full progression data ────────────────────────────
+
+function enrichBeat(apibeat: ApiBeat, index: number): Beat {
+  const genre = (apibeat.genre || "trap") as keyof typeof PROGRESSIONS;
+  const progKey = index === 0 ? "prog1" : "prog2";
+  const prog = PROGRESSIONS[genre]?.[progKey] ?? PROGRESSIONS.trap.prog1;
+  const drums = DRUM_PATTERNS[genre] ?? DRUM_PATTERNS.trap;
+
+  const CHORD_STEPS = [0, 4, 8, 12];
+  const chords: ChordEvent[] = CHORD_STEPS.map((step, i) => ({
+    notes:    prog.chords[i] ?? ["C3","E3","G3"],
+    step,
+    duration: "1n",
+  }));
+  const bass: NoteEvent[] = CHORD_STEPS.map((step, i) => ({
+    note:     prog.bass[i] ?? "C2",
+    step,
+    duration: "4n",
+  }));
+  // Melody: 4 notes at steps 0,2,4,6 repeated at 8,10,12,14
+  const melody: NoteEvent[] = prog.melody.slice(0, 4).flatMap((note, i) => [
+    { note, step: i * 2,     duration: "8n" },
+    { note, step: i * 2 + 8, duration: "8n" },
+  ]);
+
+  return {
+    id:          apibeat.id ?? `beat_${index + 1}`,
+    name:        apibeat.name,
+    description: apibeat.description,
+    bpm:         apibeat.bpm,
+    key:         prog.key,
+    genre,
+    ...drums,
+    bass,
+    chords,
+    melody,
+  };
+}
 
 // ── WAV encoder (16-bit PCM) ──────────────────────────────────────────────────
 
@@ -100,7 +186,33 @@ function audioBufferToWav(buffer: AudioBuffer): ArrayBuffer {
   return ab;
 }
 
-// ── Instrument loader — real 808 samples with synthetic fallback ──────────────
+// ── Sample URLs ───────────────────────────────────────────────────────────────
+
+const SAMPLE_URLS = {
+  kick:    "https://sampleswap.org/samples-ghost/DRUMS+%28FULL+KITS%29/808+DRUM+MACHINE/50%5Bkb%5D808-kick.wav.mp3",
+  snare:   "https://sampleswap.org/samples-ghost/DRUMS+%28FULL+KITS%29/808+DRUM+MACHINE/11%5Bkb%5D808-snare.wav.mp3",
+  hihat:   "https://sampleswap.org/samples-ghost/DRUMS+%28FULL+KITS%29/808+DRUM+MACHINE/3%5Bkb%5D808-hihat-closed.wav.mp3",
+  openHat: "https://sampleswap.org/samples-ghost/DRUMS+%28FULL+KITS%29/808+DRUM+MACHINE/8%5Bkb%5D808-hihat-open.wav.mp3",
+};
+
+// ── Instruments interface ─────────────────────────────────────────────────────
+
+interface Instruments {
+  triggerKick:    (time: number) => void;
+  triggerSnare:   (time: number) => void;
+  triggerHihat:   (time: number) => void;
+  triggerOpenHat: (time: number) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  bass: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  chordSynth: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  melodySynth: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  limiter: any;
+}
+
+// ── Instrument loader ─────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function loadInstruments(Tone: any, onStatus: (s: string) => void): Promise<Instruments> {
@@ -108,7 +220,7 @@ async function loadInstruments(Tone: any, onStatus: (s: string) => void): Promis
 
   const limiter = new Tone.Limiter(-3).toDestination();
 
-  // Bass: sawtooth → lowpass 200 Hz → limiter
+  // Bass: sawtooth → lowpass filter → limiter
   const bassFilter = new Tone.Filter(200, "lowpass").connect(limiter);
   const bass = new Tone.Synth({
     oscillator: { type: "sawtooth" },
@@ -116,35 +228,35 @@ async function loadInstruments(Tone: any, onStatus: (s: string) => void): Promis
   }).connect(bassFilter);
   bass.volume.value = -8;
 
-  // Chords: PolySynth triangle → chorus → reverb → limiter
-  const chordReverb = new Tone.Reverb({ decay: 2.0, wet: 0.3 }).connect(limiter);
+  // Chords: PolySynth triangle → chorus → heavy reverb → limiter (warm, lush)
+  const chordReverb = new Tone.Reverb({ decay: 3.0, wet: 0.4 }).connect(limiter);
   const chordChorus = new Tone.Chorus(4, 2.5, 0.5).connect(chordReverb);
   chordChorus.start();
   const chordSynth = new Tone.PolySynth(Tone.Synth, {
     oscillator: { type: "triangle" },
-    envelope: { attack: 0.2, decay: 0.5, sustain: 0.6, release: 2.0 },
+    envelope: { attack: 0.2, decay: 0.5, sustain: 0.7, release: 2.5 },
   }).connect(chordChorus);
-  chordSynth.volume.value = -18;
+  chordSynth.volume.value = -16;
 
   // Melody: triangle → chorus → reverb → limiter
-  const melReverb = new Tone.Reverb({ decay: 1.5, wet: 0.25 }).connect(limiter);
+  const melReverb = new Tone.Reverb({ decay: 2.0, wet: 0.35 }).connect(limiter);
   const melChorus = new Tone.Chorus(5, 2.0, 0.4).connect(melReverb);
   melChorus.start();
   const melodySynth = new Tone.Synth({
     oscillator: { type: "triangle" },
-    envelope: { attack: 0.02, decay: 0.2, sustain: 0.4, release: 0.8 },
+    envelope: { attack: 0.05, decay: 0.3, sustain: 0.5, release: 1.2 },
   }).connect(melChorus);
   melodySynth.volume.value = -14;
 
-  // Drums: try real 808 samples, fall back to synthetic
+  // Drums: try real samples, fall back to synthetic
   let triggerKick:    (time: number) => void;
   let triggerSnare:   (time: number) => void;
   let triggerHihat:   (time: number) => void;
   let triggerOpenHat: (time: number) => void;
 
   try {
-    const kickFilter  = new Tone.Filter(200, "lowpass").connect(limiter);
-    const snareReverb = new Tone.Reverb({ decay: 0.8, wet: 0.2 }).connect(limiter);
+    const kickFilter  = new Tone.Filter(180, "lowpass").connect(limiter);
+    const snareReverb = new Tone.Reverb({ decay: 0.6, wet: 0.15 }).connect(limiter);
 
     const kickSampler    = new Tone.Sampler({ C1: SAMPLE_URLS.kick    }).connect(kickFilter);
     const snareSampler   = new Tone.Sampler({ C1: SAMPLE_URLS.snare   }).connect(snareReverb);
@@ -156,10 +268,9 @@ async function loadInstruments(Tone: any, onStatus: (s: string) => void): Promis
     hihatSampler.volume.value   = -10;
     openHatSampler.volume.value = -8;
 
-    // Wait for samples (8s timeout)
     await Promise.race([
       Tone.loaded(),
-      new Promise((_res, rej) => setTimeout(() => rej(new Error("Sample load timeout")), 8000)),
+      new Promise((_r, rej) => setTimeout(() => rej(new Error("timeout")), 8000)),
     ]);
 
     triggerKick    = (t) => kickSampler.triggerAttackRelease("C1", "8n", t);
@@ -170,76 +281,73 @@ async function loadInstruments(Tone: any, onStatus: (s: string) => void): Promis
     console.log("[BeatProducer] Real 808 samples loaded");
     onStatus("loaded");
   } catch (e) {
-    console.warn("[BeatProducer] 808 samples unavailable, using synthetic drums:", e);
+    console.warn("[BeatProducer] Using synthetic drums:", e);
 
-    // Synthetic drums
-    const kickFilt = new Tone.Filter(200, "lowpass").connect(limiter);
+    const kickFilt = new Tone.Filter(160, "lowpass").connect(limiter);
     const kickSyn  = new Tone.MembraneSynth({
-      pitchDecay: 0.08, octaves: 10,
-      envelope: { attack: 0.001, decay: 0.4, sustain: 0, release: 0.1 },
+      pitchDecay: 0.1, octaves: 10,
+      envelope: { attack: 0.001, decay: 0.5, sustain: 0, release: 0.1 },
     }).connect(kickFilt);
-    kickSyn.volume.value = 0;
+    kickSyn.volume.value = 2;
 
-    const snareRev = new Tone.Reverb({ decay: 0.8, wet: 0.2 }).connect(limiter);
+    const snareRev = new Tone.Reverb({ decay: 0.5, wet: 0.15 }).connect(limiter);
     const snareSyn = new Tone.NoiseSynth({
       noise: { type: "white" },
-      envelope: { attack: 0.001, decay: 0.15, sustain: 0, release: 0.01 },
+      envelope: { attack: 0.001, decay: 0.18, sustain: 0, release: 0.02 },
     }).connect(snareRev);
-    snareSyn.volume.value = -4;
+    snareSyn.volume.value = -2;
 
     const hihatSyn = new Tone.MetalSynth({
-      envelope: { attack: 0.001, decay: 0.03, release: 0.01 },
+      envelope: { attack: 0.001, decay: 0.04, release: 0.02 },
       harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5,
     }).connect(limiter);
-    hihatSyn.volume.value = -20;
+    hihatSyn.volume.value = -18;
 
     const openHatSyn = new Tone.MetalSynth({
-      envelope: { attack: 0.001, decay: 0.3, release: 0.1 },
+      envelope: { attack: 0.001, decay: 0.35, release: 0.1 },
       harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5,
     }).connect(limiter);
-    openHatSyn.volume.value = -18;
+    openHatSyn.volume.value = -16;
 
     triggerKick    = (t) => kickSyn.triggerAttackRelease("C1", "8n", t);
-    triggerSnare   = (t) => snareSyn.triggerAttackRelease("8n", t);          // NoiseSynth: no note
+    triggerSnare   = (t) => snareSyn.triggerAttackRelease("8n", t);
     triggerHihat   = (t) => hihatSyn.triggerAttackRelease("C6", "32n", t);
     triggerOpenHat = (t) => openHatSyn.triggerAttackRelease("C6", "8n", t);
 
     onStatus("synth");
   }
 
-  // Small pause for reverb impulse generation
-  await new Promise(r => setTimeout(r, 300));
-
+  await new Promise(r => setTimeout(r, 200));
   return { triggerKick, triggerSnare, triggerHihat, triggerOpenHat, bass, chordSynth, melodySynth, limiter };
 }
 
-// ── Synthetic synths for WAV export (Tone.Offline compatible) ─────────────────
+// ── Synthetic synths for Tone.Offline WAV export ──────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildExportSynths(Tone: any) {
   const kick = new Tone.MembraneSynth({
-    pitchDecay: 0.08, octaves: 10,
-    envelope: { attack: 0.001, decay: 0.4, sustain: 0, release: 0.1 },
+    pitchDecay: 0.1, octaves: 10,
+    envelope: { attack: 0.001, decay: 0.5, sustain: 0, release: 0.1 },
   }).toDestination();
-  kick.volume.value = 0;
+  kick.volume.value = 2;
 
   const snare = new Tone.NoiseSynth({
     noise: { type: "white" },
-    envelope: { attack: 0.001, decay: 0.15, sustain: 0, release: 0.01 },
+    envelope: { attack: 0.001, decay: 0.18, sustain: 0, release: 0.02 },
   }).toDestination();
-  snare.volume.value = -4;
+  snare.volume.value = -2;
 
   const hihat = new Tone.MetalSynth({
-    envelope: { attack: 0.001, decay: 0.03, release: 0.01 },
+    envelope: { attack: 0.001, decay: 0.04, release: 0.02 },
     harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5,
   }).toDestination();
-  hihat.volume.value = -20;
+  hihat.volume.value = -18;
 
   const openHat = new Tone.MetalSynth({
-    envelope: { attack: 0.001, decay: 0.3, release: 0.1 },
+    envelope: { attack: 0.001, decay: 0.35, release: 0.1 },
     harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5,
   }).toDestination();
-  openHat.volume.value = -18;
+  openHat.volume.value = -16;
 
   const bass = new Tone.Synth({
     oscillator: { type: "sawtooth" },
@@ -249,55 +357,20 @@ function buildExportSynths(Tone: any) {
 
   const chordSynth = new Tone.PolySynth(Tone.Synth, {
     oscillator: { type: "triangle" },
-    envelope: { attack: 0.2, decay: 0.5, sustain: 0.6, release: 2.0 },
+    envelope: { attack: 0.2, decay: 0.5, sustain: 0.7, release: 2.5 },
   }).toDestination();
-  chordSynth.volume.value = -18;
+  chordSynth.volume.value = -16;
 
   const melodySynth = new Tone.Synth({
     oscillator: { type: "triangle" },
-    envelope: { attack: 0.02, decay: 0.2, sustain: 0.4, release: 0.8 },
+    envelope: { attack: 0.05, decay: 0.3, sustain: 0.5, release: 1.2 },
   }).toDestination();
   melodySynth.volume.value = -14;
 
   return { kick, snare, hihat, openHat, bass, chordSynth, melodySynth };
 }
 
-// ── SequencerGrid ─────────────────────────────────────────────────────────────
-
-function SequencerGrid({ beat, activeStep }: { beat: Beat; activeStep: number }) {
-  const rows = [beat.kick, beat.snare, beat.hihat, beat.openHat ?? Array(16).fill(0)];
-  return (
-    <div className="space-y-1.5 mt-4">
-      {rows.map((row, ri) => (
-        <div key={ri} className="flex items-center gap-2">
-          <span className="text-[10px] text-white/40 w-10 text-right shrink-0">
-            {ROW_LABELS[ri]}
-          </span>
-          <div className="flex gap-[3px] flex-1">
-            {row.map((on, si) => (
-              <div
-                key={si}
-                className={[
-                  "flex-1 h-5 rounded-sm transition-all duration-75",
-                  si === 4 || si === 8 || si === 12 ? "ml-1" : "",
-                  si === activeStep
-                    ? on
-                      ? `${ROW_COLORS[ri]} brightness-150`
-                      : "bg-white/25"
-                    : on
-                      ? ROW_COLORS[ri]
-                      : "bg-white/10",
-                ].join(" ")}
-              />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ── AnimatedBars (EQ visualizer) ──────────────────────────────────────────────
+// ── AnimatedBars ──────────────────────────────────────────────────────────────
 
 function AnimatedBars() {
   return (
@@ -320,13 +393,11 @@ function AnimatedBars() {
 // ── BeatCard ──────────────────────────────────────────────────────────────────
 
 function BeatCard({
-  beat, isPlaying, activeStep, beat1Flash, samplesStatus,
+  beat, isPlaying, samplesStatus,
   onPlay, onStop, onExport, exporting,
 }: {
   beat: Beat;
   isPlaying: boolean;
-  activeStep: number;
-  beat1Flash: boolean;
   samplesStatus: string;
   onPlay: () => void;
   onStop: () => void;
@@ -334,17 +405,12 @@ function BeatCard({
   exporting: boolean;
 }) {
   return (
-    <div
-      className={[
-        "rounded-2xl border p-5 flex flex-col gap-3 transition-all duration-150",
-        "border-white/10 bg-white/5 backdrop-blur-sm",
-        beat1Flash ? "ring-1 ring-violet-400/50 shadow-[0_0_20px_0_rgba(139,92,246,0.15)]" : "",
-      ].join(" ")}
-    >
+    <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 flex flex-col gap-4">
+      {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <h3 className="text-white font-bold text-lg leading-tight truncate">{beat.name}</h3>
-          <p className="text-white/50 text-sm mt-0.5 line-clamp-2">{beat.description}</p>
+          <h3 className="text-white font-bold text-xl leading-tight">{beat.name}</h3>
+          <p className="text-white/50 text-sm mt-1">{beat.description}</p>
         </div>
         {isPlaying && (
           <div className="shrink-0 mt-1">
@@ -353,20 +419,29 @@ function BeatCard({
         )}
       </div>
 
-      <div className="flex gap-2 text-xs flex-wrap">
-        <span className="px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300">{beat.bpm} BPM</span>
-        <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300">{beat.key}</span>
-        <span className="px-2 py-0.5 rounded-full bg-white/10 text-white/50">{beat.timeSignature}</span>
+      {/* Metadata */}
+      <div className="flex gap-2 flex-wrap">
+        <span className="px-2.5 py-1 rounded-full bg-violet-500/20 text-violet-300 text-xs font-medium">{beat.bpm} BPM</span>
+        <span className="px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-medium">{beat.key}</span>
+        <span className="px-2.5 py-1 rounded-full bg-white/10 text-white/40 text-xs capitalize">{beat.genre}</span>
         {samplesStatus === "loaded" && (
-          <span className="px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 text-[10px]">
-            808 samples
-          </span>
+          <span className="px-2.5 py-1 rounded-full bg-green-500/15 text-green-400 text-xs">808 samples</span>
         )}
       </div>
 
-      <SequencerGrid beat={beat} activeStep={isPlaying ? activeStep : -1} />
+      {/* Arrangement label */}
+      <div className="flex items-center gap-1.5 text-[10px] text-white/25 font-medium tracking-wide">
+        {["Intro","Hook","Verse","Hook","Outro"].map((s, i) => (
+          <span key={i} className="flex items-center gap-1.5">
+            <span>{s}</span>
+            {i < 4 && <span className="text-white/10">·</span>}
+          </span>
+        ))}
+        <span className="ml-auto">~2 min WAV</span>
+      </div>
 
-      <div className="flex gap-2 mt-1">
+      {/* Controls */}
+      <div className="flex gap-2">
         <button
           onClick={isPlaying ? onStop : onPlay}
           className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold transition-colors"
@@ -395,15 +470,20 @@ function BeatCard({
           className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-white/20 hover:bg-white/10 text-white/70 hover:text-white text-sm font-semibold transition-colors disabled:opacity-50"
         >
           {exporting ? (
-            <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
+            <>
+              <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Rendering...
+            </>
           ) : (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download WAV
+            </>
           )}
-          WAV
         </button>
       </div>
     </div>
@@ -413,22 +493,17 @@ function BeatCard({
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function BeatProducerClient() {
-  const [genre, setGenre]       = useState("");
-  const [mood, setMood]         = useState("");
-  const [tempo, setTempo]       = useState("");
-  const [beats, setBeats]       = useState<Beat[]>([]);
-  const [loading, setLoading]   = useState(false);
+  const [prompt, setPrompt]   = useState("");
+  const [beats, setBeats]     = useState<Beat[]>([]);
+  const [loading, setLoading] = useState(false);
   const [playingId, setPlayingId]     = useState<string | null>(null);
   const [exportingId, setExportingId] = useState<string | null>(null);
-  const [error, setError]       = useState("");
-  const [activeStep, setActiveStep]   = useState(-1);
-  const [beat1Flash, setBeat1Flash]   = useState(false);
+  const [error, setError]             = useState("");
   const [samplesStatus, setSamplesStatus] = useState<"idle" | "loading" | "loaded" | "synth">("idle");
 
   const instrRef    = useRef<Instruments | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const seqRef      = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const loadPromRef = useRef<Promise<Instruments> | null>(null);
 
   // ── Stop all audio ────────────────────────────────────────────────────────
@@ -441,7 +516,6 @@ export default function BeatProducerClient() {
       seqRef.current = null;
     }
     setPlayingId(null);
-    setActiveStep(-1);
   }, []);
 
   useEffect(() => () => {
@@ -453,12 +527,11 @@ export default function BeatProducerClient() {
     }
   }, [stopAll]);
 
-  // ── Get or load instruments (loads once, reused across beats) ─────────────
+  // ── Get or load instruments (loaded once, reused) ─────────────────────────
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getOrLoadInstruments = async (Tone: any): Promise<Instruments> => {
     if (instrRef.current) return instrRef.current;
     if (loadPromRef.current) return loadPromRef.current;
-
     const p = loadInstruments(Tone, (s) => setSamplesStatus(s as "idle" | "loading" | "loaded" | "synth"));
     loadPromRef.current = p;
     const instrs = await p;
@@ -469,15 +542,17 @@ export default function BeatProducerClient() {
 
   // ── Generate ──────────────────────────────────────────────────────────────
   const generate = async () => {
+    if (loading) return;
     setLoading(true);
     setError("");
     stopAll();
     setBeats([]);
     try {
+      const genre = detectGenre(prompt);
       const axios = await GetAxiosWithAuth();
-      const { data } = await axios.post<{ beats: Beat[] }>("beat/generate", { genre, mood, tempo });
-      console.log("[BeatProducer] API response:", JSON.stringify(data, null, 2));
-      setBeats(data.beats.slice(0, 2));
+      const { data } = await axios.post<{ beats: ApiBeat[] }>("beat/generate", { prompt, genre });
+      const enriched = data.beats.slice(0, 2).map((b, i) => enrichBeat({ ...b, genre: b.genre || genre }, i));
+      setBeats(enriched);
     } catch (e: unknown) {
       const msg =
         (e as { response?: { data?: { error?: string } } })?.response?.data?.error ||
@@ -499,7 +574,7 @@ export default function BeatProducerClient() {
 
     Tone.getTransport().bpm.value = beat.bpm;
 
-    const drums     = DRUM_PATTERNS[beat.genre] || DRUM_PATTERNS.trap;
+    const drums     = DRUM_PATTERNS[beat.genre] ?? DRUM_PATTERNS.trap;
     const bassNotes  = beat.bass.map((n: NoteEvent) => n.note);
     const chordNotes = beat.chords.map((n: ChordEvent) => n.notes);
     const melNotes   = beat.melody.filter((n: NoteEvent) => n.step < 8).map((n: NoteEvent) => n.note);
@@ -513,23 +588,14 @@ export default function BeatProducerClient() {
 
         if (step % 4 === 0) {
           const ci = step / 4;
-          bass.triggerAttackRelease(bassNotes[ci] || "C2", "4n", time);
-          chordSynth.triggerAttackRelease(chordNotes[ci] || ["C3","E3","G3"], "1n", time);
+          bass.triggerAttackRelease(bassNotes[ci] ?? "C2", "4n", time);
+          chordSynth.triggerAttackRelease(chordNotes[ci] ?? ["C3","E3","G3"], "1n", time);
         }
 
         if (step % 2 === 0) {
           const mi = (step / 2) % 4;
-          melodySynth.triggerAttackRelease(melNotes[mi] || "C4", "8n", time);
+          melodySynth.triggerAttackRelease(melNotes[mi] ?? "C4", "8n", time);
         }
-
-        // Sync UI to audio clock
-        Tone.getDraw().schedule(() => {
-          setActiveStep(step);
-          if (step === 0) {
-            setBeat1Flash(true);
-            setTimeout(() => setBeat1Flash(false), 80);
-          }
-        }, time);
       },
       [...Array(16).keys()],
       "16n"
@@ -541,27 +607,28 @@ export default function BeatProducerClient() {
     setPlayingId(beat.id);
   };
 
-  // ── WAV export via Tone.Offline (synthetic synths — Offline context safe) ─
+  // ── WAV export — full 2-min arrangement (44 bars) ─────────────────────────
   const exportWav = async (beat: Beat) => {
     if (exportingId) return;
     setExportingId(beat.id);
     try {
       const Tone = await import("tone");
 
-      const BARS     = 8;
+      // Intro:8 + Hook:8 + Verse:16 + Hook:8 + Outro:4 = 44 bars
+      const TOTAL_BARS = 44;
       const stepSec  = 60 / beat.bpm / 4;
       const barSec   = stepSec * 16;
-      const totalSec = BARS * barSec + 2;
+      const totalSec = TOTAL_BARS * barSec + 2;
+
+      const drums     = DRUM_PATTERNS[beat.genre] ?? DRUM_PATTERNS.trap;
+      const bassNotes  = beat.bass.map((n: NoteEvent) => n.note);
+      const chordNotes = beat.chords.map((n: ChordEvent) => n.notes);
+      const melNotes   = beat.melody.filter((n: NoteEvent) => n.step < 8).map((n: NoteEvent) => n.note);
 
       const toneBuffer = await Tone.Offline(async () => {
         const { kick, snare, hihat, openHat, bass, chordSynth, melodySynth } = buildExportSynths(Tone);
 
-        const drums     = DRUM_PATTERNS[beat.genre] || DRUM_PATTERNS.trap;
-        const bassNotes  = beat.bass.map((n: NoteEvent) => n.note);
-        const chordNotes = beat.chords.map((n: ChordEvent) => n.notes);
-        const melNotes   = beat.melody.filter((n: NoteEvent) => n.step < 8).map((n: NoteEvent) => n.note);
-
-        for (let bar = 0; bar < BARS; bar++) {
+        for (let bar = 0; bar < TOTAL_BARS; bar++) {
           for (let s = 0; s < 16; s++) {
             const t = bar * barSec + s * stepSec;
 
@@ -572,13 +639,13 @@ export default function BeatProducerClient() {
 
             if (s % 4 === 0) {
               const ci = s / 4;
-              bass.triggerAttackRelease(bassNotes[ci] || "C2", "4n", t);
-              chordSynth.triggerAttackRelease(chordNotes[ci] || ["C3","E3","G3"], "1n", t);
+              bass.triggerAttackRelease(bassNotes[ci] ?? "C2", "4n", t);
+              chordSynth.triggerAttackRelease(chordNotes[ci] ?? ["C3","E3","G3"], "1n", t);
             }
 
             if (s % 2 === 0) {
               const mi = (s / 2) % 4;
-              melodySynth.triggerAttackRelease(melNotes[mi] || "C4", "8n", t);
+              melodySynth.triggerAttackRelease(melNotes[mi] ?? "C4", "8n", t);
             }
           }
         }
@@ -608,10 +675,9 @@ export default function BeatProducerClient() {
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div
-      className="min-h-screen px-4 py-8 max-w-3xl mx-auto"
+      className="min-h-screen px-4 py-8 max-w-2xl mx-auto"
       style={{ background: "linear-gradient(135deg, #0a0a0a 0%, #130a1f 50%, #0a0a1a 100%)" }}
     >
-      {/* Keyframes for animated EQ bars */}
       <style>{`
         @keyframes barPulse {
           from { transform: scaleY(0.3); opacity: 0.5; }
@@ -638,42 +704,22 @@ export default function BeatProducerClient() {
           <svg className="w-4 h-4 animate-spin shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          Loading 808 sounds...
+          Loading 808 drum sounds...
         </div>
       )}
 
-      {/* Controls */}
+      {/* Prompt input */}
       <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-          <div>
-            <label className="block text-xs font-medium text-white/50 mb-1">Genre</label>
-            <input
-              value={genre}
-              onChange={e => setGenre(e.target.value)}
-              placeholder="e.g. Trap, R&B, Pop"
-              className="w-full rounded-lg border border-white/10 bg-white/5 text-white placeholder-white/30 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-white/50 mb-1">Mood</label>
-            <input
-              value={mood}
-              onChange={e => setMood(e.target.value)}
-              placeholder="e.g. Dark, Uplifting, Chill"
-              className="w-full rounded-lg border border-white/10 bg-white/5 text-white placeholder-white/30 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-white/50 mb-1">Tempo</label>
-            <input
-              value={tempo}
-              onChange={e => setTempo(e.target.value)}
-              placeholder="e.g. Fast, Slow, 140 BPM"
-              className="w-full rounded-lg border border-white/10 bg-white/5 text-white placeholder-white/30 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500"
-            />
-          </div>
-        </div>
-
+        <label className="block text-xs font-medium text-white/50 mb-2">
+          Describe your beat
+        </label>
+        <input
+          value={prompt}
+          onChange={e => setPrompt(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter" && !loading) generate(); }}
+          placeholder="e.g. J Cole type beat, Chris Brown R&B, dark trap 140bpm"
+          className="w-full rounded-xl border border-white/10 bg-white/5 text-white placeholder-white/25 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500 mb-4"
+        />
         <button
           onClick={generate}
           disabled={loading}
@@ -688,30 +734,24 @@ export default function BeatProducerClient() {
             </>
           ) : (
             <>
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
               </svg>
               Compose 2 Beats
             </>
           )}
         </button>
-
         {error && <p className="mt-3 text-sm text-red-400 text-center">{error}</p>}
       </div>
 
       {/* Beat cards */}
       {beats.length > 0 && (
         <div className="space-y-4">
-          <p className="text-xs text-white/30 text-center">
-            Click Play to hear your beat · Export as WAV to use in your DAW
-          </p>
           {beats.map(beat => (
             <BeatCard
               key={beat.id}
               beat={beat}
               isPlaying={playingId === beat.id}
-              activeStep={activeStep}
-              beat1Flash={beat1Flash && playingId === beat.id}
               samplesStatus={samplesStatus}
               onPlay={() => playBeat(beat)}
               onStop={stopAll}
@@ -726,8 +766,8 @@ export default function BeatProducerClient() {
       {beats.length === 0 && !loading && (
         <div className="text-center py-16 text-white/30">
           <div className="text-5xl mb-4">🎚️</div>
-          <p className="text-sm">Fill in your preferences above and hit Compose.</p>
-          <p className="text-xs mt-1 opacity-60">All fields are optional — leave blank for a surprise.</p>
+          <p className="text-sm">Describe your beat above and hit Compose.</p>
+          <p className="text-xs mt-1 opacity-60">Leave it blank for a surprise.</p>
         </div>
       )}
     </div>
