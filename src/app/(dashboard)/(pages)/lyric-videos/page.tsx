@@ -20,8 +20,8 @@ export default function LyricVideosPage() {
     setLoading(true);
     try {
       const result = await getLyricVideosClient({ page, limit: 20 });
-      setVideos(result.videos);
-      setTotalPages(result.pagination.totalPages);
+      setVideos(result.videos ?? []);
+      setTotalPages(result.pagination?.totalPages ?? 1);
     } catch {
       toast.error("Failed to load lyric videos");
     } finally {

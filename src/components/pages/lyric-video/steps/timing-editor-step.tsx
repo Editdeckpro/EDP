@@ -95,6 +95,7 @@ export default function TimingEditorStep({ onNext, onPrev, onDataUpdate, videoDa
 
     const lyricVideoId = videoData.lyricVideoId;
 
+    stopPolling(); // stop any in-flight poll before starting regeneration
     setPollTimedOut(false);
     setRegenerating(true);
     try {
