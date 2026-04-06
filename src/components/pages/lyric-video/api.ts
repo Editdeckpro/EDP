@@ -28,12 +28,22 @@ export async function uploadAudioClient(file: File): Promise<AudioUploadResponse
   return response.data;
 }
 
+/** Line-level timing entry used for direct lyricsData injection */
+export interface LyricsDataLine {
+  text: string;
+  start: number;
+  end: number;
+}
+
 /**
  * Create lyric video project (client-side)
+ * Pass `lyricsData` to skip the async Whisper alignment on the backend
+ * (e.g. when AssemblyAI already gave us accurate timestamps).
  */
 export async function createLyricVideoClient(data: {
   audioId: string;
   lyrics: string;
+  lyricsData?: { lines: LyricsDataLine[] };
   style?: string;
   font?: string;
   textColor?: string;
