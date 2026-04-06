@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Play, Pause, Scissors, Loader2 } from "lucide-react";
-import { uploadAudioClient, createLyricVideoClient, getLyricVideoByIdClient, type AssemblyWord, type LyricsDataLine } from "@/components/pages/lyric-video/api";
+import { uploadAudioClient, createLyricVideoClient, getLyricVideoByIdClient, type AssemblyWord, type AssemblyLine, type LyricsDataLine } from "@/components/pages/lyric-video/api";
 
 type LyricVideoWizardData = {
   audioId?: string;
@@ -11,6 +11,7 @@ type LyricVideoWizardData = {
   audioDuration?: number;
   lyrics?: string;
   assemblyWords?: AssemblyWord[];
+  assemblyLines?: AssemblyLine[];
   lyricVideoId?: number;
   trimStart?: number;
   trimEnd?: number;
@@ -163,38 +164,55 @@ export default function TrimAudioStep({ onNext, onPrev, onDataUpdate, videoData 
       const uploadResult = await uploadAudioClient(file);
 
       // Build line-level lyricsData from AssemblyAI timestamps if available.
-      // AssemblyAI words are from the original audio; adjust by trimStart so timestamps
-      // are relative to the trimmed clip that was just uploaded.
+      // Prefer assemblyLines (already grouped by the transcription API) over re-grouping
+      // from raw words. Either way, adjust timestamps by trimStart so they are relative
+      // to the trimmed clip that was just uploaded.
       let prebuiltLyricsData: { lines: LyricsDataLine[] } | undefined;
-      const assemblyWords = videoData.assemblyWords;
-      if (assemblyWords && assemblyWords.length > 0) {
-        const filtered = assemblyWords.filter(w => w.start >= trimStart && w.start < trimEnd);
-        if (filtered.length > 0) {
-          const MAX_PER_LINE = 7;
-          const PAUSE = 0.5;
-          const lines: LyricsDataLine[] = [];
-          let group: AssemblyWord[] = [filtered[0]];
-          for (let i = 1; i < filtered.length; i++) {
-            const gap = filtered[i].start - filtered[i - 1].end;
-            if (gap > PAUSE || group.length >= MAX_PER_LINE) {
+
+      const assemblyLines = videoData.assemblyLines;
+      if (assemblyLines && assemblyLines.length > 0) {
+        const lines = assemblyLines
+          .filter(l => l.start >= trimStart && l.start < trimEnd)
+          .map(l => ({
+            text:  l.text,
+            start: Math.max(0, l.start - trimStart),
+            end:   Math.max(0, l.end   - trimStart),
+          }));
+        if (lines.length > 0) prebuiltLyricsData = { lines };
+      }
+
+      if (!prebuiltLyricsData) {
+        // Fall back: re-group word-level timestamps into lines
+        const assemblyWords = videoData.assemblyWords;
+        if (assemblyWords && assemblyWords.length > 0) {
+          const filtered = assemblyWords.filter(w => w.start >= trimStart && w.start < trimEnd);
+          if (filtered.length > 0) {
+            const MAX_PER_LINE = 7;
+            const PAUSE = 0.5;
+            const lines: LyricsDataLine[] = [];
+            let group: AssemblyWord[] = [filtered[0]];
+            for (let i = 1; i < filtered.length; i++) {
+              const gap = filtered[i].start - filtered[i - 1].end;
+              if (gap > PAUSE || group.length >= MAX_PER_LINE) {
+                lines.push({
+                  text:  group.map(w => w.text).join(" "),
+                  start: Math.max(0, group[0].start - trimStart),
+                  end:   Math.max(0, group[group.length - 1].end - trimStart),
+                });
+                group = [filtered[i]];
+              } else {
+                group.push(filtered[i]);
+              }
+            }
+            if (group.length > 0) {
               lines.push({
                 text:  group.map(w => w.text).join(" "),
                 start: Math.max(0, group[0].start - trimStart),
                 end:   Math.max(0, group[group.length - 1].end - trimStart),
               });
-              group = [filtered[i]];
-            } else {
-              group.push(filtered[i]);
             }
+            if (lines.length > 0) prebuiltLyricsData = { lines };
           }
-          if (group.length > 0) {
-            lines.push({
-              text:  group.map(w => w.text).join(" "),
-              start: Math.max(0, group[0].start - trimStart),
-              end:   Math.max(0, group[group.length - 1].end - trimStart),
-            });
-          }
-          if (lines.length > 0) prebuiltLyricsData = { lines };
         }
       }
 
@@ -262,7 +280,7 @@ export default function TrimAudioStep({ onNext, onPrev, onDataUpdate, videoData 
       setUploading(false);
       setSyncing(false);
     }
-  }, [videoData.audioUrl, videoData.lyrics, videoData.assemblyWords, isValid, trimStart, trimEnd, onDataUpdate, onNext]);
+  }, [videoData.audioUrl, videoData.lyrics, videoData.assemblyLines, videoData.assemblyWords, isValid, trimStart, trimEnd, onDataUpdate, onNext]);
 
   const startPct = duration > 0 ? (trimStart / duration) * 100 : 0;
   const endPct = duration > 0 ? (trimEnd / duration) * 100 : 0;
