@@ -586,9 +586,9 @@ export default function BeatProducerClient() {
             const t = bar * barSec + s * stepSec;
 
             if (drums.kick[s])    kick.triggerAttackRelease("C1", "8n", t);
-            if (drums.snare[s])   snare.triggerAttackRelease("8n", t);
-            if (drums.hihat[s])   hihat.triggerAttackRelease("C6", "32n", t);
-            if (drums.openHat[s]) openHat.triggerAttackRelease("C6", "8n", t);
+            if (drums.snare[s])   snare.triggerAttackRelease("C1", "8n", t);
+            if (drums.hihat[s])   hihat.triggerAttackRelease("C1", "32n", t);
+            if (drums.openHat[s]) openHat.triggerAttackRelease("C1", "16n", t);
 
             if (s % 4 === 0) {
               const ci = s / 4;
