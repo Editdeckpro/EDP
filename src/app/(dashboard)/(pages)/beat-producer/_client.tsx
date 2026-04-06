@@ -186,13 +186,13 @@ function audioBufferToWav(buffer: AudioBuffer): ArrayBuffer {
   return ab;
 }
 
-// ── Sample URLs ───────────────────────────────────────────────────────────────
+// ── Local sample paths (served from /public/sounds/) ─────────────────────────
 
 const SAMPLE_URLS = {
-  kick:    "https://sampleswap.org/samples-ghost/DRUMS+%28FULL+KITS%29/808+DRUM+MACHINE/50%5Bkb%5D808-kick.wav.mp3",
-  snare:   "https://sampleswap.org/samples-ghost/DRUMS+%28FULL+KITS%29/808+DRUM+MACHINE/11%5Bkb%5D808-snare.wav.mp3",
-  hihat:   "https://sampleswap.org/samples-ghost/DRUMS+%28FULL+KITS%29/808+DRUM+MACHINE/3%5Bkb%5D808-hihat-closed.wav.mp3",
-  openHat: "https://sampleswap.org/samples-ghost/DRUMS+%28FULL+KITS%29/808+DRUM+MACHINE/8%5Bkb%5D808-hihat-open.wav.mp3",
+  kick:    "/sounds/kick.wav",
+  snare:   "/sounds/snare.wav",
+  hihat:   "/sounds/hihat.wav",
+  bass808: "/sounds/bass808.wav",  // C-tuned 808 sub bass — Tone.Sampler pitch-shifts per note
 };
 
 // ── Instruments interface ─────────────────────────────────────────────────────
@@ -220,13 +220,10 @@ async function loadInstruments(Tone: any, onStatus: (s: string) => void): Promis
 
   const limiter = new Tone.Limiter(-3).toDestination();
 
-  // Bass: sawtooth → lowpass filter → limiter
-  const bassFilter = new Tone.Filter(200, "lowpass").connect(limiter);
-  const bass = new Tone.Synth({
-    oscillator: { type: "sawtooth" },
-    envelope: { attack: 0.005, decay: 0.3, sustain: 0.6, release: 1.0 },
-  }).connect(bassFilter);
-  bass.volume.value = -8;
+  // 808 Bass sampler — C-tuned sample, Tone.Sampler pitch-shifts for each note
+  const bassReverb = new Tone.Reverb({ decay: 1.5, wet: 0.15 }).connect(limiter);
+  const bass = new Tone.Sampler({ C2: SAMPLE_URLS.bass808 }).connect(bassReverb);
+  bass.volume.value = 2;
 
   // Chords: PolySynth triangle → chorus → heavy reverb → limiter (warm, lush)
   const chordReverb = new Tone.Reverb({ decay: 3.0, wet: 0.4 }).connect(limiter);
@@ -248,83 +245,43 @@ async function loadInstruments(Tone: any, onStatus: (s: string) => void): Promis
   }).connect(melChorus);
   melodySynth.volume.value = -14;
 
-  // Drums: try real samples, fall back to synthetic
-  let triggerKick:    (time: number) => void;
-  let triggerSnare:   (time: number) => void;
-  let triggerHihat:   (time: number) => void;
-  let triggerOpenHat: (time: number) => void;
+  // Drums — local WAV samples, no CORS issues, no synthetic fallback needed
+  const kickFilter  = new Tone.Filter(200, "lowpass").connect(limiter);
+  const snareReverb = new Tone.Reverb({ decay: 0.5, wet: 0.12 }).connect(limiter);
 
-  try {
-    const kickFilter  = new Tone.Filter(180, "lowpass").connect(limiter);
-    const snareReverb = new Tone.Reverb({ decay: 0.6, wet: 0.15 }).connect(limiter);
+  const kickSampler  = new Tone.Sampler({ C1: SAMPLE_URLS.kick  }).connect(kickFilter);
+  const snareSampler = new Tone.Sampler({ C1: SAMPLE_URLS.snare }).connect(snareReverb);
+  const hihatSampler = new Tone.Sampler({ C1: SAMPLE_URLS.hihat }).connect(limiter);
 
-    const kickSampler    = new Tone.Sampler({ C1: SAMPLE_URLS.kick    }).connect(kickFilter);
-    const snareSampler   = new Tone.Sampler({ C1: SAMPLE_URLS.snare   }).connect(snareReverb);
-    const hihatSampler   = new Tone.Sampler({ C1: SAMPLE_URLS.hihat   }).connect(limiter);
-    const openHatSampler = new Tone.Sampler({ C1: SAMPLE_URLS.openHat }).connect(limiter);
+  kickSampler.volume.value  =  2;
+  snareSampler.volume.value = -1;
+  hihatSampler.volume.value = -8;
 
-    kickSampler.volume.value    =  0;
-    snareSampler.volume.value   = -2;
-    hihatSampler.volume.value   = -10;
-    openHatSampler.volume.value = -8;
+  // Wait for all samplers (drums + bass808) to load — 10s timeout
+  await Promise.race([
+    Tone.loaded(),
+    new Promise((_r, rej) => setTimeout(() => rej(new Error("Sample load timeout")), 10000)),
+  ]);
 
-    await Promise.race([
-      Tone.loaded(),
-      new Promise((_r, rej) => setTimeout(() => rej(new Error("timeout")), 8000)),
-    ]);
+  console.log("[BeatProducer] All samples loaded");
+  onStatus("loaded");
 
-    triggerKick    = (t) => kickSampler.triggerAttackRelease("C1", "8n", t);
-    triggerSnare   = (t) => snareSampler.triggerAttackRelease("C1", "8n", t);
-    triggerHihat   = (t) => hihatSampler.triggerAttackRelease("C1", "32n", t);
-    triggerOpenHat = (t) => openHatSampler.triggerAttackRelease("C1", "8n", t);
-
-    console.log("[BeatProducer] Real 808 samples loaded");
-    onStatus("loaded");
-  } catch (e) {
-    console.warn("[BeatProducer] Using synthetic drums:", e);
-
-    const kickFilt = new Tone.Filter(160, "lowpass").connect(limiter);
-    const kickSyn  = new Tone.MembraneSynth({
-      pitchDecay: 0.1, octaves: 10,
-      envelope: { attack: 0.001, decay: 0.5, sustain: 0, release: 0.1 },
-    }).connect(kickFilt);
-    kickSyn.volume.value = 2;
-
-    const snareRev = new Tone.Reverb({ decay: 0.5, wet: 0.15 }).connect(limiter);
-    const snareSyn = new Tone.NoiseSynth({
-      noise: { type: "white" },
-      envelope: { attack: 0.001, decay: 0.18, sustain: 0, release: 0.02 },
-    }).connect(snareRev);
-    snareSyn.volume.value = -2;
-
-    const hihatSyn = new Tone.MetalSynth({
-      envelope: { attack: 0.001, decay: 0.04, release: 0.02 },
-      harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5,
-    }).connect(limiter);
-    hihatSyn.volume.value = -18;
-
-    const openHatSyn = new Tone.MetalSynth({
-      envelope: { attack: 0.001, decay: 0.35, release: 0.1 },
-      harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5,
-    }).connect(limiter);
-    openHatSyn.volume.value = -16;
-
-    triggerKick    = (t) => kickSyn.triggerAttackRelease("C1", "8n", t);
-    triggerSnare   = (t) => snareSyn.triggerAttackRelease("8n", t);
-    triggerHihat   = (t) => hihatSyn.triggerAttackRelease("C6", "32n", t);
-    triggerOpenHat = (t) => openHatSyn.triggerAttackRelease("C6", "8n", t);
-
-    onStatus("synth");
-  }
+  const triggerKick    = (t: number) => kickSampler.triggerAttackRelease("C1", "8n", t);
+  const triggerSnare   = (t: number) => snareSampler.triggerAttackRelease("C1", "8n", t);
+  const triggerHihat   = (t: number) => hihatSampler.triggerAttackRelease("C1", "32n", t);
+  const triggerOpenHat = (t: number) => hihatSampler.triggerAttackRelease("C1", "16n", t);
 
   await new Promise(r => setTimeout(r, 200));
   return { triggerKick, triggerSnare, triggerHihat, triggerOpenHat, bass, chordSynth, melodySynth, limiter };
 }
 
-// ── Synthetic synths for Tone.Offline WAV export ──────────────────────────────
+// ── Synths for Tone.Offline WAV export ────────────────────────────────────────
+// Tone.Offline cannot fetch HTTP resources, so drums use synthetic fallback.
+// Bass uses 808 sampler via data loaded into the offline context.
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildExportSynths(Tone: any) {
+  // Drums — synthetic (Tone.Offline can't load HTTP samples)
   const kick = new Tone.MembraneSynth({
     pitchDecay: 0.1, octaves: 10,
     envelope: { attack: 0.001, decay: 0.5, sustain: 0, release: 0.1 },
@@ -343,17 +300,13 @@ function buildExportSynths(Tone: any) {
   }).toDestination();
   hihat.volume.value = -18;
 
-  const openHat = new Tone.MetalSynth({
-    envelope: { attack: 0.001, decay: 0.35, release: 0.1 },
-    harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5,
-  }).toDestination();
-  openHat.volume.value = -16;
-
+  // Bass — 808-style sawtooth with lowpass for export
+  const bassFilter = new Tone.Filter(180, "lowpass").toDestination();
   const bass = new Tone.Synth({
-    oscillator: { type: "sawtooth" },
-    envelope: { attack: 0.005, decay: 0.3, sustain: 0.6, release: 1.0 },
-  }).toDestination();
-  bass.volume.value = -8;
+    oscillator: { type: "sine" },
+    envelope: { attack: 0.01, decay: 0.6, sustain: 0.4, release: 1.2 },
+  }).connect(bassFilter);
+  bass.volume.value = 2;
 
   const chordSynth = new Tone.PolySynth(Tone.Synth, {
     oscillator: { type: "triangle" },
@@ -367,7 +320,7 @@ function buildExportSynths(Tone: any) {
   }).toDestination();
   melodySynth.volume.value = -14;
 
-  return { kick, snare, hihat, openHat, bass, chordSynth, melodySynth };
+  return { kick, snare, hihat, openHat: hihat, bass, chordSynth, melodySynth };
 }
 
 // ── AnimatedBars ──────────────────────────────────────────────────────────────
