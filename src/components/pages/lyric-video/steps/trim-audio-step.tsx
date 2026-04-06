@@ -3,13 +3,14 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Play, Pause, Scissors, Loader2 } from "lucide-react";
-import { uploadAudioClient, createLyricVideoClient, getLyricVideoByIdClient } from "@/components/pages/lyric-video/api";
+import { uploadAudioClient, createLyricVideoClient, getLyricVideoByIdClient, updateTimingClient, type AssemblyWord } from "@/components/pages/lyric-video/api";
 
 type LyricVideoWizardData = {
   audioId?: string;
   audioUrl?: string;
   audioDuration?: number;
   lyrics?: string;
+  assemblyWords?: AssemblyWord[];
   lyricVideoId?: number;
   trimStart?: number;
   trimEnd?: number;
@@ -181,18 +182,66 @@ export default function TrimAudioStep({ onNext, onPrev, onDataUpdate, videoData 
         lyricVideoId: createResult.lyricVideoId,
       });
 
-      // Poll until lyricsData words are ready (backend runs alignLyricsToAudio async)
+      // If AssemblyAI returned word-level timestamps during transcription, use them directly.
+      // Adjust by trimStart offset so timestamps are relative to the trimmed audio (starts at 0).
+      const assemblyWords = videoData.assemblyWords;
+      if (assemblyWords && assemblyWords.length > 0) {
+        try {
+          const filtered = assemblyWords.filter(w => w.start >= trimStart && w.start < trimEnd);
+          if (filtered.length > 0) {
+            // Group adjusted words into lines by pauses and max-words-per-line
+            const MAX_PER_LINE = 7;
+            const PAUSE = 0.5;
+            const wordGroups: AssemblyWord[][] = [];
+            let group: AssemblyWord[] = [filtered[0]];
+            for (let i = 1; i < filtered.length; i++) {
+              const pause = filtered[i].start - filtered[i - 1].end;
+              if (pause > PAUSE || group.length >= MAX_PER_LINE) {
+                wordGroups.push(group);
+                group = [filtered[i]];
+              } else {
+                group.push(filtered[i]);
+              }
+            }
+            if (group.length > 0) wordGroups.push(group);
+
+            const timingWords = wordGroups.flatMap((g, lineIndex) =>
+              g.map((w, wordIndex) => ({
+                word:      w.text,
+                startTime: Math.max(0, w.start - trimStart),
+                endTime:   Math.max(0, w.end - trimStart),
+                lineIndex,
+                wordIndex,
+                isHighlighted: false,
+              }))
+            );
+
+            await updateTimingClient(createResult.lyricVideoId, timingWords);
+            onDataUpdate({ lyricVideoId: createResult.lyricVideoId });
+            toast.success("Audio trimmed — using AssemblyAI timing");
+            onNext();
+            return;
+          }
+        } catch {
+          // Fall through to Whisper alignment polling below
+        }
+      }
+
+      // Poll until lyricsData is ready (backend runs alignLyricsToAudio async via Whisper)
+      // Check lyricsData (JSON field) not words (LyricWord table) — lyricsData is saved first
       setSyncing(true);
       const POLL_INTERVAL = 3000;
-      const MAX_WAIT = 60000;
+      const MAX_WAIT = 90000;
       const deadline = Date.now() + MAX_WAIT;
-      let wordsReady = false;
+      let timingReady = false;
       while (Date.now() < deadline) {
         await new Promise((r) => setTimeout(r, POLL_INTERVAL));
         try {
           const video = await getLyricVideoByIdClient(createResult.lyricVideoId);
-          if (video.words && video.words.length > 0) {
-            wordsReady = true;
+          // lyricsData is set once alignLyricsToAudio saves it — check for lines array
+          const ld = video.lyricsData as { lines?: unknown[] } | null;
+          if (ld && Array.isArray(ld.lines) && ld.lines.length > 0) {
+            timingReady = true;
             break;
           }
         } catch {
@@ -201,8 +250,8 @@ export default function TrimAudioStep({ onNext, onPrev, onDataUpdate, videoData 
       }
       setSyncing(false);
 
-      if (!wordsReady) {
-        toast.warning("Lyrics sync timed out — you can adjust timing manually.");
+      if (!timingReady) {
+        toast.warning("Lyrics sync timed out — you can still preview, timing may be approximate.");
       } else {
         toast.success("Audio trimmed");
       }
@@ -214,7 +263,7 @@ export default function TrimAudioStep({ onNext, onPrev, onDataUpdate, videoData 
       setUploading(false);
       setSyncing(false);
     }
-  }, [videoData.audioUrl, videoData.lyrics, isValid, trimStart, trimEnd, onDataUpdate, onNext]);
+  }, [videoData.audioUrl, videoData.lyrics, videoData.assemblyWords, isValid, trimStart, trimEnd, onDataUpdate, onNext]);
 
   const startPct = duration > 0 ? (trimStart / duration) * 100 : 0;
   const endPct = duration > 0 ? (trimEnd / duration) * 100 : 0;

@@ -275,32 +275,44 @@ async function loadInstruments(Tone: any, onStatus: (s: string) => void): Promis
   return { triggerKick, triggerSnare, triggerHihat, triggerOpenHat, bass, chordSynth, melodySynth, limiter };
 }
 
-// ── Synths for Tone.Offline WAV export ────────────────────────────────────────
-// Tone.Offline cannot fetch HTTP resources, so drums use synthetic fallback.
-// Bass uses 808 sampler via data loaded into the offline context.
+// ── Pre-fetch real audio sample buffers for WAV export ───────────────────────
+// Decode once in main AudioContext, then copy PCM into the offline context.
+
+async function fetchSampleBuffers(): Promise<{
+  kick: AudioBuffer | null;
+  snare: AudioBuffer | null;
+  hihat: AudioBuffer | null;
+}> {
+  const ctx = new AudioContext();
+  const decode = async (url: string): Promise<AudioBuffer | null> => {
+    try {
+      const ab = await fetch(url).then(r => r.arrayBuffer());
+      return await ctx.decodeAudioData(ab);
+    } catch {
+      return null;
+    }
+  };
+  const [kick, snare, hihat] = await Promise.all([
+    decode(SAMPLE_URLS.kick),
+    decode(SAMPLE_URLS.snare),
+    decode(SAMPLE_URLS.hihat),
+  ]);
+  await ctx.close();
+  return { kick, snare, hihat };
+}
+
+/** Copy an AudioBuffer's PCM data into a destination BaseAudioContext. */
+function copyBuffer(src: AudioBuffer, ctx: BaseAudioContext): AudioBuffer {
+  const dst = ctx.createBuffer(src.numberOfChannels, src.length, src.sampleRate);
+  for (let ch = 0; ch < src.numberOfChannels; ch++) {
+    dst.copyToChannel(src.getChannelData(ch), ch);
+  }
+  return dst;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildExportSynths(Tone: any) {
-  // Drums — synthetic (Tone.Offline can't load HTTP samples)
-  const kick = new Tone.MembraneSynth({
-    pitchDecay: 0.1, octaves: 10,
-    envelope: { attack: 0.001, decay: 0.5, sustain: 0, release: 0.1 },
-  }).toDestination();
-  kick.volume.value = 2;
-
-  const snare = new Tone.NoiseSynth({
-    noise: { type: "white" },
-    envelope: { attack: 0.001, decay: 0.18, sustain: 0, release: 0.02 },
-  }).toDestination();
-  snare.volume.value = -2;
-
-  const hihat = new Tone.MetalSynth({
-    envelope: { attack: 0.001, decay: 0.04, release: 0.02 },
-    harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5,
-  }).toDestination();
-  hihat.volume.value = -18;
-
-  // Bass — 808-style sawtooth with lowpass for export
+  // Tone synths for bass, chords, melody (Tone.Offline handles these natively)
   const bassFilter = new Tone.Filter(180, "lowpass").toDestination();
   const bass = new Tone.Synth({
     oscillator: { type: "sine" },
@@ -320,7 +332,7 @@ function buildExportSynths(Tone: any) {
   }).toDestination();
   melodySynth.volume.value = -14;
 
-  return { kick, snare, hihat, openHat: hihat, bass, chordSynth, melodySynth };
+  return { bass, chordSynth, melodySynth };
 }
 
 // ── AnimatedBars ──────────────────────────────────────────────────────────────
@@ -578,17 +590,42 @@ export default function BeatProducerClient() {
       const chordNotes = beat.chords.map((n: ChordEvent) => n.notes);
       const melNotes   = beat.melody.filter((n: NoteEvent) => n.step < 8).map((n: NoteEvent) => n.note);
 
+      // Pre-fetch real drum samples so WAV export matches live playback
+      const realSamples = await fetchSampleBuffers();
+
       const toneBuffer = await Tone.Offline(async () => {
-        const { kick, snare, hihat, openHat, bass, chordSynth, melodySynth } = buildExportSynths(Tone);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const offlineCtx = (Tone.getContext() as any).rawContext as OfflineAudioContext;
+
+        // Copy pre-decoded PCM into the offline audio context
+        const offKick  = realSamples.kick  ? copyBuffer(realSamples.kick, offlineCtx)  : null;
+        const offSnare = realSamples.snare ? copyBuffer(realSamples.snare, offlineCtx) : null;
+        const offHihat = realSamples.hihat ? copyBuffer(realSamples.hihat, offlineCtx) : null;
+
+        const playBuf = (buf: AudioBuffer, time: number, gainDb = 0) => {
+          const src  = offlineCtx.createBufferSource();
+          src.buffer = buf;
+          if (gainDb !== 0) {
+            const g = offlineCtx.createGain();
+            g.gain.value = Math.pow(10, gainDb / 20);
+            src.connect(g);
+            g.connect(offlineCtx.destination);
+          } else {
+            src.connect(offlineCtx.destination);
+          }
+          src.start(time);
+        };
+
+        const { bass, chordSynth, melodySynth } = buildExportSynths(Tone);
 
         for (let bar = 0; bar < TOTAL_BARS; bar++) {
           for (let s = 0; s < 16; s++) {
             const t = bar * barSec + s * stepSec;
 
-            if (drums.kick[s])    kick.triggerAttackRelease("C1", "8n", t);
-            if (drums.snare[s])   snare.triggerAttackRelease("C1", "8n", t);
-            if (drums.hihat[s])   hihat.triggerAttackRelease("C1", "32n", t);
-            if (drums.openHat[s]) openHat.triggerAttackRelease("C1", "16n", t);
+            if (drums.kick[s]    && offKick)  playBuf(offKick,  t,  2);
+            if (drums.snare[s]   && offSnare) playBuf(offSnare, t, -1);
+            if (drums.hihat[s]   && offHihat) playBuf(offHihat, t, -8);
+            if (drums.openHat[s] && offHihat) playBuf(offHihat, t, -6);
 
             if (s % 4 === 0) {
               const ci = s / 4;

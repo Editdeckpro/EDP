@@ -3,12 +3,12 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
-import { transcribeAudioClient } from "@/components/pages/lyric-video/api";
+import { transcribeAudioClient, type AssemblyWord, type AssemblyLine } from "@/components/pages/lyric-video/api";
 
 interface TranscribeStepProps {
   onNext: () => void;
   onPrev: () => void;
-  onDataUpdate: (data: Partial<{ lyrics: string }>) => void;
+  onDataUpdate: (data: Partial<{ lyrics: string; assemblyWords: AssemblyWord[]; assemblyLines: AssemblyLine[] }>) => void;
   videoData: { audioId?: string; lyrics?: string };
 }
 
@@ -34,9 +34,12 @@ export default function TranscribeStep({ onNext, onPrev, onDataUpdate, videoData
     }
 
     transcribeAudioClient(videoData.audioId)
-      .then(({ transcript }) => {
+      .then(({ transcript, words, lines }) => {
         if (transcript?.trim()) {
-          onDataUpdate({ lyrics: transcript.trim() });
+          const update: Parameters<typeof onDataUpdate>[0] = { lyrics: transcript.trim() };
+          if (words && words.length > 0) update.assemblyWords = words;
+          if (lines && lines.length > 0) update.assemblyLines = lines;
+          onDataUpdate(update);
           setStatus("success");
         } else {
           setStatus("error");

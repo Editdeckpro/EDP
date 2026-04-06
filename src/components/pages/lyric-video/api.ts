@@ -46,12 +46,32 @@ export async function createLyricVideoClient(data: {
   return response.data;
 }
 
+export interface AssemblyWord {
+  text: string;
+  start: number;
+  end: number;
+}
+
+export interface AssemblyLine {
+  text: string;
+  start: number;
+  end: number;
+}
+
 /**
- * Transcribe audio to text using Whisper (client-side)
+ * Transcribe audio to text using AssemblyAI (client-side)
+ * Returns transcript text plus optional word/line timestamps when AssemblyAI is available.
  */
-export async function transcribeAudioClient(audioId: string): Promise<{ transcript: string }> {
+export async function transcribeAudioClient(audioId: string): Promise<{
+  transcript: string;
+  words?: AssemblyWord[];
+  lines?: AssemblyLine[];
+}> {
   const axios = await GetAxiosWithAuth();
-  const response = await axios.post<{ transcript: string }>("lyric-videos/transcribe", { audioId });
+  const response = await axios.post<{ transcript: string; words?: AssemblyWord[]; lines?: AssemblyLine[] }>(
+    "lyric-videos/transcribe",
+    { audioId }
+  );
   return response.data;
 }
 

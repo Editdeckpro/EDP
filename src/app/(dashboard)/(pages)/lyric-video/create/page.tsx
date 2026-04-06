@@ -8,6 +8,7 @@ import AddLyricsStep from "@/components/pages/lyric-video/steps/add-lyrics-step"
 import TrimAudioStep from "@/components/pages/lyric-video/steps/trim-audio-step";
 import PreviewStep from "@/components/pages/lyric-video/steps/preview-step";
 import ExportStep from "@/components/pages/lyric-video/steps/export-step";
+import type { AssemblyWord, AssemblyLine } from "@/components/pages/lyric-video/api";
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface LyricVideoData {
@@ -15,6 +16,10 @@ export interface LyricVideoData {
   audioUrl?: string;
   audioDuration?: number;
   lyrics?: string;
+  /** Word-level timestamps from AssemblyAI transcription (seconds, relative to original audio) */
+  assemblyWords?: AssemblyWord[];
+  /** Line-level timestamps from AssemblyAI transcription (seconds, relative to original audio) */
+  assemblyLines?: AssemblyLine[];
   lyricVideoId?: number;
   trimStart?: number;
   trimEnd?: number;
