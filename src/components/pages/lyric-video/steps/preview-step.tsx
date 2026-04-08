@@ -262,7 +262,7 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData }:
             <ReactPlayer
               url={previewUrl}
               controls
-              playing
+            
               muted
               width="100%"
               height="100%"

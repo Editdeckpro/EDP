@@ -8,7 +8,21 @@
       "Bash(find /c/Projects/EDP/src/components/pages/lyric-video -type f -name *.tsx -o -name *.ts)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(grep -rn \"beat-producer\\\\|lyric-video\" /c/Projects/EDP/src/app/api --include=*.ts --include=*.tsx)",
+      "WebSearch",
+      "WebFetch(domain:gist.github.com)",
+      "Bash(curl -I \"https://raw.githubusercontent.com/sourc3array/genAudio_808TK_SFZ/main/Samples/808_Kick_1.wav\")",
+      "Bash(curl -s \"https://api.github.com/repos/sourc3array/genAudio_808TK_SFZ/git/trees/main?recursive=1\")",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(i[''''path'''']\\) for i in data.get\\(''''tree'''',[]\\) if i[''''path''''].endswith\\(''''.wav''''\\) or i[''''path''''].endswith\\(''''.WAV''''\\)]\")",
+      "WebFetch(domain:pixabay.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(curl -s \"https://api.github.com/repos/tidalcycles/Dirt-Samples/git/trees/master?recursive=1\")",
+      "Bash(mkdir -p /c/Projects/EDP/public/sounds)",
+      "Bash(curl -L -o kick.wav \"https://raw.githubusercontent.com/tidalcycles/Dirt-Samples/master/808bd/BD0050.WAV\")",
+      "Bash(curl -L -o snare.wav \"https://raw.githubusercontent.com/tidalcycles/Dirt-Samples/master/808sd/SD0000.WAV\")",
+      "Bash(curl -L -o hihat.wav \"https://raw.githubusercontent.com/tidalcycles/Dirt-Samples/master/808hc/HC00.WAV\")",
+      "Bash(curl -L -o bass808.wav \"https://raw.githubusercontent.com/tidalcycles/Dirt-Samples/master/bass1/18076__daven__01-sb-bass-hit-c.wav\")"
     ]
   }
 }

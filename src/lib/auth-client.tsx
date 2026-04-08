@@ -116,14 +116,9 @@ export async function signIn(
         return { ok: false, error: (err?.message as string) || "Login failed" };
       }
       const data = await res.json().catch(() => ({}));
-      if (data?.accessToken && typeof window !== "undefined") {
-        localStorage.setItem("auth_token", data.accessToken);
-        await fetch("/api/auth/session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: data.accessToken }),
-        });
-      }
+if (data?.accessToken && typeof window !== "undefined") {
+  localStorage.setItem("auth_token", data.accessToken);
+}
     }
     invalidateSessionCache();
     return { ok: true };
