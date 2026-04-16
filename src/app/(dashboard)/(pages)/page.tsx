@@ -52,7 +52,7 @@ export default function Page() {
           description="Generate professional beats with melody, chords, and drums using AI."
           buttonText="Produce Beat"
           buttonIcon="sparkles"
-          imageSrc="/images/cta-lyric-video.svg"
+          imageSrc="/images/cta-beat-producer.svg"
           btnLink="/beat-producer"
           cardStyle={{
             background: "linear-gradient(135deg, #14532d 0%, #15803d 40%, #22c55e 70%, #166534 100%)",

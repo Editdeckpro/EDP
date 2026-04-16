@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320" role="img" aria-label="Beat producer illustration">
+  <defs>
+    <linearGradient id="bp-body" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#14532d"/>
+      <stop offset="100%" stop-color="#166534"/>
+    </linearGradient>
+    <linearGradient id="bp-pad-lit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="bp-pad-dim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#166534"/>
+      <stop offset="100%" stop-color="#14532d"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Machine body -->
+  <rect x="30" y="48" width="260" height="224" rx="22" fill="url(#bp-body)"/>
+
+  <!-- Pad grid: 4 cols × 2 rows, 48×48 each, 8px gap, left-aligned at x=52 -->
+  <!-- Row 1 -->
+  <rect x="52"  y="68" width="48" height="48" rx="8" fill="url(#bp-pad-lit)"/>
+  <rect x="108" y="68" width="48" height="48" rx="8" fill="url(#bp-pad-dim)"/>
+  <rect x="164" y="68" width="48" height="48" rx="8" fill="url(#bp-pad-lit)"/>
+  <rect x="220" y="68" width="48" height="48" rx="8" fill="url(#bp-pad-dim)"/>
+  <!-- Glow dots on lit pads -->
+  <circle cx="76"  cy="92" r="9" fill="#bbf7d0" opacity="0.75"/>
+  <circle cx="188" cy="92" r="9" fill="#bbf7d0" opacity="0.75"/>
+
+  <!-- Row 2 -->
+  <rect x="52"  y="126" width="48" height="48" rx="8" fill="url(#bp-pad-dim)"/>
+  <rect x="108" y="126" width="48" height="48" rx="8" fill="url(#bp-pad-lit)"/>
+  <rect x="164" y="126" width="48" height="48" rx="8" fill="url(#bp-pad-dim)"/>
+  <rect x="220" y="126" width="48" height="48" rx="8" fill="url(#bp-pad-lit)"/>
+  <!-- Glow dots on lit pads -->
+  <circle cx="132" cy="150" r="9" fill="#bbf7d0" opacity="0.75"/>
+  <circle cx="244" cy="150" r="9" fill="#bbf7d0" opacity="0.75"/>
+
+  <!-- Piano keyboard strip (7 white keys across 240px, starting x=40) -->
+  <rect x="40" y="190" width="240" height="60" rx="8" fill="#f0fdf4" opacity="0.95"/>
+
+  <!-- White key dividers at: 74, 108, 142, 177, 211, 245 -->
+  <line x1="74"  y1="190" x2="74"  y2="250" stroke="#bbf7d0" stroke-width="1.5"/>
+  <line x1="108" y1="190" x2="108" y2="250" stroke="#bbf7d0" stroke-width="1.5"/>
+  <line x1="142" y1="190" x2="142" y2="250" stroke="#bbf7d0" stroke-width="1.5"/>
+  <line x1="177" y1="190" x2="177" y2="250" stroke="#bbf7d0" stroke-width="1.5"/>
+  <line x1="211" y1="190" x2="211" y2="250" stroke="#bbf7d0" stroke-width="1.5"/>
+  <line x1="245" y1="190" x2="245" y2="250" stroke="#bbf7d0" stroke-width="1.5"/>
+
+  <!-- Black keys: C# D# [no key] F# G# A# -->
+  <rect x="63"  y="190" width="22" height="38" rx="4" fill="#14532d"/>
+  <rect x="97"  y="190" width="22" height="38" rx="4" fill="#14532d"/>
+  <rect x="166" y="190" width="22" height="38" rx="4" fill="#14532d"/>
+  <rect x="200" y="190" width="22" height="38" rx="4" fill="#14532d"/>
+  <rect x="234" y="190" width="22" height="38" rx="4" fill="#14532d"/>
+</svg>
