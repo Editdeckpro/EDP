@@ -65,7 +65,7 @@ const MainGenerateForm = () => {
       </div>
       <div className="space-y-3 w-full bg-gray-50/80 rounded-lg p-1 border border-gray-100">
         <div className="flex items-center justify-between cursor-pointer w-full" onClick={() => toggleSection("model")}>
-          <h3 className="text-lg font-medium">AI Model</h3>
+          <h3 className="text-lg font-medium">Choose Your Style</h3>
           <Button variant="link" size="icon" type="button">
             {sectionsOpen.model ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </Button>

@@ -462,7 +462,7 @@ const RemixSidebarContent: FC<RemixSidebarContentProps> = ({ setData, imageUrl, 
 
           <div className="space-y-3">
             <div className="flex items-center justify-between cursor-pointer" onClick={() => setModelOpen((v) => !v)}>
-              <h3 className="text-lg font-medium">AI Model</h3>
+              <h3 className="text-lg font-medium">Choose Your Style</h3>
               <Button variant="link" size="icon" type="button">
                 {modelOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
               </Button>
