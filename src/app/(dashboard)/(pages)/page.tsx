@@ -7,8 +7,8 @@ export default function Page() {
     <section className="space-y-10">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <PageCta
-          title="Image Creator"
-          description="Craft stunning album covers from pure imagination."
+          title="Cover Art Studio"
+          description="Design album covers and single artwork for streaming platforms, vinyl, and more."
           buttonText="Generate Now"
           buttonIcon="sparkles"
           imageSrc="/images/cta-image-creator.svg"
