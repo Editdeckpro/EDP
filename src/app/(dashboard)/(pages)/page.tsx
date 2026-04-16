@@ -6,7 +6,7 @@ export default function Page() {
   return (
     <section className="space-y-10">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Cover Art Studio — purple */}
+        {/* Cover Art Studio — deep purple gradient */}
         <PageCta
           title="Cover Art Studio"
           description="Design album covers and single artwork for streaming platforms, vinyl, and more."
@@ -15,11 +15,11 @@ export default function Page() {
           imageSrc="/images/cta-image-creator.svg"
           btnLink="/image-generation/generate"
           cardStyle={{
-            background: "linear-gradient(145deg, #0a0010 0%, #1a0828 100%)",
-            boxShadow: "inset 0 0 80px rgba(139,92,246,0.15), 0 0 0 1px rgba(139,92,246,0.25)",
+            background: "linear-gradient(135deg, #4c1d95 0%, #7c3aed 40%, #a855f7 70%, #6d28d9 100%)",
+            boxShadow: "0 4px 32px rgba(139,92,246,0.4)",
           }}
         />
-        {/* Remix Wizard — cyan/teal */}
+        {/* Remix Wizard — teal/cyan gradient */}
         <PageCta
           title="Remix Wizard"
           description="Transform and evolve your visuals with a single prompt."
@@ -29,11 +29,11 @@ export default function Page() {
           buttonVariant="secondary"
           btnLink="/remix-image/remix"
           cardStyle={{
-            background: "linear-gradient(145deg, #000e0e 0%, #041c18 100%)",
-            boxShadow: "inset 0 0 80px rgba(20,184,166,0.15), 0 0 0 1px rgba(20,184,166,0.25)",
+            background: "linear-gradient(135deg, #134e4a 0%, #0f766e 40%, #14b8a6 70%, #0d9488 100%)",
+            boxShadow: "0 4px 32px rgba(20,184,166,0.4)",
           }}
         />
-        {/* Lyric Video — orange */}
+        {/* Lyric Video — warm orange gradient */}
         <PageCta
           title="Lyric Video"
           description="Create stunning lyric videos with AI-powered timing."
@@ -42,11 +42,11 @@ export default function Page() {
           imageSrc="/images/cta-lyric-video.svg"
           btnLink="/lyric-video/create"
           cardStyle={{
-            background: "linear-gradient(145deg, #0e0600 0%, #1e1000 100%)",
-            boxShadow: "inset 0 0 80px rgba(249,115,22,0.15), 0 0 0 1px rgba(249,115,22,0.25)",
+            background: "linear-gradient(135deg, #92400e 0%, #d97706 40%, #f59e0b 70%, #b45309 100%)",
+            boxShadow: "0 4px 32px rgba(245,158,11,0.4)",
           }}
         />
-        {/* Beat Producer — green */}
+        {/* Beat Producer — deep green gradient */}
         <PageCta
           title="Beat Producer"
           description="Generate professional beats with melody, chords, and drums using AI."
@@ -55,8 +55,8 @@ export default function Page() {
           imageSrc="/images/cta-lyric-video.svg"
           btnLink="/beat-producer"
           cardStyle={{
-            background: "linear-gradient(145deg, #020e04 0%, #051a08 100%)",
-            boxShadow: "inset 0 0 80px rgba(34,197,94,0.15), 0 0 0 1px rgba(34,197,94,0.25)",
+            background: "linear-gradient(135deg, #14532d 0%, #15803d 40%, #22c55e 70%, #166534 100%)",
+            boxShadow: "0 4px 32px rgba(34,197,94,0.4)",
           }}
         />
       </div>

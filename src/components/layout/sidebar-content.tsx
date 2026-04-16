@@ -135,7 +135,7 @@ export const sidebarSections: SidebarSectionType[] = [
             wand_stars
           </GIcon>
         ),
-        text: "Content Creator",
+        text: "Cover Art Studio",
         link: "/image-generation",
         bgClassName: "bg-slate-800/8 hover:bg-slate-800/12",
         tooltip: "Generate brand-new, customized album cover.",
@@ -148,7 +148,6 @@ export const sidebarSections: SidebarSectionType[] = [
         ),
         text: "Upload",
         link: "/remix-image",
-        isNew: true,
         bgClassName: "bg-slate-800/8 hover:bg-slate-800/12",
         tooltip: "Convert existing photo to album cover.",
       },
@@ -158,8 +157,9 @@ export const sidebarSections: SidebarSectionType[] = [
             smart_display
           </GIcon>
         ),
-        text: "Lyric Videos",
+        text: "Lyric Video",
         link: "/lyric-videos",
+        isNew: true,
         bgClassName: "bg-slate-800/8 hover:bg-slate-800/12",
         tooltip: "Create lyric videos with AI-powered timing.",
       },
@@ -171,7 +171,6 @@ export const sidebarSections: SidebarSectionType[] = [
         ),
         text: "Beat Producer",
         link: "/beat-producer",
-        isNew: true,
         bgClassName: "bg-slate-800/8 hover:bg-slate-800/12",
         tooltip: "Generate beats with AI using music theory.",
       },
