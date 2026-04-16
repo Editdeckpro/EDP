@@ -13,7 +13,8 @@ interface PageCtaProps {
   buttonText: string;
   buttonIcon: string;
   imageSrc: string;
-  bgImgSrc: string;
+  bgImgSrc?: string;
+  cardStyle?: React.CSSProperties;
   buttonVariant?: "default" | "secondary";
   btnLink: string;
   disabled?: boolean;
@@ -26,6 +27,7 @@ interface PageCtaProps {
 
 const PageCta: FC<PageCtaProps> = ({
   bgImgSrc,
+  cardStyle,
   buttonText,
   description,
   imageSrc,
@@ -54,11 +56,11 @@ const PageCta: FC<PageCtaProps> = ({
     <>
       <div
         className={`rounded-lg overflow-hidden text-white p-6 flex justify-between gap-4 ${isDisabled ? "opacity-60" : ""}`}
-        style={{
+        style={cardStyle ?? (bgImgSrc ? {
           backgroundImage: `url(${bgImgSrc})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-        }}
+        } : {})}
       >
         <div className="flex flex-col justify-between">
           <div>

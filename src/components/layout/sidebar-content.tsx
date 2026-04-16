@@ -131,48 +131,48 @@ export const sidebarSections: SidebarSectionType[] = [
     links: [
       {
         icon: (
-          <GIcon size={22} className="group-data-[active=true]:text-primary">
+          <GIcon size={22} className="group-data-[active=true]:text-slate-500">
             wand_stars
           </GIcon>
         ),
         text: "Content Creator",
         link: "/image-generation",
-        bgClassName: "bg-primary/20 hover:bg-primary/25",
+        bgClassName: "bg-slate-800/8 hover:bg-slate-800/12",
         tooltip: "Generate brand-new, customized album cover.",
       },
       {
         icon: (
-          <GIcon size={22} className="group-data-[active=true]:text-secondary">
+          <GIcon size={22} className="group-data-[active=true]:text-slate-500">
             cards_star
           </GIcon>
         ),
         text: "Upload",
         link: "/remix-image",
         isNew: true,
-        bgClassName: "bg-secondary/20 hover:bg-secondary/20",
+        bgClassName: "bg-slate-800/8 hover:bg-slate-800/12",
         tooltip: "Convert existing photo to album cover.",
       },
       {
         icon: (
-          <GIcon size={22} className="group-data-[active=true]:text-purple-600">
+          <GIcon size={22} className="group-data-[active=true]:text-slate-500">
             smart_display
           </GIcon>
         ),
         text: "Lyric Videos",
         link: "/lyric-videos",
-        bgClassName: "bg-purple-600/10 hover:bg-purple-600/20",
+        bgClassName: "bg-slate-800/8 hover:bg-slate-800/12",
         tooltip: "Create lyric videos with AI-powered timing.",
       },
       {
         icon: (
-          <GIcon size={22} className="group-data-[active=true]:text-blue-500">
+          <GIcon size={22} className="group-data-[active=true]:text-slate-500">
             graphic_eq
           </GIcon>
         ),
         text: "Beat Producer",
         link: "/beat-producer",
         isNew: true,
-        bgClassName: "bg-blue-500/10 hover:bg-blue-500/20",
+        bgClassName: "bg-slate-800/8 hover:bg-slate-800/12",
         tooltip: "Generate beats with AI using music theory.",
       },
     ],
