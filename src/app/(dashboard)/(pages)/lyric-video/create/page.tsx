@@ -8,10 +8,12 @@ import UploadAudioStep from "@/components/pages/lyric-video/steps/upload-audio-s
 import TranscribeStep from "@/components/pages/lyric-video/steps/transcribe-step";
 import AddLyricsStep from "@/components/pages/lyric-video/steps/add-lyrics-step";
 import TrimAudioStep from "@/components/pages/lyric-video/steps/trim-audio-step";
+import BackgroundStep from "@/components/pages/lyric-video/steps/background-step";
+import StyleStep from "@/components/pages/lyric-video/steps/style-step";
 import PreviewStep from "@/components/pages/lyric-video/steps/preview-step";
 import ExportStep from "@/components/pages/lyric-video/steps/export-step";
 import type { AssemblyWord, AssemblyLine } from "@/components/pages/lyric-video/api";
-type Step = 1 | 2 | 3 | 4 | 5 | 6;
+type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 export interface LyricVideoData {
   audioId?: string;
@@ -25,6 +27,13 @@ export interface LyricVideoData {
   lyricVideoId?: number;
   trimStart?: number;
   trimEnd?: number;
+  // Customization — collected in the Background and Style steps, persisted
+  // to the backend via updateLyricVideoClient before Preview auto-renders.
+  backgroundPreset?: string;
+  backgroundColor?: string;
+  font?: string;
+  textColor?: string;
+  highlightColor?: string;
   previewUrl?: string;
 }
 
@@ -33,9 +42,13 @@ const STEPS = [
   { num: 2, label: "Transcribe" },
   { num: 3, label: "Lyrics" },
   { num: 4, label: "Trim" },
-  { num: 5, label: "Preview" },
-  { num: 6, label: "Export" },
+  { num: 5, label: "Background" },
+  { num: 6, label: "Style" },
+  { num: 7, label: "Preview" },
+  { num: 8, label: "Export" },
 ];
+
+const TOTAL_STEPS = 8;
 
 // ---------------------------------------------------------------------------
 // Wizard state persistence
@@ -82,7 +95,7 @@ function readWizardState(key: string): PersistedWizardState | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as PersistedWizardState;
     const step = parsed?.step;
-    if (typeof step !== "number" || step < 1 || step > 6) return null;
+    if (typeof step !== "number" || step < 1 || step > TOTAL_STEPS) return null;
     return { step: step as Step, data: parsed.data || {} };
   } catch {
     return null;
@@ -103,7 +116,7 @@ export default function CreateLyricVideoPage() {
   };
 
   const nextStep = () => {
-    if (currentStep < 6) setCurrentStep((prev) => (prev + 1) as Step);
+    if (currentStep < TOTAL_STEPS) setCurrentStep((prev) => (prev + 1) as Step);
   };
 
   const prevStep = () => {
@@ -166,7 +179,7 @@ export default function CreateLyricVideoPage() {
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Create Lyric Video</h1>
-          <p className="text-sm text-muted-foreground mt-1">Step {currentStep} of 6</p>
+          <p className="text-sm text-muted-foreground mt-1">Step {currentStep} of {TOTAL_STEPS}</p>
         </div>
         {showStartOver && (
           <Button variant="ghost" size="sm" onClick={handleStartOver}>
@@ -234,9 +247,15 @@ export default function CreateLyricVideoPage() {
               <TrimAudioStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
             )}
             {currentStep === 5 && (
-              <PreviewStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
+              <BackgroundStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
             )}
             {currentStep === 6 && (
+              <StyleStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
+            )}
+            {currentStep === 7 && (
+              <PreviewStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
+            )}
+            {currentStep === 8 && (
               <ExportStep onPrev={prevStep} onComplete={handleExportComplete} videoData={videoData} />
             )}
           </>

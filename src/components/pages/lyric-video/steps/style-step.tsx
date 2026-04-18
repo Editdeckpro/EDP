@@ -1,7 +1,9 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { updateLyricVideoClient } from "@/components/pages/lyric-video/api";
 
 /**
  * Mirror of the FONTS whitelist in services/lyricVideoPresets.js.
@@ -36,6 +38,7 @@ interface StyleStepProps {
     font?: string;
   }) => void;
   videoData: {
+    lyricVideoId?: number;
     textColor?: string;
     highlightColor?: string;
     font?: string;
@@ -43,6 +46,7 @@ interface StyleStepProps {
 }
 
 export default function StyleStep({ onNext, onPrev, onDataUpdate, videoData }: StyleStepProps) {
+  const [persisting, setPersisting] = useState(false);
   const fontId = videoData.font || DEFAULT_FONT_ID;
   const textColor = HEX_RE.test(videoData.textColor || "") ? (videoData.textColor as string) : DEFAULT_TEXT_COLOR;
   const highlightColor = HEX_RE.test(videoData.highlightColor || "")
@@ -53,6 +57,32 @@ export default function StyleStep({ onNext, onPrev, onDataUpdate, videoData }: S
     const match = FONTS.find((f) => f.id === fontId);
     return match ? match.css : FONTS[0].css;
   }, [fontId]);
+
+  // Persist to the backend before advancing — the preview step auto-triggers
+  // a render on mount and reads these fields off the DB record.
+  const handleNext = async () => {
+    const picked: { font?: string; textColor?: string; highlightColor?: string } = {};
+    if (videoData.font) picked.font = videoData.font;
+    if (HEX_RE.test(videoData.textColor || "")) picked.textColor = videoData.textColor as string;
+    if (HEX_RE.test(videoData.highlightColor || "")) picked.highlightColor = videoData.highlightColor as string;
+
+    const shouldPersist = Object.keys(picked).length > 0 && typeof videoData.lyricVideoId === "number";
+    if (!shouldPersist) {
+      onNext();
+      return;
+    }
+
+    setPersisting(true);
+    try {
+      await updateLyricVideoClient(videoData.lyricVideoId as number, picked);
+      onNext();
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      toast.error(err?.response?.data?.message || err?.message || "Failed to save style choices");
+    } finally {
+      setPersisting(false);
+    }
+  };
 
   const previewStyle = useMemo<React.CSSProperties>(() => ({
     fontFamily: selectedFontCss,
@@ -170,11 +200,15 @@ export default function StyleStep({ onNext, onPrev, onDataUpdate, videoData }: S
       </div>
 
       <div className="flex items-center justify-between pt-2">
-        <Button variant="ghost" onClick={onPrev}>
+        <Button variant="ghost" onClick={onPrev} disabled={persisting}>
           Back
         </Button>
-        <Button onClick={onNext} className="px-6">
-          Next: Preview
+        <Button onClick={handleNext} disabled={persisting} className="px-6">
+          {persisting ? (
+            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</>
+          ) : (
+            <>Next: Preview</>
+          )}
         </Button>
       </div>
     </div>

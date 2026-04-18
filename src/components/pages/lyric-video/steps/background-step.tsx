@@ -1,7 +1,9 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { updateLyricVideoClient } from "@/components/pages/lyric-video/api";
 
 /**
  * Mirror of services/lyricVideoPresets.js on the backend.
@@ -29,12 +31,14 @@ interface BackgroundStepProps {
     backgroundColor?: string;
   }) => void;
   videoData: {
+    lyricVideoId?: number;
     backgroundPreset?: string;
     backgroundColor?: string;
   };
 }
 
 export default function BackgroundStep({ onNext, onPrev, onDataUpdate, videoData }: BackgroundStepProps) {
+  const [persisting, setPersisting] = useState(false);
   const selectedPreset = videoData.backgroundPreset;
   const customColor = videoData.backgroundColor;
   const customActive = !selectedPreset && typeof customColor === "string" && HEX_RE.test(customColor);
@@ -52,9 +56,36 @@ export default function BackgroundStep({ onNext, onPrev, onDataUpdate, videoData
     onDataUpdate({ backgroundPreset: undefined, backgroundColor: hex });
   };
 
+  // Persist to the backend before advancing — the preview step auto-triggers
+  // a render on mount and reads these fields off the DB record.
+  const handleNext = async () => {
+    const hasPreset = Boolean(selectedPreset);
+    const hasCustom = !selectedPreset && typeof customColor === "string" && HEX_RE.test(customColor);
+    const shouldPersist = (hasPreset || hasCustom) && typeof videoData.lyricVideoId === "number";
+
+    if (!shouldPersist) {
+      onNext();
+      return;
+    }
+
+    setPersisting(true);
+    try {
+      await updateLyricVideoClient(videoData.lyricVideoId as number, {
+        backgroundPreset: hasPreset ? (selectedPreset as string) : undefined,
+        backgroundColor: hasCustom ? (customColor as string) : undefined,
+      });
+      onNext();
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      toast.error(err?.response?.data?.message || err?.message || "Failed to save background choice");
+    } finally {
+      setPersisting(false);
+    }
+  };
+
   const canAdvance = useMemo(() => {
     // Every case is valid: a preset, a well-formed hex, or nothing (backend
-    // falls back to the default preset). "Next" is never blocked here.
+    // falls back to the default preset). "Next" is never blocked by selection.
     return true;
   }, []);
 
@@ -151,11 +182,15 @@ export default function BackgroundStep({ onNext, onPrev, onDataUpdate, videoData
       </div>
 
       <div className="flex items-center justify-between pt-2">
-        <Button variant="ghost" onClick={onPrev}>
+        <Button variant="ghost" onClick={onPrev} disabled={persisting}>
           Back
         </Button>
-        <Button onClick={onNext} disabled={!canAdvance} className="px-6">
-          Next: Style
+        <Button onClick={handleNext} disabled={!canAdvance || persisting} className="px-6">
+          {persisting ? (
+            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</>
+          ) : (
+            <>Next: Style</>
+          )}
         </Button>
       </div>
     </div>

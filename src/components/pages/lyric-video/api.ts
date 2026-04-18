@@ -49,6 +49,7 @@ export async function createLyricVideoClient(data: {
   textColor?: string;
   highlightColor?: string;
   backgroundColor?: string;
+  backgroundPreset?: string;
   backgroundImage?: string;
 }): Promise<CreateLyricVideoResponse> {
   const axios = await GetAxiosWithAuth();
@@ -241,6 +242,7 @@ export async function updateLyricVideoClient(
     textColor?: string;
     highlightColor?: string;
     backgroundColor?: string;
+    backgroundPreset?: string | null;
     backgroundImage?: string | null;
   }
 ): Promise<LyricVideo> {

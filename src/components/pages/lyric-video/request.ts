@@ -53,6 +53,7 @@ export interface LyricVideo {
   textColor: string | null;
   highlightColor: string | null;
   backgroundColor: string | null;
+  backgroundPreset: string | null;
   backgroundImage: string | null;
   aspectRatio: string | null;
   status: string;
@@ -129,6 +130,7 @@ export async function createLyricVideo(data: {
   textColor?: string;
   highlightColor?: string;
   backgroundColor?: string;
+  backgroundPreset?: string;
   backgroundImage?: string;
 }): Promise<CreateLyricVideoResponse | "error"> {
   try {
