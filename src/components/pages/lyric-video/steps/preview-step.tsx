@@ -23,6 +23,7 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData }:
   const [progressPercent, setProgressPercent] = useState(0);
   const [progressStage, setProgressStage] = useState("");
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const started = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -30,23 +31,21 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData }:
     };
   }, []);
 
-  const checkExisting = useCallback(async () => {
-    if (!videoData.lyricVideoId) return;
+  const checkExisting = useCallback(async (): Promise<boolean> => {
+    if (!videoData.lyricVideoId) return false;
     try {
       const result = await getLyricVideoByIdClient(videoData.lyricVideoId);
       if (result.previewVideoUrl) {
         setPreviewUrl(result.previewVideoUrl);
         onDataUpdate({ previewUrl: result.previewVideoUrl });
         setStatus("completed");
+        return true;
       }
     } catch {
       // ignore
     }
+    return false;
   }, [onDataUpdate, videoData.lyricVideoId]);
-
-  useEffect(() => {
-    if (videoData.lyricVideoId && !previewUrl) checkExisting();
-  }, [checkExisting, previewUrl, videoData.lyricVideoId]);
 
   const finishWithSuccess = useCallback(async () => {
     setGenerating(false);
@@ -93,7 +92,7 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData }:
     [finishWithSuccess]
   );
 
-  const handleGenerate = async () => {
+  const handleGenerate = useCallback(async () => {
     if (!videoData.lyricVideoId) {
       toast.error("Lyric video not found");
       return;
@@ -116,7 +115,20 @@ export default function PreviewStep({ onNext, onPrev, onDataUpdate, videoData }:
       setGenerating(false);
       setStatus("");
     }
-  };
+  }, [videoData.lyricVideoId, finishWithSuccess, startPolling]);
+
+  // On entering this step: check for an existing preview. If none exists,
+  // auto-trigger generation so the user doesn't sit staring at an empty state.
+  // The `started` ref guards against StrictMode double-mount re-firing.
+  useEffect(() => {
+    if (started.current) return;
+    if (!videoData.lyricVideoId) return;
+    started.current = true;
+    (async () => {
+      const found = await checkExisting();
+      if (!found) handleGenerate();
+    })();
+  }, [videoData.lyricVideoId, checkExisting, handleGenerate]);
 
   return (
     <div className="space-y-6">
