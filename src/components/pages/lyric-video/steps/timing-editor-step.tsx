@@ -80,7 +80,7 @@ export default function TimingEditorStep({ onNext, onPrev, onDataUpdate, videoDa
         setLoading(false);
       }
     } catch {
-      console.error("Error loading timing data");
+      toast.error("Failed to load timing data");
       setLoading(false);
     }
   }, [videoData.lyricVideoId, stopPolling]);

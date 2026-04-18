@@ -135,33 +135,13 @@ export default function ExportStep({ onPrev, onComplete, videoData }: ExportStep
 
     try {
       const result = await generateFinalVideoClient(lyricVideoId, aspectRatio);
-      console.log("[ExportStep] API response:", result);
 
-      // Backend renders synchronously and returns exportUrl directly.
-      // No job queue involved — fetch the video record to get the URL.
+      // Backend returns { jobId, status: 'processing' } for async renders.
+      // If the response already contains a URL (cached/legacy shape), finish now;
+      // otherwise poll the job until it completes.
       if (result.finalUrl || result.exportUrl || !result.jobId) {
         await finishWithSuccess(lyricVideoId);
         return;
-      }
-
-      // Legacy job-based path (kept for compatibility)
-      if (result.jobId.startsWith("sync-")) {
-        await new Promise((r) => setTimeout(r, 1000));
-        try {
-          const jobResult = await getJobStatusClient(result.jobId);
-          applyProgress(jobResult.progress);
-          if (jobResult.state === "completed") {
-            await finishWithSuccess(lyricVideoId);
-            return;
-          } else if (jobResult.state === "failed") {
-            setGenerating(false);
-            setStatus("failed");
-            toast.error("Export failed");
-            return;
-          }
-        } catch {
-          // fall through to polling
-        }
       }
       startPolling(result.jobId, lyricVideoId);
     } catch (error: unknown) {
