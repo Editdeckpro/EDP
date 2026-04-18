@@ -1,7 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check } from "lucide-react";
+import { Check, Loader2, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useSession } from "@/lib/auth-client";
 import UploadAudioStep from "@/components/pages/lyric-video/steps/upload-audio-step";
 import TranscribeStep from "@/components/pages/lyric-video/steps/transcribe-step";
 import AddLyricsStep from "@/components/pages/lyric-video/steps/add-lyrics-step";
@@ -35,10 +37,66 @@ const STEPS = [
   { num: 6, label: "Export" },
 ];
 
+// ---------------------------------------------------------------------------
+// Wizard state persistence
+// sessionStorage survives refresh but dies on tab close — matches the
+// "active session only" requirement. Keyed by user id so prior-user state
+// cannot leak to whoever signs in next in the same tab.
+// ---------------------------------------------------------------------------
+const WIZARD_KEY_PREFIX = "lyric-wizard:";
+const MAX_PAYLOAD_BYTES = 2_000_000;
+
+interface PersistedWizardState {
+  step: Step;
+  data: LyricVideoData;
+}
+
+function buildStorageKey(userId: number | undefined): string | null {
+  return typeof userId === "number" ? `${WIZARD_KEY_PREFIX}${userId}` : null;
+}
+
+function persistWizardState(key: string, step: Step, data: LyricVideoData): void {
+  if (typeof window === "undefined") return;
+  try {
+    let payload: PersistedWizardState = { step, data };
+    let json = JSON.stringify(payload);
+    if (json.length > MAX_PAYLOAD_BYTES) {
+      // Heavy word-timing arrays push the payload past the sessionStorage
+      // budget — drop them; subcomponents can re-fetch from the DB if needed.
+      const trimmedData: LyricVideoData = { ...data };
+      delete trimmedData.assemblyWords;
+      delete trimmedData.assemblyLines;
+      payload = { step, data: trimmedData };
+      json = JSON.stringify(payload);
+    }
+    window.sessionStorage.setItem(key, json);
+  } catch {
+    // Quota exceeded, private browsing, etc. — best-effort persistence.
+  }
+}
+
+function readWizardState(key: string): PersistedWizardState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PersistedWizardState;
+    const step = parsed?.step;
+    if (typeof step !== "number" || step < 1 || step > 6) return null;
+    return { step: step as Step, data: parsed.data || {} };
+  } catch {
+    return null;
+  }
+}
+
 export default function CreateLyricVideoPage() {
   const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
+  const userId = session?.user.id;
+
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [videoData, setVideoData] = useState<LyricVideoData>({});
+  const [restored, setRestored] = useState(false);
 
   const updateVideoData = (data: Partial<LyricVideoData>) => {
     setVideoData((prev) => ({ ...prev, ...data }));
@@ -52,11 +110,70 @@ export default function CreateLyricVideoPage() {
     if (currentStep > 1) setCurrentStep((prev) => (prev - 1) as Step);
   };
 
+  // Restore persisted state once the session has resolved. Step components
+  // are not rendered until `restored` is true, so auto-triggering effects
+  // inside them cannot fire against a to-be-overwritten empty state.
+  useEffect(() => {
+    if (restored) return;
+    if (sessionStatus === "loading") return;
+
+    if (sessionStatus === "authenticated") {
+      const key = buildStorageKey(userId);
+      if (key) {
+        const saved = readWizardState(key);
+        if (saved) {
+          setCurrentStep(saved.step);
+          setVideoData(saved.data);
+        }
+      }
+    }
+    setRestored(true);
+  }, [sessionStatus, userId, restored]);
+
+  // Persist on every state change once restore has completed.
+  useEffect(() => {
+    if (!restored) return;
+    const key = buildStorageKey(userId);
+    if (!key) return;
+    persistWizardState(key, currentStep, videoData);
+  }, [currentStep, videoData, userId, restored]);
+
+  const clearPersistedState = useCallback(() => {
+    const key = buildStorageKey(userId);
+    if (key && typeof window !== "undefined") {
+      window.sessionStorage.removeItem(key);
+    }
+  }, [userId]);
+
+  const handleStartOver = useCallback(() => {
+    if (typeof window !== "undefined" && !window.confirm("Start over? This clears your current progress.")) {
+      return;
+    }
+    clearPersistedState();
+    setCurrentStep(1);
+    setVideoData({});
+  }, [clearPersistedState]);
+
+  const handleExportComplete = useCallback(() => {
+    clearPersistedState();
+    router.push("/lyric-videos");
+  }, [clearPersistedState, router]);
+
+  const showStartOver = currentStep > 1 || !!videoData.audioId;
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold">Create Lyric Video</h1>
-        <p className="text-sm text-muted-foreground mt-1">Step {currentStep} of 6</p>
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Create Lyric Video</h1>
+          <p className="text-sm text-muted-foreground mt-1">Step {currentStep} of 6</p>
+        </div>
+        {showStartOver && (
+          <Button variant="ghost" size="sm" onClick={handleStartOver}>
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Start Over
+          </Button>
+        )}
       </div>
 
       {/* Stepper */}
@@ -98,23 +215,31 @@ export default function CreateLyricVideoPage() {
 
       {/* Step content */}
       <div className="bg-card border rounded-xl p-6 shadow-sm">
-        {currentStep === 1 && (
-          <UploadAudioStep onNext={nextStep} onDataUpdate={updateVideoData} videoData={videoData} />
-        )}
-        {currentStep === 2 && (
-          <TranscribeStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
-        )}
-        {currentStep === 3 && (
-          <AddLyricsStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
-        )}
-        {currentStep === 4 && (
-          <TrimAudioStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
-        )}
-        {currentStep === 5 && (
-          <PreviewStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
-        )}
-        {currentStep === 6 && (
-          <ExportStep onPrev={prevStep} onComplete={() => router.push("/lyric-videos")} videoData={videoData} />
+        {!restored ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <>
+            {currentStep === 1 && (
+              <UploadAudioStep onNext={nextStep} onDataUpdate={updateVideoData} videoData={videoData} />
+            )}
+            {currentStep === 2 && (
+              <TranscribeStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
+            )}
+            {currentStep === 3 && (
+              <AddLyricsStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
+            )}
+            {currentStep === 4 && (
+              <TrimAudioStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
+            )}
+            {currentStep === 5 && (
+              <PreviewStep onNext={nextStep} onPrev={prevStep} onDataUpdate={updateVideoData} videoData={videoData} />
+            )}
+            {currentStep === 6 && (
+              <ExportStep onPrev={prevStep} onComplete={handleExportComplete} videoData={videoData} />
+            )}
+          </>
         )}
       </div>
     </div>
