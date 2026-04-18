@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, Sparkles, Clock } from "lucide-react";
 import { transcribeAudioClient, type AssemblyWord, type AssemblyLine } from "@/components/pages/lyric-video/api";
 
 interface TranscribeStepProps {
@@ -16,13 +16,14 @@ type Status = "loading" | "success" | "error";
 
 export default function TranscribeStep({ onNext, onPrev, onDataUpdate, videoData }: TranscribeStepProps) {
   const [status, setStatus] = useState<Status>("loading");
+  const [elapsed, setElapsed] = useState(0);
   const started = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (started.current) return;
     started.current = true;
 
-    // If we already have lyrics from a previous run, skip transcription
     if (videoData.lyrics) {
       setStatus("success");
       return;
@@ -32,6 +33,8 @@ export default function TranscribeStep({ onNext, onPrev, onDataUpdate, videoData
       setStatus("error");
       return;
     }
+
+    timerRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);
 
     transcribeAudioClient(videoData.audioId)
       .then(({ transcript, words, lines }) => {
@@ -49,8 +52,13 @@ export default function TranscribeStep({ onNext, onPrev, onDataUpdate, videoData
       .catch(() => {
         setStatus("error");
         toast.error("Transcription failed — you can type lyrics manually");
+      })
+      .finally(() => {
+        if (timerRef.current) clearInterval(timerRef.current);
       });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
 
   const handleSkip = () => {
     onDataUpdate({ lyrics: "" });
@@ -80,17 +88,17 @@ export default function TranscribeStep({ onNext, onPrev, onDataUpdate, videoData
             <div className="text-center">
               <p className="font-semibold text-lg">Analyzing your audio...</p>
               <p className="text-sm text-muted-foreground mt-1 max-w-xs">
-                AssemblyAI is detecting lyrics. This usually takes 10–30 seconds.
+                AssemblyAI is detecting lyrics. Longer tracks can take 1–2 minutes.
               </p>
             </div>
-            <div className="flex gap-1.5">
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="w-2 h-2 rounded-full bg-primary/50 animate-bounce"
-                  style={{ animationDelay: `${i * 0.15}s` }}
-                />
-              ))}
+            <div className="w-64 space-y-2">
+              <div className="h-1.5 w-full rounded-full bg-primary/10 overflow-hidden">
+                <div className="h-full w-2/5 bg-primary/50 rounded-full animate-progress" />
+              </div>
+              <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                <Clock className="w-3 h-3" />
+                <span>{Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, "0")} elapsed</span>
+              </div>
             </div>
           </>
         )}

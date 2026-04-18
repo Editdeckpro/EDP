@@ -69,8 +69,8 @@ export interface AssemblyLine {
 }
 
 /**
- * Transcribe audio to text using AssemblyAI (client-side)
- * Returns transcript text plus optional word/line timestamps when AssemblyAI is available.
+ * Transcribe audio to text using AssemblyAI / Whisper.
+ * Starts an async job on the backend and polls every 3 seconds until complete.
  */
 export async function transcribeAudioClient(audioId: string): Promise<{
   transcript: string;
@@ -78,11 +78,32 @@ export async function transcribeAudioClient(audioId: string): Promise<{
   lines?: AssemblyLine[];
 }> {
   const axios = await GetAxiosWithAuth();
-  const response = await axios.post<{ transcript: string; words?: AssemblyWord[]; lines?: AssemblyLine[] }>(
-    "lyric-videos/transcribe",
-    { audioId }
-  );
-  return response.data;
+
+  const startRes = await axios.post<{ jobId: string }>("lyric-videos/transcribe", { audioId });
+  const { jobId } = startRes.data;
+
+  const POLL_INTERVAL_MS = 3_000;
+  const MAX_POLLS = 100; // 5 minutes
+
+  for (let i = 0; i < MAX_POLLS; i++) {
+    await new Promise<void>((r) => setTimeout(r, POLL_INTERVAL_MS));
+
+    const pollRes = await axios.get<{
+      status: "processing" | "completed" | "failed";
+      transcript?: string;
+      words?: AssemblyWord[];
+      lines?: AssemblyLine[];
+      error?: string;
+    }>(`lyric-videos/transcribe/${jobId}`);
+
+    const { status, transcript, words, lines, error } = pollRes.data;
+
+    if (status === "completed") return { transcript: transcript!, words, lines };
+    if (status === "failed") throw new Error(error || "Transcription failed");
+    // "processing" — continue polling
+  }
+
+  throw new Error("Transcription timed out after 5 minutes");
 }
 
 /**
