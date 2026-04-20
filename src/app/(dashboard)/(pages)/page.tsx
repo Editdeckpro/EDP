@@ -33,7 +33,8 @@ export default function Page() {
             boxShadow: "0 4px 32px rgba(20,184,166,0.4)",
           }}
         />
-        {/* Lyric Video — warm orange gradient */}
+        {/* HIDDEN PRE-LAUNCH — see hide-unready-features PR
+        Lyric Video — warm orange gradient
         <PageCta
           title="Lyric Video"
           description="Create stunning lyric videos with AI-powered timing."
@@ -46,7 +47,9 @@ export default function Page() {
             boxShadow: "0 4px 32px rgba(245,158,11,0.4)",
           }}
         />
-        {/* Beat Producer — deep green gradient */}
+        */}
+        {/* HIDDEN PRE-LAUNCH — see hide-unready-features PR
+        Beat Producer — deep green gradient
         <PageCta
           title="Beat Producer"
           description="Generate professional beats with melody, chords, and drums using AI."
@@ -59,6 +62,7 @@ export default function Page() {
             boxShadow: "0 4px 32px rgba(34,197,94,0.4)",
           }}
         />
+        */}
       </div>
       <ImageCardGrid generationType="custom,filter" />
       {/* <ImageGridPagination /> */}

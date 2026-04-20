@@ -151,6 +151,7 @@ export const sidebarSections: SidebarSectionType[] = [
         bgClassName: "bg-slate-800/8 hover:bg-slate-800/12",
         tooltip: "Convert existing photo to album cover.",
       },
+      /* HIDDEN PRE-LAUNCH — see hide-unready-features PR
       {
         icon: (
           <GIcon size={22} className="group-data-[active=true]:text-slate-500">
@@ -163,6 +164,8 @@ export const sidebarSections: SidebarSectionType[] = [
         bgClassName: "bg-slate-800/8 hover:bg-slate-800/12",
         tooltip: "Create lyric videos with AI-powered timing.",
       },
+      */
+      /* HIDDEN PRE-LAUNCH — see hide-unready-features PR
       {
         icon: (
           <GIcon size={22} className="group-data-[active=true]:text-slate-500">
@@ -174,6 +177,7 @@ export const sidebarSections: SidebarSectionType[] = [
         bgClassName: "bg-slate-800/8 hover:bg-slate-800/12",
         tooltip: "Generate beats with AI using music theory.",
       },
+      */
     ],
   },
   {
@@ -212,11 +216,13 @@ export const sidebarSections: SidebarSectionType[] = [
   {
     header: false,
     links: [
+      /* HIDDEN PRE-LAUNCH — see hide-unready-features PR
       {
         icon: <></>,
         text: "Beat Producer",
         link: "/beat-producer",
       },
+      */
       {
         icon: <></>,
         text: "My Profile",

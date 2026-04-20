@@ -51,7 +51,7 @@ export default function SubscriptionPricing() {
           <span><strong className="text-foreground">Next Level:</strong> 25 generations</span>
           <span><strong className="text-foreground">Pro Studio:</strong> Unlimited</span>
         </div>
-        <p className="text-xs text-[#6a6c7b] mt-2">Each image generation or final lyric video export counts as 1 generation.</p>
+        <p className="text-xs text-[#6a6c7b] mt-2">Each image generation counts as 1 generation.</p>
       </div>
 
       {/* Pricing Cards */}
@@ -158,7 +158,6 @@ export const pricingPlansDetails: Omit<PricingCardProps, "billingPeriod" | "isCu
       "25 image generations per month",
       "Custom text tools for enhanced branding",
       "High-resolution outputs for pro-quality results",
-      "Lyric video feature (up to 20 seconds)",
       "Priority email support (24-hour response time)",
     ],
     color: "blue",
@@ -175,7 +174,6 @@ export const pricingPlansDetails: Omit<PricingCardProps, "billingPeriod" | "isCu
       "Unlimited image generations per month",
       "Add up to 5 team members for collaborative access",
       "Centralized dashboard to manage projects, users, and downloads",
-      "Lyric video feature (up to 5 minutes)",
       "Priority queue & early access to beta features",
     ],
     color: "primary",
