@@ -5,7 +5,7 @@ import PageCta from "@/components/pages/dashboard/page-cta";
 export default function Page() {
   return (
     <section className="space-y-10">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Cover Art Studio — deep purple gradient */}
         <PageCta
           title="Cover Art Studio"
@@ -31,6 +31,18 @@ export default function Page() {
           cardStyle={{
             background: "linear-gradient(135deg, #134e4a 0%, #0f766e 40%, #14b8a6 70%, #0d9488 100%)",
             boxShadow: "0 4px 32px rgba(20,184,166,0.4)",
+          }}
+        />
+        {/* Lyric Video — Coming Soon teaser */}
+        <PageCta
+          title="Lyric Video"
+          description="AI-synced lyric videos timed to your audio."
+          buttonText="Coming Soon"
+          imageSrc="/images/cta-lyric-video.svg"
+          comingSoon={true}
+          cardStyle={{
+            background: "linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)",
+            boxShadow: "0 4px 32px rgba(245,158,11,0.4)",
           }}
         />
         {/* HIDDEN PRE-LAUNCH — see hide-unready-features PR
