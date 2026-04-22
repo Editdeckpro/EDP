@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Bebas_Neue } from "next/font/google";
 import "./globals.css";
 import "./g-font.css";
 import { Toaster } from "@/components/ui/sonner";
@@ -15,6 +15,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const bebasNeue = Bebas_Neue({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 const materialSymbols = localFont({
@@ -36,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <meta name="grammarly" content="off" />
-      <body className={`${geistSans.variable} ${geistMono.variable} ${materialSymbols.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${bebasNeue.variable} ${materialSymbols.variable} antialiased`}>
         <NextTopLoader color="#3E4EBA" />
         <Toaster richColors position="top-right" />
         <TourProvider>{children}</TourProvider>
