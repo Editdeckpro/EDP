@@ -22,6 +22,9 @@ export default function MarketingLayout({
             />
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-sm text-white/70">
+            <Link href="/" className="hover:text-white transition-colors">
+              Home
+            </Link>
             <Link href="/pricing" className="hover:text-white transition-colors">
               Pricing
             </Link>
