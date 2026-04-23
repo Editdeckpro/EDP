@@ -39,20 +39,20 @@ export default function MarketingLayout({
             </Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Link
-              href="/login"
+            <a
+              href="https://app.editdeckpro.com/login"
               className="text-sm text-white/70 hover:text-white transition-colors"
             >
               Login
-            </Link>
-            <Link href="/signup">
+            </a>
+            <a href="https://app.editdeckpro.com/signup">
               <Button
                 size="sm"
                 className="bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-400 hover:to-red-400 text-white border-0 font-semibold"
               >
                 Start Free Trial
               </Button>
-            </Link>
+            </a>
           </div>
         </div>
       </header>

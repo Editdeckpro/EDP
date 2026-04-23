@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -193,8 +192,8 @@ export default function HomePage() {
   return (
     <>
       {/* SECTION 1 — Announcement ribbon */}
-      <Link
-        href="/signup"
+      <a
+        href="https://app.editdeckpro.com/signup"
         className="block bg-[#0a0a0a] border-b border-white/10 hover:bg-white/[0.04] transition-colors"
       >
         <div className="max-w-7xl mx-auto px-6 py-2.5 text-center text-xs sm:text-sm">
@@ -206,7 +205,7 @@ export default function HomePage() {
             Try free <ChevronRight className="w-3.5 h-3.5" />
           </span>
         </div>
-      </Link>
+      </a>
 
       {/* SECTION 2 — Hero */}
       <section className="relative overflow-hidden">
@@ -231,28 +230,28 @@ export default function HomePage() {
           </p>
 
           <div className="mt-10 flex justify-center">
-            <Link href="/signup">
+            <a href="https://app.editdeckpro.com/signup">
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-400 hover:to-red-400 text-white border-0 font-semibold h-12 px-8 text-base"
               >
                 Start Free Trial <ChevronRight className="w-4 h-4" />
               </Button>
-            </Link>
+            </a>
           </div>
 
           <div className="mt-8 flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm text-white/60">
             <span className="inline-flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-amber-400" />
-              60-Day Money Back Guarantee
+              3-Day Free Trial
             </span>
             <span className="inline-flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-amber-400" />
-              Email Support
+              Cancel Anytime
             </span>
             <span className="inline-flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-amber-400" />
-              Free Trial
+              Built by Touring Pros
             </span>
           </div>
 
@@ -492,14 +491,14 @@ export default function HomePage() {
               </li>
             </ul>
             <div className="mt-8">
-              <Link href="/signup">
+              <a href="https://app.editdeckpro.com/signup">
                 <Button
                   size="sm"
                   className="bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-400 hover:to-red-400 text-white border-0 font-semibold"
                 >
                   Start Trial <ChevronRight className="w-4 h-4" />
                 </Button>
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -683,17 +682,17 @@ export default function HomePage() {
             covers in minutes.
           </p>
           <div className="mt-10">
-            <Link href="/signup">
+            <a href="https://app.editdeckpro.com/signup">
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-400 hover:to-red-400 text-white border-0 font-semibold h-12 px-10 text-base"
               >
                 Start Free Trial <ChevronRight className="w-4 h-4" />
               </Button>
-            </Link>
+            </a>
           </div>
           <p className="mt-5 text-xs text-white/65">
-            Free trial. Cancel anytime.
+            3-day trial · Card required · Cancel anytime
           </p>
         </div>
       </section>

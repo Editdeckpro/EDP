@@ -198,16 +198,16 @@ export default function AboutPage() {
           Ready to release faster?
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-white/80">
-          Start your 3-day free trial. No credit card required.
+          Start your 3-day free trial. Card required · Charged on day 4 · Cancel anytime.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link
-            href="/signup"
+          <a
+            href="https://app.editdeckpro.com/signup"
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 px-6 py-3 text-sm font-semibold text-white hover:brightness-110"
           >
             Start Free Trial
             <ArrowRight className="h-4 w-4" />
-          </Link>
+          </a>
           <Link
             href="/pricing"
             className="rounded-xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"

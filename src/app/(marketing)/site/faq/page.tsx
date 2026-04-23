@@ -88,8 +88,11 @@ const faqs: FAQ[] = [
     q: "Can I try the platform for free?",
     a: (
       <p>
-        Yes — we currently offer a <strong className="text-white">3-day free trial</strong>.
-        No credit card required to start.
+        Yes — we offer a <strong className="text-white">3-day free trial</strong>. A
+        payment method is required at signup, and you&apos;ll be charged your
+        selected plan automatically when the trial ends on day 4. You can cancel
+        anytime during the trial from your account dashboard to avoid being
+        charged.
       </p>
     ),
   },

@@ -94,7 +94,7 @@ export default function PricingPage() {
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-white/80">
             Try EditDeckPro free for 3 days. Pick the plan that matches how fast you release.
-            Cancel anytime — no credit card required to start.
+            Card required at signup — charged on day 4 unless you cancel during the trial.
           </p>
         </div>
 
@@ -188,8 +188,8 @@ export default function PricingPage() {
                   )}
                 </div>
 
-                <Link
-                  href={`/signup?plan=${plan.id}&billing=${billing}`}
+                <a
+                  href={`https://app.editdeckpro.com/signup?plan=${plan.id}&billing=${billing}`}
                   className={`mt-6 block w-full rounded-xl px-4 py-3 text-center text-sm font-semibold transition ${
                     plan.popular
                       ? "bg-gradient-to-r from-amber-500 to-red-500 text-white hover:brightness-110"
@@ -197,7 +197,7 @@ export default function PricingPage() {
                   }`}
                 >
                   {plan.cta}
-                </Link>
+                </a>
 
                 <ul className="mt-8 space-y-3">
                   {plan.features.map((feature) => (
@@ -213,7 +213,7 @@ export default function PricingPage() {
         </div>
 
         <p className="mt-10 text-center text-sm text-white/65">
-          3-day free trial · Cancel anytime · No credit card required to start
+          3-day free trial · Card required · Charged on day 4 · Cancel anytime
         </p>
       </section>
 
