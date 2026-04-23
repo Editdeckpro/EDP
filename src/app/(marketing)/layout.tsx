@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import MobileNav from "./_components/MobileNav";
 
 export default function MarketingLayout({
   children,
@@ -38,7 +39,7 @@ export default function MarketingLayout({
               Contact
             </Link>
           </nav>
-          <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
             <a
               href="https://app.editdeckpro.com/login"
               className="text-sm text-white/70 hover:text-white transition-colors"
@@ -54,6 +55,7 @@ export default function MarketingLayout({
               </Button>
             </a>
           </div>
+          <MobileNav />
         </div>
       </header>
 
