@@ -16,7 +16,7 @@ const withoutCards = [
 ];
 
 const withCards = [
-  { time: "20 min", body: "Ready in 20 minutes. Uploaded to DSPs same day ✅" },
+  { time: "5 min", body: "Ready in 5 minutes. Uploaded to DSPs same day ✅" },
   { time: "Today", body: "Unlimited iterations. My vision, no middleman." },
   { time: "This month", body: "One subscription. Replaced 3 tools + the freelancer." },
   { time: "This quarter", body: "Dropped 4 singles this quarter. All on schedule 🚀" },
@@ -126,7 +126,7 @@ const shipMore = [
 const faqs = [
   {
     q: "Does it really take only minutes?",
-    a: "Yes. Generating a cover takes under a minute. Iterating and refining until it's exactly what you want usually takes another 10-20 minutes. The hard part — the design itself — is done in seconds instead of weeks.",
+    a: "Yes. Generating a cover takes under a minute. Most artists have their final cover ready in about 5 minutes, including quick text tweaks and color adjustments. The hard part — the design itself — is done in seconds instead of weeks.",
   },
   {
     q: "Will the covers look AI-generated?",
