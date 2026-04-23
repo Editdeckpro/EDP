@@ -234,19 +234,13 @@ export default function FAQPage() {
           We&apos;re real humans in Cleveland, Ohio. Reach out and we&apos;ll
           get back fast.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
+        <div className="mt-6 flex justify-center">
           <Link
             href="/contact"
             className="rounded-xl bg-gradient-to-r from-amber-500 to-red-500 px-6 py-3 text-sm font-semibold text-white hover:brightness-110"
           >
             Contact us
           </Link>
-          <a
-            href="mailto:support@editdeckpro.com"
-            className="rounded-xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
-          >
-            Email support
-          </a>
         </div>
       </section>
     </main>
