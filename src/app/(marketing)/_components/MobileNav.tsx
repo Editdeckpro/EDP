@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 
@@ -14,7 +15,12 @@ const navLinks = [
 
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const close = () => setOpen(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -45,23 +51,25 @@ export default function MobileNav() {
         <Menu className="h-7 w-7" strokeWidth={2.5} />
       </button>
 
-      <div
-        aria-hidden="true"
-        onClick={close}
-        className={`md:hidden fixed inset-0 z-[60] bg-black/60 transition-opacity duration-200 ${
-          open ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-      />
+      {mounted && createPortal(
+        <>
+          <div
+            aria-hidden="true"
+            onClick={close}
+            className={`md:hidden fixed inset-0 z-[60] bg-black/60 transition-opacity duration-200 ${
+              open ? "opacity-100" : "pointer-events-none opacity-0"
+            }`}
+          />
 
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-label="Mobile navigation"
-        aria-hidden={!open}
-        className={`md:hidden fixed top-0 right-0 z-[70] flex h-full w-[80%] max-w-sm flex-col bg-[#0a0a0a] border-l border-white/10 transition-transform duration-300 ease-out ${
-          open ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
+            aria-hidden={!open}
+            className={`md:hidden fixed top-0 right-0 z-[70] flex h-full w-[80%] max-w-sm flex-col bg-[#0a0a0a] border-l border-white/10 transition-transform duration-300 ease-out ${
+              open ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
         <div className="flex items-center justify-end px-4 py-4 border-b border-white/10">
           <button
             type="button"
@@ -108,6 +116,9 @@ export default function MobileNav() {
           </a>
         </div>
       </aside>
+        </>,
+        document.body
+      )}
     </>
   );
 }
