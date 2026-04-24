@@ -40,7 +40,7 @@ export default function MobileNav() {
         onClick={() => setOpen(true)}
         aria-label="Open menu"
         aria-expanded={open}
-        className="md:hidden inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/20 text-white transition-colors hover:bg-white/5 active:bg-white/10"
+        className="md:hidden inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/30 bg-white/10 text-white shadow-sm transition-colors hover:bg-white/15 active:bg-white/20"
       >
         <Menu className="h-6 w-6" />
       </button>
