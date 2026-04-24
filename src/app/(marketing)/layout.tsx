@@ -16,10 +16,11 @@ export default function MarketingLayout({
             <Image
               src="/marketing/editdeck-logo.png"
               alt="EditDeckPro"
-              width={200}
-              height={74}
+              width={160}
+              height={59}
+              quality={95}
               priority
-              className="h-12 md:h-14 w-auto"
+              className="h-12 md:h-[59px] w-auto"
             />
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-sm text-white/70">
