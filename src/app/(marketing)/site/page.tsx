@@ -19,7 +19,6 @@ const withCards = [
   { time: "5 min", body: "Ready in 5 minutes. Uploaded to DSPs same day ✅" },
   { time: "Today", body: "Unlimited revisions. My vision, no middleman." },
   { time: "This month", body: "One subscription. Replaced 3 tools + the freelancer." },
-  { time: "This quarter", body: "Dropped 4 singles this quarter. All on schedule 🚀" },
   { time: "Last quarter", body: "Dropped a song every week last quarter, all on schedule. Gained 11,000+ Instagram followers." },
 ];
 
