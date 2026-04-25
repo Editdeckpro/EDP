@@ -214,7 +214,7 @@ export default function HomePage() {
         <div className="relative max-w-5xl mx-auto px-6 pt-24 pb-24 text-center">
           <div className="inline-flex items-center gap-2 text-xs sm:text-sm text-white/70 border border-white/15 rounded-full px-4 py-1.5 mb-8">
             <ShieldCheck className="w-4 h-4 text-amber-400" />
-            Trusted by 90+ independent artists &amp; managers
+            Trusted by 1,000+ artists, managers &amp; labels
           </div>
 
           <h1 className="[font-family:var(--font-display)] text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl leading-[0.9] tracking-tight">
