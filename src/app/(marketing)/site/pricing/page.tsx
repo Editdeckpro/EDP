@@ -31,7 +31,7 @@ const plans = [
     monthly: 67,
     yearly: 539,
     features: [
-      "Unlimited AI-powered cover designs",
+      "Unlimited cover designs",
       "Custom text tools for enhanced branding",
       "High-resolution outputs",
       "Priority email support (24-hour response)",
@@ -66,7 +66,7 @@ const compareRows: Array<{
   nextLevel: string | boolean;
   proStudio: string | boolean;
 }> = [
-  { feature: "AI cover designs",     starter: "5 / month",  nextLevel: "Unlimited",                     proStudio: "Unlimited" },
+  { feature: "Cover designs",        starter: "5 / month",  nextLevel: "Unlimited",                     proStudio: "Unlimited" },
   { feature: "Output quality",       starter: "Standard",   nextLevel: "High-resolution",               proStudio: "High-resolution" },
   { feature: "Text customization",   starter: "Basic",      nextLevel: "Advanced (custom text tools)",  proStudio: "Advanced (custom text tools)" },
   { feature: "Design ownership",     starter: true,         nextLevel: true,                            proStudio: true },
@@ -94,7 +94,7 @@ export default function PricingPage() {
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-white/80">
             Try EditDeckPro free for 3 days. Pick the plan that matches how fast you release.
-            Card required at signup — charged on day 4 unless you cancel during the trial.
+            Card required at signup. Charged on day 4 unless you cancel during the trial.
           </p>
         </div>
 

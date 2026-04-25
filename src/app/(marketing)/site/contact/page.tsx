@@ -59,7 +59,7 @@ export default function ContactPage() {
                 We&apos;re here to help
               </h2>
               <p className="mt-2 text-white/65">
-                Questions, feedback, feature requests — we read everything.
+                Questions, feedback, feature requests. We read everything.
               </p>
             </div>
 

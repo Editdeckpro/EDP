@@ -17,16 +17,17 @@ const withoutCards = [
 
 const withCards = [
   { time: "5 min", body: "Ready in 5 minutes. Uploaded to DSPs same day ✅" },
-  { time: "Today", body: "Unlimited iterations. My vision, no middleman." },
+  { time: "Today", body: "Unlimited revisions. My vision, no middleman." },
   { time: "This month", body: "One subscription. Replaced 3 tools + the freelancer." },
   { time: "This quarter", body: "Dropped 4 singles this quarter. All on schedule 🚀" },
+  { time: "Last quarter", body: "Dropped a song every week last quarter, all on schedule. Gained 11,000+ Instagram followers." },
 ];
 
 const stats = [
   { value: "Minutes", label: "from idea to finished cover vs. weeks of revisions" },
   { value: "100%", label: "streaming-platform ready, formatted for every DSP" },
-  { value: "90+", label: "artists and managers have tested EditDeckPro in live events" },
-  { value: "11", label: "live events validated the workflow over the past year" },
+  { value: "1,000+", label: "covers delivered for artists, managers, and labels" },
+  { value: "11", label: "live events validated the workflow" },
 ];
 
 type Feature = {
@@ -46,8 +47,8 @@ const features: Feature[] = [
   {
     eyebrow: "Cover Art Studio",
     headline: "Describe it. Get it. Done.",
-    body: "Our AI turns a short prompt into a professional album cover in minutes. No mood boards, no freelance chaos, no waiting three weeks for revisions.",
-    bullets: ["Prompt-based generation", "Unlimited iterations", "High-resolution output"],
+    body: "Our tool turns a short prompt into a professional album cover in minutes. No mood boards, no freelance chaos, no waiting three weeks for revisions.",
+    bullets: ["Prompt-based generation", "Unlimited revisions", "High-resolution output"],
     image: {
       src: "/marketing/all-in-cover.png",
       alt: "ALL IN by Ella — album cover generated with EditDeckPro",
@@ -84,17 +85,17 @@ const features: Feature[] = [
 ];
 
 const steps = [
-  { title: "Describe", body: "Tell the AI what the cover should feel like. Genre, mood, style — in plain language." },
+  { title: "Describe", body: "Tell EditDeckPro what the cover should feel like. Genre, mood, style. In plain language." },
   { title: "Generate", body: "In under a minute, get multiple cover options to choose from." },
-  { title: "Refine", body: "Iterate, tweak, or regenerate until it matches your vision exactly." },
+  { title: "Refine", body: "Revise, tweak, or regenerate until it matches your vision exactly." },
   { title: "Release", body: "Export streaming-ready files. Upload to every DSP the same day." },
 ];
 
 const differentiators = [
   { title: "Fast", body: "Describe your cover. Get it in minutes. Not weeks of back-and-forth with freelancers." },
-  { title: "Smart", body: "Trained on thousands of album covers so results actually look like industry-standard artwork — not generic AI art." },
+  { title: "Smart", body: "Trained on thousands of album covers so results actually look like industry-standard artwork. Not generic AI art." },
   { title: "Complete", body: "Cover art, remix variations, streaming exports. From idea to DSP upload in one tool instead of five." },
-  { title: "Flexible", body: "Iterate as much as you want. Adjust style, swap elements, generate variations. The system adapts to your vision." },
+  { title: "Flexible", body: "Revise as much as you want. Adjust style, swap elements, generate variations. The system adapts to your vision." },
   { title: "Branded", body: "Keep a consistent visual identity across a whole release campaign or a label's entire roster." },
   { title: "Yours", body: "100% ownership. Full commercial rights. Download at full resolution. No watermarks, no catches." },
 ];
@@ -103,7 +104,7 @@ type Cell = "yes" | "no" | string;
 const comparisonRows: { feature: string; cells: [Cell, Cell, Cell, Cell] }[] = [
   { feature: "AI-powered generation", cells: ["yes", "no", "no", "no"] },
   { feature: "Minutes to finished cover", cells: ["yes", "no", "no", "yes"] },
-  { feature: "Unlimited iterations", cells: ["yes", "Paid per round", "yes", "no"] },
+  { feature: "Unlimited revisions", cells: ["yes", "Paid per round", "yes", "no"] },
   { feature: "DSP-compliant specs", cells: ["yes", "Depends", "Manual", "no"] },
   { feature: "Full commercial rights", cells: ["yes", "yes", "yes", "Varies"] },
   { feature: "No designer experience needed", cells: ["yes", "n/a", "Manual", "yes"] },
@@ -112,7 +113,7 @@ const comparisonRows: { feature: string; cells: [Cell, Cell, Cell, Cell] }[] = [
 ];
 
 const roadmap = [
-  { title: "Lyric Videos", body: "AI-synced lyric videos for every release, timed to your audio automatically.", tag: "COMING SOON" },
+  { title: "Lyric Videos", body: "Auto-synced lyric videos for every release, timed to your audio automatically.", tag: "COMING SOON" },
   { title: "Promo Graphics", body: "Instagram posts, press kits, and playlist banners generated from your cover in one click.", tag: "IN PLANNING" },
   { title: "Catalog Refresh", body: "Rework an entire back catalog with a unified visual identity in minutes.", tag: "IN PLANNING" },
 ];
@@ -126,11 +127,11 @@ const shipMore = [
 const faqs = [
   {
     q: "Does it really take only minutes?",
-    a: "Yes. Generating a cover takes under a minute. Most artists have their final cover ready in about 5 minutes, including quick text tweaks and color adjustments. The hard part — the design itself — is done in seconds instead of weeks.",
+    a: "Yes. Generating a cover takes under a minute. Most artists have their final cover ready in about 5 minutes, including quick text tweaks and color adjustments. The hard part, the design itself, is done in seconds instead of weeks.",
   },
   {
     q: "Will the covers look AI-generated?",
-    a: "No. EditDeckPro is trained specifically on professional album artwork, so the output matches what you'd expect from a pro designer in your genre — not generic AI art.",
+    a: "No. EditDeckPro is trained specifically on professional album artwork, so the output matches what you'd expect from a pro designer in your genre. Not generic AI art.",
   },
   {
     q: "How is this different from using ChatGPT or Midjourney?",
@@ -138,11 +139,11 @@ const faqs = [
   },
   {
     q: "Can I edit the AI output?",
-    a: "Absolutely. Iterate as much as you want. Regenerate, adjust style, change elements. You stay in control.",
+    a: "Absolutely. Revise as much as you want. Regenerate, adjust style, change elements. You stay in control.",
   },
   {
     q: "Do I own my covers?",
-    a: "100%. Full commercial rights. Download at full resolution. Upload to DSPs, print them, merchandise them — they're yours.",
+    a: "100%. Full commercial rights. Download at full resolution. Upload to DSPs, print them, merchandise them. They're yours.",
   },
   {
     q: "What if my genre is niche?",
@@ -251,7 +252,7 @@ export default function HomePage() {
             </span>
             <span className="inline-flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-amber-400" />
-              Built by Touring Pros
+              Built by Artists
             </span>
           </div>
 
@@ -270,7 +271,7 @@ export default function HomePage() {
             <span>Instagram</span>
           </div>
           <div className="mt-8 text-xs sm:text-sm text-white/65">
-            90+ artists tested <span className="text-white/20 mx-2">|</span> 11 live events{" "}
+            1,000+ covers delivered <span className="text-white/20 mx-2">|</span> 11 live events{" "}
             <span className="text-white/20 mx-2">|</span> Minutes not days
           </div>
         </div>
@@ -365,7 +366,7 @@ export default function HomePage() {
             <DisplayHeading>One platform for every cover you ship.</DisplayHeading>
             <p className="mt-5 text-lg text-white/60">
               Create album covers, remix existing art, and get streaming-ready
-              files — all with a single tool.
+              files. All with a single tool.
             </p>
           </div>
 

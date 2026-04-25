@@ -36,23 +36,23 @@ export default function AboutPage() {
             Meet the founder
           </p>
           <h2 className="font-[family-name:var(--font-display)] text-4xl tracking-wide text-white md:text-5xl">
-            20 years in the industry — on the road, in the studio, and behind the boards
+            20 years in the industry. On the road, in the studio, and behind the boards
           </h2>
 
           <p>
-            I&apos;m <span className="font-semibold text-white">Tae</span> —
-            recording artist{" "}
+            I&apos;m <span className="font-semibold text-white">Tae</span>.
+            Recording artist{" "}
             <span className="font-semibold text-white">Big KyLy</span>, producer,
             songwriter, engineer, and the founder of EditDeckPro. For over two
             decades I&apos;ve been in the music industry as a touring artist,
-            producer, songwriter, and engineer — sharing stages and buses with{" "}
+            producer, songwriter, and engineer, sharing stages and buses with{" "}
             <span className="font-semibold text-white">Snoop Dogg</span>,{" "}
             <span className="font-semibold text-white">Wiz Khalifa</span>, and{" "}
             <span className="font-semibold text-white">Machine Gun Kelly</span>.
           </p>
 
           <p>
-            Along the way I met hundreds of unbelievably talented artists — in
+            Along the way I met hundreds of unbelievably talented artists, in
             green rooms, studios, and sessions most people never see. Real
             voices. Real songs. Real stories worth hearing.
           </p>
@@ -68,13 +68,13 @@ export default function AboutPage() {
             promotional tools. Budget for the kind of creative direction that
             makes a release feel like an event instead of a post. The artists
             who broke through didn&apos;t always have more talent than the ones
-            who didn&apos;t — they had more resources.
+            who didn&apos;t. They had more resources.
           </p>
 
           <p>
             EditDeckPro is my answer to that. A way to put pro-level visual
             tools in the hands of serious artists, independent labels, and
-            managers who are already doing the work — and shouldn&apos;t have
+            managers who are already doing the work, and shouldn&apos;t have
             to spend thousands just to look the part.
           </p>
         </div>
@@ -91,7 +91,7 @@ export default function AboutPage() {
               Talent everywhere. Budget nowhere.
             </h3>
             <p className="mt-4 text-white/75 leading-relaxed">
-              Great artists releasing great music — with covers that don&apos;t
+              Great artists releasing great music. With covers that don&apos;t
               match the quality of the track. A $500 designer quote on a $50
               promo run. A release day spent fighting Canva instead of shipping
               the song. It&apos;s the wrong trade-off, and it&apos;s everywhere.
@@ -107,7 +107,7 @@ export default function AboutPage() {
             </h3>
             <p className="mt-4 text-white/75 leading-relaxed">
               AI-powered covers, lyric videos, and release visuals that match
-              what the music deserves — at a price that lets you keep shipping.
+              what the music deserves. At a price that lets you keep shipping.
               Designed for the serious artist, the small label, and the manager
               doing it all.
             </p>
@@ -126,8 +126,8 @@ export default function AboutPage() {
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-white/75 leading-relaxed">
             You&apos;re already doing the hard part. The writing, the recording,
-            the promo. You don&apos;t need another tool that gets in your way —
-            you need one that helps you ship.
+            the promo. You don&apos;t need another tool that gets in your way.
+            You need one that helps you ship.
           </p>
         </div>
 
@@ -169,7 +169,7 @@ export default function AboutPage() {
         </h2>
         <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/80">
           Help thousands of serious artists, independent labels, and managers
-          ship releases that look as good as they sound — and leave our stamp
+          ship releases that look as good as they sound, and leave our stamp
           on the music industry doing it.
         </p>
       </section>
@@ -186,7 +186,7 @@ export default function AboutPage() {
           <p className="mt-3 max-w-2xl text-white/75 leading-relaxed">
             Not Silicon Valley. Not a coastal agency. Built in the Midwest by
             people who&apos;ve written the songs, recorded the vocals, produced
-            the tracks, and toured the buses — and who want to see more artists
+            the tracks, and toured the buses, and who want to see more artists
             win.
           </p>
         </div>

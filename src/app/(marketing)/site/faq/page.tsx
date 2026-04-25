@@ -13,7 +13,7 @@ const faqs: FAQ[] = [
       <p>
         EditDeckPro is an AI-powered platform that helps creators design
         professional-quality graphics for album covers, social media, Shopify
-        stores, and more. No design skills required — just upload, describe,
+        stores, and more. No design skills required. Just upload, describe,
         and let AI do the rest.
       </p>
     ),
@@ -59,7 +59,7 @@ const faqs: FAQ[] = [
           </li>
           <li>
             <strong className="text-white">
-              Next Level ($67/month) — Most Popular:
+              Next Level ($67/month), Most Popular:
             </strong>{" "}
             Unlimited AI-generated cover designs, high-resolution outputs,
             custom text tools, and priority email support (24-hour response
@@ -88,7 +88,7 @@ const faqs: FAQ[] = [
     q: "Can I try the platform for free?",
     a: (
       <p>
-        Yes — we offer a <strong className="text-white">3-day free trial</strong>. A
+        Yes, we offer a <strong className="text-white">3-day free trial</strong>. A
         payment method is required at signup, and you&apos;ll be charged your
         selected plan automatically when the trial ends on day 4. You can cancel
         anytime during the trial from your account dashboard to avoid being
@@ -159,7 +159,7 @@ const faqs: FAQ[] = [
     q: "Is my data secure?",
     a: (
       <p>
-        Yes — we prioritize your privacy and security. All data is encrypted
+        Yes, we prioritize your privacy and security. All data is encrypted
         and stored securely. For more details, please review our{" "}
         <Link
           href="/privacy"
