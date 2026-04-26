@@ -210,7 +210,7 @@ export default function HomePage() {
       {/* SECTION 2 — Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.18),transparent_55%),radial-gradient(ellipse_at_bottom,rgba(239,68,68,0.12),transparent_55%)] pointer-events-none" />
-        <div className="relative max-w-5xl mx-auto px-6 pt-24 pb-24 text-center">
+        <div className="relative max-w-5xl mx-auto px-6 pt-12 pb-24 text-center">
           <div className="inline-flex items-center gap-2 text-xs sm:text-sm text-white/70 border border-white/15 rounded-full px-4 py-1.5 mb-8">
             <ShieldCheck className="w-4 h-4 text-amber-400" />
             Trusted by 1,000+ artists, managers &amp; labels
@@ -224,7 +224,7 @@ export default function HomePage() {
             </span>
           </h1>
 
-          <p className="mt-8 text-lg lg:text-xl text-white/90 max-w-2xl mx-auto">
+          <p className="mt-8 text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
             Get release-ready artwork in minutes. No designers. No revisions.
             No hiring. No ten-tool setup.
           </p>
@@ -255,7 +255,7 @@ export default function HomePage() {
             </span>
           </div>
 
-          <p className="mt-16 text-sm text-white/65">
+          <p className="mt-16 text-base text-white/65">
             The choice of independent artists, producers, and labels
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm text-white/30 uppercase tracking-widest">
@@ -298,7 +298,7 @@ export default function HomePage() {
                     className="border border-red-500/10 rounded-lg p-4 bg-red-500/[0.03]"
                   >
                     <div className="text-xs text-red-400/60 mb-1">{c.time}</div>
-                    <div className="text-sm text-white/80">{c.body}</div>
+                    <div className="text-base text-white/80">{c.body}</div>
                   </div>
                 ))}
               </div>
@@ -318,7 +318,7 @@ export default function HomePage() {
                     className="border border-amber-500/15 rounded-lg p-4 bg-amber-500/[0.03]"
                   >
                     <div className="text-xs text-amber-400/80 mb-1">{c.time}</div>
-                    <div className="text-sm text-white/80">{c.body}</div>
+                    <div className="text-base text-white/80">{c.body}</div>
                   </div>
                 ))}
               </div>
@@ -334,7 +334,7 @@ export default function HomePage() {
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <Eyebrow>Why it works</Eyebrow>
             <DisplayHeading>Your next release has been waiting long enough.</DisplayHeading>
-            <p className="mt-5 text-lg text-white/60">
+            <p className="mt-5 text-lg md:text-xl text-white/60">
               Create, customize, and publish. All in minutes.
             </p>
           </div>
@@ -347,7 +347,7 @@ export default function HomePage() {
                 <div className="[font-family:var(--font-display)] text-6xl lg:text-7xl bg-gradient-to-br from-amber-400 to-red-500 bg-clip-text text-transparent leading-none">
                   {s.value}
                 </div>
-                <p className="mt-4 text-sm text-white/70">{s.label}</p>
+                <p className="mt-4 text-base text-white/70">{s.label}</p>
               </div>
             ))}
           </div>
@@ -363,7 +363,7 @@ export default function HomePage() {
               Everything you need. Built for releases.
             </div>
             <DisplayHeading>One platform for every cover you ship.</DisplayHeading>
-            <p className="mt-5 text-lg text-white/60">
+            <p className="mt-5 text-lg md:text-xl text-white/60">
               Create album covers, remix existing art, and get streaming-ready
               files. All with a single tool.
             </p>
@@ -406,7 +406,7 @@ export default function HomePage() {
                 <div>
                   <Eyebrow>{f.eyebrow}</Eyebrow>
                   <DisplayHeading>{f.headline}</DisplayHeading>
-                  <p className="mt-5 text-lg text-white/80">{f.body}</p>
+                  <p className="mt-5 text-lg md:text-xl text-white/80">{f.body}</p>
                   <ul className="mt-6 space-y-3">
                     {f.bullets.map((b) => (
                       <li key={b} className="flex items-start gap-3 text-white/80">
@@ -445,7 +445,7 @@ export default function HomePage() {
                 <h3 className="[font-family:var(--font-display)] text-2xl tracking-wider mt-5">
                   {s.title}
                 </h3>
-                <p className="mt-2 text-sm text-white/75">{s.body}</p>
+                <p className="mt-2 text-base text-white/75">{s.body}</p>
               </div>
             ))}
           </div>
@@ -471,7 +471,7 @@ export default function HomePage() {
               </span>
             </div>
             <DisplayHeading>Stop waiting on designers.</DisplayHeading>
-            <p className="mt-5 text-lg text-white/70">
+            <p className="mt-5 text-lg md:text-xl text-white/70">
               Package your sound. Ship the visual. Keep the momentum.
             </p>
             <ul className="mt-6 space-y-3">
@@ -537,7 +537,7 @@ export default function HomePage() {
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <Eyebrow>How we compare</Eyebrow>
             <DisplayHeading>EditDeckPro vs. the alternatives.</DisplayHeading>
-            <p className="mt-5 text-lg text-white/60">
+            <p className="mt-5 text-lg md:text-xl text-white/60">
               The fastest path to pro-quality cover art. Period.
             </p>
           </div>
@@ -589,7 +589,7 @@ export default function HomePage() {
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <Eyebrow>What&apos;s coming</Eyebrow>
             <DisplayHeading>We&apos;re just getting started.</DisplayHeading>
-            <p className="mt-5 text-lg text-white/60">
+            <p className="mt-5 text-lg md:text-xl text-white/60">
               The tools you need today. And the ones you&apos;ll want tomorrow.
             </p>
           </div>
@@ -605,7 +605,7 @@ export default function HomePage() {
                 <h3 className="[font-family:var(--font-display)] text-2xl tracking-wider mt-4">
                   {r.title}
                 </h3>
-                <p className="mt-3 text-sm text-white/75">{r.body}</p>
+                <p className="mt-3 text-base text-white/75">{r.body}</p>
               </div>
             ))}
           </div>
@@ -618,7 +618,7 @@ export default function HomePage() {
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <Eyebrow>Release faster</Eyebrow>
             <DisplayHeading>Ship more. Release more. Earn more.</DisplayHeading>
-            <p className="mt-5 text-lg text-white/60">
+            <p className="mt-5 text-lg md:text-xl text-white/60">
               Built-in workflow. No extra tools. No extra fees.
             </p>
           </div>
@@ -631,7 +631,7 @@ export default function HomePage() {
                 <h3 className="[font-family:var(--font-display)] text-2xl tracking-wider">
                   {c.title}
                 </h3>
-                <p className="mt-3 text-sm text-white/75">{c.body}</p>
+                <p className="mt-3 text-base text-white/75">{c.body}</p>
                 <div className="mt-5 inline-flex items-center gap-1 text-sm text-amber-400 font-semibold">
                   {c.link} <ChevronRight className="w-4 h-4" />
                 </div>
@@ -661,7 +661,7 @@ export default function HomePage() {
                 <AccordionTrigger className="text-left text-white hover:text-amber-400 hover:no-underline">
                   {item.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-white/70 leading-relaxed">
+                <AccordionContent className="text-lg text-white/70 leading-relaxed">
                   {item.a}
                 </AccordionContent>
               </AccordionItem>
@@ -677,7 +677,7 @@ export default function HomePage() {
           <DisplayHeading className="text-5xl sm:text-6xl lg:text-7xl">
             Your next release deserves better artwork.
           </DisplayHeading>
-          <p className="mt-6 text-lg text-white/80 max-w-2xl mx-auto">
+          <p className="mt-6 text-lg md:text-xl text-white/80 max-w-2xl mx-auto">
             Join the artists, producers, and labels shipping release-ready
             covers in minutes.
           </p>
