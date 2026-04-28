@@ -56,26 +56,17 @@ export default function LoginForm() {
   const form = useForm<loginFormSchemaType>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
 
-  // Helper function to determine if input is email or username
-  const isEmail = (input: string): boolean => {
-    return input.includes("@");
-  };
-
   // 2. Check user status before attempting login
-  async function checkUserStatus(usernameOrEmail: string): Promise<CheckUserStatusResponse | null> {
+  async function checkUserStatus(emailInput: string): Promise<CheckUserStatusResponse | null> {
     try {
-      const requestBody = isEmail(usernameOrEmail)
-        ? { email: usernameOrEmail }
-        : { username: usernameOrEmail };
-
       const response = await axiosInstance.post<CheckUserStatusResponse>(
         "auth/check-user-status",
-        requestBody
+        { email: emailInput }
       );
 
       return response.data;
@@ -97,7 +88,7 @@ export default function LoginForm() {
 
     try {
       // First, check user status
-      const statusResponse = await checkUserStatus(data.username);
+      const statusResponse = await checkUserStatus(data.email);
 
       if (!statusResponse) {
         // Network or unexpected error
@@ -131,8 +122,11 @@ export default function LoginForm() {
 
       // User can login, proceed with authentication
       if (statusResponse.canLogin) {
+        // TODO(Session B): rename `username` arg to `email` once backend
+        // /auth/login accepts the renamed payload shape — see signup+login
+        // redesign Session B scope.
         const res = await signIn({
-          username: data.username,
+          username: data.email,
           password: data.password,
         });
 
@@ -173,12 +167,17 @@ export default function LoginForm() {
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
-            name="username"
+            name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter email or username" {...field} />
+                  <Input
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
