@@ -13,6 +13,7 @@ import { AxiosError } from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
+import { invalidateSessionCache } from "@/lib/session-fetcher";
 
 const setPasswordSchema = z
   .object({
@@ -54,10 +55,27 @@ function SetPasswordContent() {
     if (!token) return;
     setLoading(true);
     try {
-      await axiosInstance.post("api/password/reset", {
+      const { data } = await axiosInstance.post<{
+        ok?: boolean;
+        accessToken?: string;
+        message?: string;
+      }>("api/password/reset", {
         token,
         newPassword: values.password,
       });
+
+      // Initial set-password flow: backend returns accessToken + sets cookie.
+      // Forgot-password flow: no token returned — fall back to /login.
+      if (data?.accessToken) {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("auth_token", data.accessToken);
+        }
+        invalidateSessionCache();
+        toast.success("Welcome to EditDeckPro!");
+        window.location.href = "/";
+        return;
+      }
+
       toast.success("Password set successfully! You can now sign in.");
       router.push("/login");
     } catch (e) {
