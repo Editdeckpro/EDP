@@ -108,7 +108,7 @@ export default function MobileNav() {
 
         <div className="border-t border-white/10 px-6 pb-6 pt-4">
           <a
-            href="https://app.editdeckpro.com/signup"
+            href="https://edp-git-signup-flow-redesign-editdeckpro-7522s-projects.vercel.app/signup"
             onClick={close}
             className="block w-full rounded-xl bg-gradient-to-r from-amber-500 to-red-500 px-6 py-3 text-center text-sm font-semibold text-white transition hover:brightness-110"
           >

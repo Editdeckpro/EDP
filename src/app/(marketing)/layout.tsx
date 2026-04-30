@@ -47,7 +47,7 @@ export default function MarketingLayout({
             >
               Login
             </a>
-            <a href="https://app.editdeckpro.com/signup">
+            <a href="https://edp-git-signup-flow-redesign-editdeckpro-7522s-projects.vercel.app/signup">
               <Button
                 size="sm"
                 className="bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-400 hover:to-red-400 text-white border-0 font-semibold"

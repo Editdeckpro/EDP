@@ -193,7 +193,7 @@ export default function HomePage() {
     <>
       {/* SECTION 1 — Announcement ribbon */}
       <a
-        href="https://app.editdeckpro.com/signup"
+        href="https://edp-git-signup-flow-redesign-editdeckpro-7522s-projects.vercel.app/signup"
         className="block bg-[#0a0a0a] border-b border-white/10 hover:bg-white/[0.04] transition-colors"
       >
         <div className="max-w-7xl mx-auto px-6 py-2.5 text-center text-xs sm:text-sm">
@@ -230,7 +230,7 @@ export default function HomePage() {
           </p>
 
           <div className="mt-10 flex justify-center">
-            <a href="https://app.editdeckpro.com/signup">
+            <a href="https://edp-git-signup-flow-redesign-editdeckpro-7522s-projects.vercel.app/signup">
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-400 hover:to-red-400 text-white border-0 font-semibold h-12 px-8 text-base"
@@ -491,7 +491,7 @@ export default function HomePage() {
               </li>
             </ul>
             <div className="mt-8">
-              <a href="https://app.editdeckpro.com/signup">
+              <a href="https://edp-git-signup-flow-redesign-editdeckpro-7522s-projects.vercel.app/signup">
                 <Button
                   size="sm"
                   className="bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-400 hover:to-red-400 text-white border-0 font-semibold"
@@ -682,7 +682,7 @@ export default function HomePage() {
             covers in minutes.
           </p>
           <div className="mt-10">
-            <a href="https://app.editdeckpro.com/signup">
+            <a href="https://edp-git-signup-flow-redesign-editdeckpro-7522s-projects.vercel.app/signup">
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-400 hover:to-red-400 text-white border-0 font-semibold h-12 px-10 text-base"

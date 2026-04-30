@@ -189,7 +189,7 @@ export default function PricingPage() {
                 </div>
 
                 <a
-                  href={`https://app.editdeckpro.com/signup?plan=${plan.id}&billing=${billing}`}
+                  href={`https://edp-git-signup-flow-redesign-editdeckpro-7522s-projects.vercel.app/signup?plan=${plan.id}&billing=${billing}`}
                   className={`mt-6 block w-full rounded-xl px-4 py-3 text-center text-sm font-semibold transition ${
                     plan.popular
                       ? "bg-gradient-to-r from-amber-500 to-red-500 text-white hover:brightness-110"

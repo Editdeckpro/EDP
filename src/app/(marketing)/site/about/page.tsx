@@ -202,7 +202,7 @@ export default function AboutPage() {
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <a
-            href="https://app.editdeckpro.com/signup"
+            href="https://edp-git-signup-flow-redesign-editdeckpro-7522s-projects.vercel.app/signup"
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-red-500 px-6 py-3 text-sm font-semibold text-white hover:brightness-110"
           >
             Start Free Trial
