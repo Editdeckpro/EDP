@@ -10,6 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/lib/axios-instance";
 import { signupFormSchema, SignupFormSchemaType } from "@/schemas/signup-form-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -68,6 +69,7 @@ function PaymentStep({
   const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [cardComplete, setCardComplete] = useState(false);
+  const [cardholderName, setCardholderName] = useState(formValues.fullName);
   const topLoader = useTopLoader();
 
   const handleSubmit = useCallback(
@@ -80,7 +82,10 @@ function PaymentStep({
       topLoader.start();
       try {
         const { error, setupIntent } = await stripe.confirmCardSetup(clientSecret, {
-          payment_method: { card },
+          payment_method: {
+            card,
+            billing_details: { name: cardholderName.trim() },
+          },
         });
         if (error) {
           toast.error(error.message || "Payment failed.");
@@ -128,13 +133,22 @@ function PaymentStep({
         topLoader.done();
       }
     },
-    [stripe, elements, clientSecret, formValues, onSuccess, topLoader]
+    [stripe, elements, clientSecret, formValues, cardholderName, onSuccess, topLoader]
   );
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
         <p className="mb-3 text-sm font-medium">Card details</p>
+        <div className="mb-3 grid gap-2">
+          <Label htmlFor="cardholderName">Cardholder name</Label>
+          <Input
+            id="cardholderName"
+            value={cardholderName}
+            onChange={(e) => setCardholderName(e.target.value)}
+            placeholder="Name on card"
+          />
+        </div>
         <div className="rounded-md border border-white/15 bg-white p-4">
           <CardElement
             onChange={(e: { complete: boolean }) => setCardComplete(e.complete)}
@@ -158,7 +172,7 @@ function PaymentStep({
         </Button>
         <Button
           type="submit"
-          disabled={!stripe || !cardComplete || loading}
+          disabled={!stripe || !cardComplete || loading || cardholderName.trim().length === 0}
           className="flex-1 bg-gradient-to-r from-amber-500 to-red-500 text-white hover:opacity-90"
         >
           {loading ? "Completing…" : "Complete registration"}
