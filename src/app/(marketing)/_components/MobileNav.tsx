@@ -66,7 +66,7 @@ export default function MobileNav() {
             aria-modal="true"
             aria-label="Mobile navigation"
             aria-hidden={!open}
-            className={`md:hidden fixed top-0 right-0 z-[70] flex h-full w-[80%] max-w-sm flex-col bg-[#0a0a0a] border-l border-white/10 transition-transform duration-300 ease-out ${
+            className={`md:hidden fixed top-0 right-0 z-[70] flex h-full w-[80%] max-w-sm flex-col bg-[#141414] border-l border-white/10 transition-transform duration-300 ease-out ${
               open ? "translate-x-0" : "translate-x-full"
             }`}
           >
@@ -75,7 +75,7 @@ export default function MobileNav() {
             type="button"
             onClick={close}
             aria-label="Close menu"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-white/90 hover:text-white hover:bg-white/5 transition-colors"
           >
             <X className="h-6 w-6" />
           </button>
@@ -88,7 +88,7 @@ export default function MobileNav() {
                 <Link
                   href={link.href}
                   onClick={close}
-                  className="block rounded-lg px-3 py-3 font-[family-name:var(--font-display)] text-xl tracking-wide text-white/80 hover:text-white hover:bg-white/5 transition-colors"
+                  className="block rounded-lg px-3 py-3 font-[family-name:var(--font-display)] text-xl tracking-wide text-white/90 hover:text-white hover:bg-white/5 transition-colors"
                 >
                   {link.label}
                 </Link>
@@ -98,7 +98,7 @@ export default function MobileNav() {
               <a
                 href="https://app.editdeckpro.com/login"
                 onClick={close}
-                className="block rounded-lg px-3 py-3 text-base text-white/65 hover:text-white hover:bg-white/5 transition-colors"
+                className="block rounded-lg px-3 py-3 text-base text-white/75 hover:text-white hover:bg-white/5 transition-colors"
               >
                 Login
               </a>

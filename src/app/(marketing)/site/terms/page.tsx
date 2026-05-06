@@ -6,7 +6,7 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="relative min-h-screen bg-[#0a0a0a] text-white">
+    <main className="relative min-h-screen bg-[#141414] text-white">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.08),transparent_60%)]"
@@ -22,14 +22,14 @@ export default function TermsPage() {
           </p>
         </div>
 
-        <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/75 leading-relaxed">
+        <div className="mt-8 rounded-xl border border-white/[0.08] bg-white/[0.07] p-5 text-sm text-white/85 leading-relaxed">
           Welcome to EditDeckPro. These Terms of Service (&ldquo;Terms&rdquo;)
           outline your rights and responsibilities when using EditDeckPro and
           its associated services. By accessing or using EditDeckPro, you agree
           to these Terms. If you do not agree, you may not use our services.
         </div>
 
-        <div className="mt-10 space-y-10 text-white/80 leading-relaxed">
+        <div className="mt-10 space-y-10 text-white/90 leading-relaxed">
           <section>
             <h2 className="font-[family-name:var(--font-display)] text-2xl tracking-wide text-white">
               1. Agreement Overview

@@ -30,7 +30,7 @@ export default function ContactPage() {
   };
 
   return (
-    <main className="relative min-h-screen bg-[#0a0a0a] text-white">
+    <main className="relative min-h-screen bg-[#141414] text-white">
       {/* Subtle radial glow */}
       <div
         aria-hidden
@@ -43,7 +43,7 @@ export default function ContactPage() {
           <h1 className="font-[family-name:var(--font-display)] text-5xl tracking-wide md:text-7xl">
             Get in touch
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/80">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/90">
             Real humans in Cleveland, Ohio. We&apos;ll get back to you fast.
           </p>
         </div>
@@ -58,7 +58,7 @@ export default function ContactPage() {
               <h2 className="font-[family-name:var(--font-display)] text-3xl tracking-wide">
                 We&apos;re here to help
               </h2>
-              <p className="mt-2 text-white/65">
+              <p className="mt-2 text-white/75">
                 Questions, feedback, feature requests. We read everything.
               </p>
             </div>
@@ -85,7 +85,7 @@ export default function ContactPage() {
 
             {/* Social */}
             <div>
-              <p className="text-sm font-medium text-white/65">Follow along</p>
+              <p className="text-sm font-medium text-white/75">Follow along</p>
               <div className="mt-3 flex items-center gap-3">
                 <SocialLink
                   href="https://www.facebook.com/profile.php?id=61574905387740"
@@ -113,11 +113,11 @@ export default function ContactPage() {
           </div>
 
           {/* Form */}
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 md:p-8">
+          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.07] p-6 md:p-8">
             <h2 className="font-[family-name:var(--font-display)] text-3xl tracking-wide">
               Send a message
             </h2>
-            <p className="mt-2 text-sm text-white/65">
+            <p className="mt-2 text-sm text-white/75">
               This will open your email app with your message pre-filled.
             </p>
 
@@ -149,7 +149,7 @@ export default function ContactPage() {
               <div>
                 <label
                   htmlFor="message"
-                  className="mb-1.5 block text-sm font-medium text-white/80"
+                  className="mb-1.5 block text-sm font-medium text-white/90"
                 >
                   Message
                 </label>
@@ -173,7 +173,7 @@ export default function ContactPage() {
               </button>
 
               {sent && (
-                <p className="text-center text-sm text-white/65">
+                <p className="text-center text-sm text-white/75">
                   Your email app should have opened. If it didn&apos;t, email us
                   directly at{" "}
                   <a
@@ -247,7 +247,7 @@ function Field({
     <div>
       <label
         htmlFor={name}
-        className="mb-1.5 block text-sm font-medium text-white/80"
+        className="mb-1.5 block text-sm font-medium text-white/90"
       >
         {label}
         {required && <span className="ml-1 text-amber-400">*</span>}

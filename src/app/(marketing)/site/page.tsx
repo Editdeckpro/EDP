@@ -194,11 +194,11 @@ export default function HomePage() {
       {/* SECTION 1 — Announcement ribbon */}
       <a
         href="https://app.editdeckpro.com/signup"
-        className="block bg-[#0a0a0a] border-b border-white/10 hover:bg-white/[0.04] transition-colors"
+        className="block bg-[#141414] border-b border-white/10 hover:bg-white/[0.04] transition-colors"
       >
         <div className="max-w-7xl mx-auto px-6 py-2.5 text-center text-xs sm:text-sm">
           <span className="text-amber-400 font-semibold">New:</span>{" "}
-          <span className="text-white/80">
+          <span className="text-white/90">
             Faster renders + new cover styles.
           </span>{" "}
           <span className="text-amber-400 inline-flex items-center gap-1">
@@ -209,7 +209,7 @@ export default function HomePage() {
 
       {/* SECTION 2 — Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.18),transparent_55%),radial-gradient(ellipse_at_bottom,rgba(239,68,68,0.12),transparent_55%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.22),transparent_55%),radial-gradient(ellipse_at_bottom,rgba(239,68,68,0.12),transparent_55%)] pointer-events-none" />
         <div className="relative max-w-5xl mx-auto px-6 pt-12 pb-24 text-center">
           <div className="inline-flex items-center gap-2 text-xs sm:text-sm text-white/70 border border-white/15 rounded-full px-4 py-1.5 mb-8">
             <ShieldCheck className="w-4 h-4 text-amber-400" />
@@ -255,7 +255,7 @@ export default function HomePage() {
             </span>
           </div>
 
-          <p className="mt-16 text-base text-white/65">
+          <p className="mt-16 text-base text-white/75">
             The choice of independent artists, producers, and labels
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm text-white/30 uppercase tracking-widest">
@@ -269,7 +269,7 @@ export default function HomePage() {
             <span>·</span>
             <span>Instagram</span>
           </div>
-          <div className="mt-8 text-xs sm:text-sm text-white/65">
+          <div className="mt-8 text-xs sm:text-sm text-white/75">
             1,000+ covers delivered <span className="text-white/20 mx-2">|</span> 11 live events{" "}
             <span className="text-white/20 mx-2">|</span> Minutes not days
           </div>
@@ -284,7 +284,7 @@ export default function HomePage() {
             <DisplayHeading>With &amp; Without EditDeckPro</DisplayHeading>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="border border-red-500/20 rounded-xl p-6 bg-[#0a0a0a]/60">
+            <div className="border border-red-500/20 rounded-xl p-6 bg-white/[0.07]">
               <div className="flex items-center gap-2 mb-6">
                 <div className="w-2 h-2 rounded-full bg-red-500" />
                 <h3 className="[font-family:var(--font-display)] text-xl tracking-wider text-red-400">
@@ -298,13 +298,13 @@ export default function HomePage() {
                     className="border border-red-500/10 rounded-lg p-4 bg-red-500/[0.03]"
                   >
                     <div className="text-xs text-red-400/60 mb-1">{c.time}</div>
-                    <div className="text-base text-white/80">{c.body}</div>
+                    <div className="text-base text-white/90">{c.body}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="border border-amber-500/20 rounded-xl p-6 bg-[#0a0a0a]/60">
+            <div className="border border-amber-500/20 rounded-xl p-6 bg-white/[0.07]">
               <div className="flex items-center gap-2 mb-6">
                 <div className="w-2 h-2 rounded-full bg-gradient-to-r from-amber-400 to-red-500" />
                 <h3 className="[font-family:var(--font-display)] text-xl tracking-wider bg-gradient-to-r from-amber-400 to-red-500 bg-clip-text text-transparent">
@@ -318,7 +318,7 @@ export default function HomePage() {
                     className="border border-amber-500/15 rounded-lg p-4 bg-amber-500/[0.03]"
                   >
                     <div className="text-xs text-amber-400/80 mb-1">{c.time}</div>
-                    <div className="text-base text-white/80">{c.body}</div>
+                    <div className="text-base text-white/90">{c.body}</div>
                   </div>
                 ))}
               </div>
@@ -342,7 +342,7 @@ export default function HomePage() {
             {stats.map((s, i) => (
               <div
                 key={i}
-                className="border border-white/10 rounded-xl p-8 bg-white/[0.02] hover:border-white/20 transition-colors"
+                className="border border-white/[0.08] rounded-xl p-8 bg-white/[0.07] hover:border-white/20 transition-colors"
               >
                 <div className="[font-family:var(--font-display)] text-6xl lg:text-7xl bg-gradient-to-br from-amber-400 to-red-500 bg-clip-text text-transparent leading-none">
                   {s.value}
@@ -406,10 +406,10 @@ export default function HomePage() {
                 <div>
                   <Eyebrow>{f.eyebrow}</Eyebrow>
                   <DisplayHeading>{f.headline}</DisplayHeading>
-                  <p className="mt-5 text-lg md:text-xl text-white/80">{f.body}</p>
+                  <p className="mt-5 text-lg md:text-xl text-white/90">{f.body}</p>
                   <ul className="mt-6 space-y-3">
                     {f.bullets.map((b) => (
-                      <li key={b} className="flex items-start gap-3 text-white/80">
+                      <li key={b} className="flex items-start gap-3 text-white/90">
                         <Check
                           className="w-5 h-5 text-amber-400 mt-0.5 shrink-0"
                           strokeWidth={3}
@@ -427,7 +427,7 @@ export default function HomePage() {
       </section>
 
       {/* SECTION 6 — How it works */}
-      <section className="border-t border-white/10">
+      <section className="border-t border-white/10 bg-[#1a1a1a]">
         <div className="max-w-7xl mx-auto px-6 py-24">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <Eyebrow>How it works</Eyebrow>
@@ -437,7 +437,7 @@ export default function HomePage() {
             {steps.map((s, i) => (
               <div
                 key={s.title}
-                className="border border-white/10 rounded-xl p-6 bg-white/[0.02] hover:border-white/20 transition-colors"
+                className="border border-white/[0.08] rounded-xl p-6 bg-white/[0.07] hover:border-white/20 transition-colors"
               >
                 <div className="w-10 h-10 rounded-lg border border-white/15 bg-black/50 flex items-center justify-center text-amber-400 [font-family:var(--font-display)] tracking-wider">
                   {String(i + 1).padStart(2, "0")}
@@ -445,7 +445,7 @@ export default function HomePage() {
                 <h3 className="[font-family:var(--font-display)] text-2xl tracking-wider mt-5">
                   {s.title}
                 </h3>
-                <p className="mt-2 text-base text-white/75">{s.body}</p>
+                <p className="mt-2 text-base text-white/85">{s.body}</p>
               </div>
             ))}
           </div>
@@ -463,7 +463,7 @@ export default function HomePage() {
             <DisplayHeading>Built for how musicians actually work.</DisplayHeading>
           </div>
 
-          <div className="max-w-4xl mx-auto border border-white/10 rounded-2xl p-8 lg:p-12 bg-[#0a0a0a]/60">
+          <div className="max-w-4xl mx-auto border border-white/[0.08] rounded-2xl p-8 lg:p-12 bg-white/[0.07]">
             <div className="flex items-center gap-3 mb-6">
               <ShieldCheck className="w-5 h-5 text-amber-400" />
               <span className="text-sm uppercase tracking-widest text-white/70 font-semibold">
@@ -475,14 +475,14 @@ export default function HomePage() {
               Package your sound. Ship the visual. Keep the momentum.
             </p>
             <ul className="mt-6 space-y-3">
-              <li className="flex items-start gap-3 text-white/80">
+              <li className="flex items-start gap-3 text-white/90">
                 <Check
                   className="w-5 h-5 text-amber-400 mt-0.5 shrink-0"
                   strokeWidth={3}
                 />
                 <span>Full rights to every cover you create.</span>
               </li>
-              <li className="flex items-start gap-3 text-white/80">
+              <li className="flex items-start gap-3 text-white/90">
                 <Check
                   className="w-5 h-5 text-amber-400 mt-0.5 shrink-0"
                   strokeWidth={3}
@@ -505,7 +505,7 @@ export default function HomePage() {
       </section>
 
       {/* SECTION 8 — Differentiators */}
-      <section className="relative overflow-hidden border-t border-white/10">
+      <section className="relative overflow-hidden border-t border-white/10 bg-[#1a1a1a]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(239,68,68,0.05),transparent_50%)] pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-6 py-24">
           <div className="text-center mb-16 max-w-3xl mx-auto">
@@ -519,7 +519,7 @@ export default function HomePage() {
             {differentiators.map((d) => (
               <div
                 key={d.title}
-                className="border border-white/10 rounded-xl p-8 bg-white/[0.02] hover:border-white/20 transition-colors"
+                className="border border-white/[0.08] rounded-xl p-8 bg-white/[0.07] hover:border-white/20 transition-colors"
               >
                 <h3 className="[font-family:var(--font-display)] text-3xl tracking-wider bg-gradient-to-br from-amber-400 to-red-500 bg-clip-text text-transparent">
                   {d.title}
@@ -542,7 +542,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="border border-white/10 rounded-xl bg-[#0a0a0a]/60 overflow-x-auto">
+          <div className="border border-white/[0.08] rounded-xl bg-white/[0.07] overflow-x-auto">
             <table className="w-full min-w-[720px]">
               <thead>
                 <tr className="border-b border-white/10">
@@ -569,7 +569,7 @@ export default function HomePage() {
                     key={row.feature}
                     className={i !== comparisonRows.length - 1 ? "border-b border-white/5" : ""}
                   >
-                    <td className="text-sm text-white/80 p-4">{row.feature}</td>
+                    <td className="text-sm text-white/90 p-4">{row.feature}</td>
                     {row.cells.map((c, j) => (
                       <td key={j} className="p-4 text-center">
                         <Cell value={c} />
@@ -597,7 +597,7 @@ export default function HomePage() {
             {roadmap.map((r) => (
               <div
                 key={r.title}
-                className="border border-white/10 rounded-xl p-8 bg-white/[0.02] hover:border-white/20 transition-colors"
+                className="border border-white/[0.08] rounded-xl p-8 bg-white/[0.07] hover:border-white/20 transition-colors"
               >
                 <span className="inline-block text-[10px] uppercase tracking-widest text-amber-400 font-semibold border border-amber-400/30 rounded-full px-2.5 py-0.5">
                   {r.tag}
@@ -605,7 +605,7 @@ export default function HomePage() {
                 <h3 className="[font-family:var(--font-display)] text-2xl tracking-wider mt-4">
                   {r.title}
                 </h3>
-                <p className="mt-3 text-base text-white/75">{r.body}</p>
+                <p className="mt-3 text-base text-white/85">{r.body}</p>
               </div>
             ))}
           </div>
@@ -626,12 +626,12 @@ export default function HomePage() {
             {shipMore.map((c) => (
               <div
                 key={c.title}
-                className="border border-white/10 rounded-xl p-8 bg-[#0a0a0a]/60 hover:border-white/20 transition-colors"
+                className="border border-white/[0.08] rounded-xl p-8 bg-white/[0.07] hover:border-white/20 transition-colors"
               >
                 <h3 className="[font-family:var(--font-display)] text-2xl tracking-wider">
                   {c.title}
                 </h3>
-                <p className="mt-3 text-base text-white/75">{c.body}</p>
+                <p className="mt-3 text-base text-white/85">{c.body}</p>
                 <div className="mt-5 inline-flex items-center gap-1 text-sm text-amber-400 font-semibold">
                   {c.link} <ChevronRight className="w-4 h-4" />
                 </div>
@@ -677,7 +677,7 @@ export default function HomePage() {
           <DisplayHeading className="text-5xl sm:text-6xl lg:text-7xl">
             Your next release deserves better artwork.
           </DisplayHeading>
-          <p className="mt-6 text-lg md:text-xl text-white/80 max-w-2xl mx-auto">
+          <p className="mt-6 text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
             Join the artists, producers, and labels shipping release-ready
             covers in minutes.
           </p>
@@ -691,7 +691,7 @@ export default function HomePage() {
               </Button>
             </a>
           </div>
-          <p className="mt-5 text-xs text-white/65">
+          <p className="mt-5 text-xs text-white/75">
             3-day trial · Card required · Cancel anytime
           </p>
         </div>

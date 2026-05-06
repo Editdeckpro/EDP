@@ -6,7 +6,7 @@ export const metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="relative min-h-screen bg-[#0a0a0a] text-white">
+    <main className="relative min-h-screen bg-[#141414] text-white">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.08),transparent_60%)]"
@@ -22,7 +22,7 @@ export default function PrivacyPage() {
           </p>
         </div>
 
-        <div className="mt-10 space-y-10 text-white/80 leading-relaxed">
+        <div className="mt-10 space-y-10 text-white/90 leading-relaxed">
           <section>
             <h2 className="font-[family-name:var(--font-display)] text-2xl tracking-wide text-white">
               1. Overview

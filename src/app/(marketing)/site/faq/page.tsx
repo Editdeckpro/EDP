@@ -34,7 +34,7 @@ const faqs: FAQ[] = [
     a: (
       <>
         <p>It&apos;s simple:</p>
-        <ol className="mt-3 list-decimal space-y-2 pl-5 text-white/80">
+        <ol className="mt-3 list-decimal space-y-2 pl-5 text-white/90">
           <li>Upload your reference image or inspiration.</li>
           <li>
             Describe your vision (e.g., &ldquo;edgy, black-and-white album
@@ -50,7 +50,7 @@ const faqs: FAQ[] = [
     a: (
       <>
         <p>We offer three plans:</p>
-        <ol className="mt-3 list-decimal space-y-3 pl-5 text-white/80">
+        <ol className="mt-3 list-decimal space-y-3 pl-5 text-white/90">
           <li>
             <strong className="text-white">Starter ($27/month):</strong>{" "}
             Generate up to 5 cover designs per month, standard-resolution
@@ -72,7 +72,7 @@ const faqs: FAQ[] = [
             and early access to new features.
           </li>
         </ol>
-        <p className="mt-4 text-sm text-white/65">
+        <p className="mt-4 text-sm text-white/75">
           Save ~32% with yearly billing.{" "}
           <Link
             href="/pricing"
@@ -184,7 +184,7 @@ const faqs: FAQ[] = [
 
 export default function FAQPage() {
   return (
-    <main className="relative min-h-screen bg-[#0a0a0a] text-white">
+    <main className="relative min-h-screen bg-[#141414] text-white">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[600px] bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.10),transparent_60%)]"
@@ -195,7 +195,7 @@ export default function FAQPage() {
           <h1 className="font-[family-name:var(--font-display)] text-5xl tracking-wide md:text-7xl">
             Frequently asked questions
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/80">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/90">
             Everything you need to know before you start. Can&apos;t find what
             you&apos;re looking for?{" "}
             <Link
@@ -213,7 +213,7 @@ export default function FAQPage() {
           {faqs.map((item) => (
             <details
               key={item.q}
-              className="group rounded-2xl border border-white/10 bg-white/[0.03] transition hover:border-white/20"
+              className="group rounded-2xl border border-white/[0.08] bg-white/[0.07] transition hover:border-white/20"
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 text-left">
                 <span className="text-base font-medium text-white md:text-lg">
@@ -221,7 +221,7 @@ export default function FAQPage() {
                 </span>
                 <ChevronDown className="h-5 w-5 shrink-0 text-white/50 transition-transform duration-200 group-open:rotate-180" />
               </summary>
-              <div className="px-6 pb-5 text-white/80 leading-relaxed">
+              <div className="px-6 pb-5 text-white/90 leading-relaxed">
                 {item.a}
               </div>
             </details>
@@ -233,7 +233,7 @@ export default function FAQPage() {
         <h2 className="font-[family-name:var(--font-display)] text-4xl tracking-wide md:text-5xl">
           Still have questions?
         </h2>
-        <p className="mx-auto mt-3 max-w-xl text-white/80">
+        <p className="mx-auto mt-3 max-w-xl text-white/90">
           We&apos;re real humans in Cleveland, Ohio. Reach out and we&apos;ll
           get back fast.
         </p>

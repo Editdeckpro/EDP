@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function AboutPage() {
   return (
-    <main className="relative min-h-screen bg-[#0a0a0a] text-white">
+    <main className="relative min-h-screen bg-[#141414] text-white">
       {/* Subtle radial glow */}
       <div
         aria-hidden
@@ -22,7 +22,7 @@ export default function AboutPage() {
               for artists
             </span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/80">
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/90">
             EditDeckPro closes the budget gap between independent artists and
             the visuals their music deserves.
           </p>
@@ -31,7 +31,7 @@ export default function AboutPage() {
 
       {/* Founder story */}
       <section className="relative mx-auto max-w-3xl px-6 py-16">
-        <div className="space-y-6 text-lg leading-relaxed text-white/80">
+        <div className="space-y-6 text-lg leading-relaxed text-white/90">
           <p className="text-sm font-semibold uppercase tracking-wider text-amber-400">
             Meet the founder
           </p>
@@ -83,14 +83,14 @@ export default function AboutPage() {
       {/* The gap / what we're building */}
       <section className="relative mx-auto max-w-5xl px-6 py-16">
         <div className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8">
+          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.07] p-8">
             <p className="text-sm font-semibold uppercase tracking-wider text-amber-400">
               The gap we saw
             </p>
             <h3 className="mt-3 font-[family-name:var(--font-display)] text-3xl tracking-wide">
               Talent everywhere. Budget nowhere.
             </h3>
-            <p className="mt-4 text-white/75 leading-relaxed">
+            <p className="mt-4 text-white/85 leading-relaxed">
               Great artists releasing great music. With covers that don&apos;t
               match the quality of the track. A $500 designer quote on a $50
               promo run. A release day spent fighting Canva instead of shipping
@@ -105,7 +105,7 @@ export default function AboutPage() {
             <h3 className="mt-3 font-[family-name:var(--font-display)] text-3xl tracking-wide">
               Pro tools. Indie prices.
             </h3>
-            <p className="mt-4 text-white/75 leading-relaxed">
+            <p className="mt-4 text-white/85 leading-relaxed">
               AI-powered covers, lyric videos, and release visuals that match
               what the music deserves. At a price that lets you keep shipping.
               Designed for the serious artist, the small label, and the manager
@@ -124,7 +124,7 @@ export default function AboutPage() {
           <h2 className="mt-3 font-[family-name:var(--font-display)] text-4xl tracking-wide md:text-5xl">
             Serious artists. Indie labels. Managers doing it all.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-white/75 leading-relaxed">
+          <p className="mx-auto mt-4 max-w-2xl text-white/85 leading-relaxed">
             You&apos;re already doing the hard part. The writing, the recording,
             the promo. You don&apos;t need another tool that gets in your way.
             You need one that helps you ship.
@@ -132,29 +132,29 @@ export default function AboutPage() {
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.07] p-6">
             <h4 className="font-[family-name:var(--font-display)] text-2xl tracking-wide">
               Independent artists
             </h4>
-            <p className="mt-3 text-white/75 leading-relaxed">
+            <p className="mt-3 text-white/85 leading-relaxed">
               Build a cohesive visual brand across every release without hiring
               out every cover. Drop singles weekly if that&apos;s your pace.
             </p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.07] p-6">
             <h4 className="font-[family-name:var(--font-display)] text-2xl tracking-wide">
               Independent labels
             </h4>
-            <p className="mt-3 text-white/75 leading-relaxed">
+            <p className="mt-3 text-white/85 leading-relaxed">
               Scale creative output across your whole roster. Keep the budget
               focused on marketing spend, not design invoices.
             </p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.07] p-6">
             <h4 className="font-[family-name:var(--font-display)] text-2xl tracking-wide">
               Managers & teams
             </h4>
-            <p className="mt-3 text-white/75 leading-relaxed">
+            <p className="mt-3 text-white/85 leading-relaxed">
               Handle covers, lyric videos, and promo visuals for multiple
               artists from one dashboard. Stop being the bottleneck.
             </p>
@@ -167,7 +167,7 @@ export default function AboutPage() {
         <h2 className="font-[family-name:var(--font-display)] text-4xl tracking-wide md:text-5xl">
           Our mission
         </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/80">
+        <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/90">
           Help thousands of serious artists, independent labels, and managers
           ship releases that look as good as they sound, and leave our stamp
           on the music industry doing it.
@@ -176,14 +176,14 @@ export default function AboutPage() {
 
       {/* Built in Ohio */}
       <section className="relative mx-auto max-w-4xl px-6 py-16">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8 md:p-10">
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.07] p-8 md:p-10">
           <p className="text-sm font-semibold uppercase tracking-wider text-amber-400">
             Where we&apos;re built
           </p>
           <h3 className="mt-3 font-[family-name:var(--font-display)] text-3xl tracking-wide">
             Proudly made in Cleveland, Ohio
           </h3>
-          <p className="mt-3 max-w-2xl text-white/75 leading-relaxed">
+          <p className="mt-3 max-w-2xl text-white/85 leading-relaxed">
             Not Silicon Valley. Not a coastal agency. Built in the Midwest by
             people who&apos;ve written the songs, recorded the vocals, produced
             the tracks, and toured the buses, and who want to see more artists
@@ -197,7 +197,7 @@ export default function AboutPage() {
         <h2 className="font-[family-name:var(--font-display)] text-4xl tracking-wide md:text-5xl">
           Ready to release faster?
         </h2>
-        <p className="mx-auto mt-3 max-w-xl text-white/80">
+        <p className="mx-auto mt-3 max-w-xl text-white/90">
           Start your 3-day free trial. Card required · Charged on day 4 · Cancel anytime.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">

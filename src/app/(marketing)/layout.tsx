@@ -9,8 +9,8 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="marketing-root min-h-screen flex flex-col bg-[#0a0a0a] text-white">
-      <header className="sticky top-0 z-50 bg-[#0a0a0a]/80 backdrop-blur border-b border-white/10">
+    <div className="marketing-root min-h-screen flex flex-col bg-[#141414] text-white">
+      <header className="sticky top-0 z-50 bg-[#141414]/80 backdrop-blur border-b border-white/10">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center">
             <Image
@@ -62,7 +62,7 @@ export default function MarketingLayout({
 
       <main className="flex-1">{children}</main>
 
-      <footer className="bg-[#0a0a0a] border-t border-white/10">
+      <footer className="bg-[#141414] border-t border-white/10">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div>

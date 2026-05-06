@@ -81,7 +81,7 @@ export default function PricingPage() {
   const [billing, setBilling] = useState<Billing>("yearly");
 
   return (
-    <main className="relative min-h-screen bg-[#0a0a0a] text-white">
+    <main className="relative min-h-screen bg-[#141414] text-white">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[600px] bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.12),transparent_60%)]"
@@ -92,7 +92,7 @@ export default function PricingPage() {
           <h1 className="[font-family:var(--font-display)] text-5xl tracking-wide md:text-7xl">
             Simple, transparent pricing
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/80">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/90">
             Try EditDeckPro free for 3 days. Pick the plan that matches how fast you release.
             Card required at signup. Charged on day 4 unless you cancel during the trial.
           </p>
@@ -146,7 +146,7 @@ export default function PricingPage() {
                 className={`relative rounded-2xl border p-8 transition ${
                   plan.popular
                     ? "border-amber-500/40 bg-gradient-to-b from-amber-500/5 to-red-500/5 shadow-[0_0_60px_-15px_rgba(245,158,11,0.35)]"
-                    : "border-white/10 bg-white/[0.03]"
+                    : "border-white/[0.08] bg-white/[0.07]"
                 }`}
               >
                 {plan.popular && (
@@ -160,7 +160,7 @@ export default function PricingPage() {
                 <h3 className="[font-family:var(--font-display)] text-3xl tracking-wide">
                   {plan.name}
                 </h3>
-                <p className="mt-2 text-sm text-white/65">{plan.tagline}</p>
+                <p className="mt-2 text-sm text-white/75">{plan.tagline}</p>
 
                 <div className="mt-6">
                   {billing === "yearly" ? (
@@ -169,9 +169,9 @@ export default function PricingPage() {
                         <span className="text-5xl font-bold tracking-tight">
                           ${perMonth}
                         </span>
-                        <span className="text-white/65">/mo</span>
+                        <span className="text-white/75">/mo</span>
                       </div>
-                      <p className="mt-1 text-sm text-white/65">
+                      <p className="mt-1 text-sm text-white/75">
                         Billed ${plan.yearly}/year · save ${savings}
                       </p>
                     </>
@@ -181,9 +181,9 @@ export default function PricingPage() {
                         <span className="text-5xl font-bold tracking-tight">
                           ${plan.monthly}
                         </span>
-                        <span className="text-white/65">/mo</span>
+                        <span className="text-white/75">/mo</span>
                       </div>
-                      <p className="mt-1 text-sm text-white/65">Billed monthly</p>
+                      <p className="mt-1 text-sm text-white/75">Billed monthly</p>
                     </>
                   )}
                 </div>
@@ -203,7 +203,7 @@ export default function PricingPage() {
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-3 text-sm">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
-                      <span className="text-white/80">{feature}</span>
+                      <span className="text-white/90">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -212,7 +212,7 @@ export default function PricingPage() {
           })}
         </div>
 
-        <p className="mt-10 text-center text-sm text-white/65">
+        <p className="mt-10 text-center text-sm text-white/75">
           3-day free trial · Card required · Charged on day 4 · Cancel anytime
         </p>
       </section>
@@ -221,15 +221,15 @@ export default function PricingPage() {
         <h2 className="[font-family:var(--font-display)] text-center text-4xl tracking-wide md:text-5xl">
           Compare Plans
         </h2>
-        <p className="mx-auto mt-3 max-w-xl text-center text-white/65">
+        <p className="mx-auto mt-3 max-w-xl text-center text-white/75">
           Every feature, side by side.
         </p>
 
-        <div className="mt-10 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">
+        <div className="mt-10 overflow-x-auto rounded-2xl border border-white/[0.08] bg-white/[0.07]">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="px-6 py-4 font-medium text-white/65">Feature</th>
+                <th className="px-6 py-4 font-medium text-white/75">Feature</th>
                 <th className="px-6 py-4 font-semibold">Starter</th>
                 <th className="px-6 py-4 font-semibold">
                   Next Level
@@ -246,7 +246,7 @@ export default function PricingPage() {
                   key={row.feature}
                   className={i % 2 === 0 ? "bg-white/[0.015]" : ""}
                 >
-                  <td className="px-6 py-4 text-white/80">{row.feature}</td>
+                  <td className="px-6 py-4 text-white/90">{row.feature}</td>
                   <Cell value={row.starter} />
                   <Cell value={row.nextLevel} />
                   <Cell value={row.proStudio} />
@@ -261,7 +261,7 @@ export default function PricingPage() {
         <h2 className="[font-family:var(--font-display)] text-4xl tracking-wide md:text-5xl">
           Still have questions?
         </h2>
-        <p className="mx-auto mt-3 max-w-xl text-white/80">
+        <p className="mx-auto mt-3 max-w-xl text-white/90">
           We&apos;re real humans in Cleveland, Ohio. Reach out and we&apos;ll get back fast.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -298,5 +298,5 @@ function Cell({ value }: { value: string | boolean }) {
       </td>
     );
   }
-  return <td className="px-6 py-4 text-white/80">{value}</td>;
+  return <td className="px-6 py-4 text-white/90">{value}</td>;
 }
