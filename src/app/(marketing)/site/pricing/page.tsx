@@ -67,7 +67,7 @@ const compareRows: Array<{
   nextLevel: string | boolean;
   proStudio: string | boolean;
 }> = [
-  { feature: "Cover designs",        starter: "5 / month",  nextLevel: "Unlimited",                     proStudio: "Unlimited" },
+  { feature: "Cover designs",        starter: "5 / month",  nextLevel: "25 / month",                    proStudio: "Unlimited" },
   { feature: "Output quality",       starter: "Standard",   nextLevel: "High-resolution",               proStudio: "High-resolution" },
   { feature: "Text customization",   starter: "Basic",      nextLevel: "Advanced (custom text tools)",  proStudio: "Advanced (custom text tools)" },
   { feature: "Design ownership",     starter: true,         nextLevel: true,                            proStudio: true },
