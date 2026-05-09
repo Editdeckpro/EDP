@@ -31,7 +31,8 @@ const plans = [
     monthly: 67,
     yearly: 539,
     features: [
-      "Unlimited cover designs",
+      "Everything in Starter",
+      "25 AI-powered cover designs per month",
       "Custom text tools for enhanced branding",
       "High-resolution outputs",
       "Priority email support (24-hour response)",
