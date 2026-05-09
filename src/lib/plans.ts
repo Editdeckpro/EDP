@@ -38,7 +38,8 @@ export const PLANS: Plan[] = [
     monthlyPrice: 67,
     yearlyPrice: 539,
     features: [
-      "Unlimited AI-powered cover designs",
+      "Everything in Starter",
+      "25 AI-powered cover designs per month",
       "Custom text tools for enhanced branding",
       "High-resolution outputs",
       "Priority email support (24-hour response)",
