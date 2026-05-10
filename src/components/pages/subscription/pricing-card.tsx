@@ -21,6 +21,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { getPlanActionType, messageMap } from "./subscription-pricing";
 
 export type PlanID = "FREE" | "STARTER" | "NEXT_LEVEL" | "PRO_STUDIO";
@@ -64,6 +74,10 @@ const PricingCard: FC<PricingCardProps> = ({
   const router = useRouter();
   const topLoader = useTopLoader();
   const [loading, setLoading] = React.useState(false);
+  const [cancelOpen, setCancelOpen] = React.useState(false);
+  const [reason, setReason] = React.useState("");
+  const [improvementSuggestion, setImprovementSuggestion] = React.useState("");
+  const [cancelError, setCancelError] = React.useState<string | null>(null);
 
   const actionType = getPlanActionType(currentPlanId, id);
 
@@ -98,23 +112,31 @@ const PricingCard: FC<PricingCardProps> = ({
   }
 
   async function cancelPlan() {
+    if (!reason.trim() || !improvementSuggestion.trim()) return;
+
     topLoader.start();
     setLoading(true);
+    setCancelError(null);
 
     try {
       const axios = await GetAxiosWithAuth();
-      const res = await axios.post<CancelSubscriptionResponse>("subscription/cancel");
+      const res = await axios.post<CancelSubscriptionResponse>("subscription/cancel", {
+        reason: reason.trim(),
+        improvementSuggestion: improvementSuggestion.trim(),
+      });
 
       toast.success("Plan Canceled successfully!", {
         description: res.data.message,
       });
+      setCancelOpen(false);
+      setReason("");
+      setImprovementSuggestion("");
       setLoading(false);
       topLoader.done();
       router.refresh();
     } catch (e) {
       const error = e as AxiosError<{ error?: string }>;
-      toast.error(error.response?.data.error || "Error canceling plan");
-      // // console.info("Error canceling plan", error);
+      setCancelError(error.response?.data.error || "Error canceling plan");
       setLoading(false);
       topLoader.done();
     }
@@ -164,8 +186,15 @@ const PricingCard: FC<PricingCardProps> = ({
           // <div className="grid grid-cols-2 gap-3">
           //<Button variant={"secondary"}>Renew Plan</Button>
           // </div>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
+          <Dialog
+            open={cancelOpen}
+            onOpenChange={(open) => {
+              if (loading) return;
+              setCancelOpen(open);
+              if (!open) setCancelError(null);
+            }}
+          >
+            <DialogTrigger asChild>
               <Button
                 variant={"destructive"}
                 className="cursor-pointer"
@@ -174,22 +203,65 @@ const PricingCard: FC<PricingCardProps> = ({
               >
                 Cancel Plan
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Cancel Subscription?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {
-                    "Are you sure you want to cancel your subscription? You’ll lose access to premium features at the end of your billing cycle."
-                  }
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={cancelPlan}>Yes, Cancel Subscription</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>We&apos;re sorry to see you go</DialogTitle>
+                <DialogDescription>Help us understand why so we can improve.</DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <label htmlFor="cancel-reason" className="text-sm font-medium">
+                    Why are you canceling? <span className="text-destructive">*</span>
+                  </label>
+                  <Textarea
+                    id="cancel-reason"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    placeholder="Tell us what's prompting this..."
+                    rows={3}
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="cancel-suggestion" className="text-sm font-medium">
+                    What could we do better? <span className="text-destructive">*</span>
+                  </label>
+                  <Textarea
+                    id="cancel-suggestion"
+                    value={improvementSuggestion}
+                    onChange={(e) => setImprovementSuggestion(e.target.value)}
+                    placeholder="Suggestions, missing features, anything..."
+                    rows={3}
+                    disabled={loading}
+                  />
+                </div>
+
+                {cancelError ? (
+                  <p className="text-sm text-destructive">{cancelError}</p>
+                ) : null}
+              </div>
+
+              <DialogFooter className="gap-2 sm:gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setCancelOpen(false)}
+                  disabled={loading}
+                >
+                  Nevermind, keep my subscription
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={cancelPlan}
+                  isLoading={loading}
+                  disabled={loading || !reason.trim() || !improvementSuggestion.trim()}
+                >
+                  Cancel my subscription
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         ) : (
           <AlertDialog>
             <AlertDialogTrigger asChild>
