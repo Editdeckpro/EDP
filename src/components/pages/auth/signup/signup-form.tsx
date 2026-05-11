@@ -104,8 +104,7 @@ function PaymentStep({
         const res = await axiosInstance.post(
           `auth/register${promo ? `?promo=${encodeURIComponent(promo)}` : ""}`,
           {
-            // existing backend payload key — sourced from the renamed `fullName` form field
-            username: formValues.fullName.trim(),
+            fullName: formValues.fullName.trim(),
             email: formValues.email.trim().toLowerCase(),
             paymentMethodId,
             planType: formValues.planType,
