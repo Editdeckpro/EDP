@@ -23,7 +23,11 @@ export function OAuthErrorModal({ open, onOpenChange, errorType, message }: OAut
   const errorConfig = getErrorConfig(errorType, message);
 
   const handleViewPricing = () => {
-    window.open("https://editdeckpro.com/pricing-plans/", "_blank");
+    if (errorType === "user_not_found") {
+      window.location.href = "/signup";
+    } else {
+      window.location.href = "/subscription";
+    }
   };
 
   return (
