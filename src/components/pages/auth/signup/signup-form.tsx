@@ -17,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
 import { useSearchParams } from "next/navigation";
 import { useTopLoader } from "nextjs-toploader";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { loadStripe } from "@stripe/stripe-js";
@@ -54,138 +54,20 @@ function parseIntervalFromUrl(value: string | null): PlanInterval | null {
   return VALID_INTERVALS.includes(normalized) ? normalized : null;
 }
 
-function PaymentStep({
-  clientSecret,
-  formValues,
-  onSuccess,
-  onBack,
-}: {
-  clientSecret: string;
-  formValues: SignupFormSchemaType;
-  onSuccess: () => void;
-  onBack: () => void;
-}) {
+export default function SignupForm() {
+  return (
+    <Elements stripe={stripePromise}>
+      <SignupFormInner />
+    </Elements>
+  );
+}
+
+function SignupFormInner() {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [cardComplete, setCardComplete] = useState(false);
-  const [cardholderName, setCardholderName] = useState(formValues.fullName);
-  const topLoader = useTopLoader();
-
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!stripe || !elements) return;
-      const card = elements.getElement("card");
-      if (!card) return;
-      setLoading(true);
-      topLoader.start();
-      try {
-        const { error, setupIntent } = await stripe.confirmCardSetup(clientSecret, {
-          payment_method: {
-            card,
-            billing_details: { name: cardholderName.trim() },
-          },
-        });
-        if (error) {
-          toast.error(error.message || "Payment failed.");
-          setLoading(false);
-          topLoader.done();
-          return;
-        }
-        const paymentMethodId = setupIntent?.payment_method;
-        if (typeof paymentMethodId !== "string") {
-          toast.error("Could not save payment method.");
-          setLoading(false);
-          topLoader.done();
-          return;
-        }
-        const promo = formValues.promoCode?.trim() || undefined;
-        const res = await axiosInstance.post(
-          `auth/register${promo ? `?promo=${encodeURIComponent(promo)}` : ""}`,
-          {
-            fullName: formValues.fullName.trim(),
-            email: formValues.email.trim().toLowerCase(),
-            paymentMethodId,
-            planType: formValues.planType,
-            planInterval: formValues.planInterval,
-            // TODO(backend): persist these once API supports them
-            phone: formValues.phone,
-            company: formValues.company,
-            zipCode: formValues.zipCode,
-            ...(promo ? { promoCode: promo } : {}),
-          }
-        );
-        if (res.data?.success) {
-          toast.success(res.data.message || "Check your email to set your password.");
-          onSuccess();
-        } else {
-          toast.error("Registration failed. Please try again.");
-        }
-      } catch (e) {
-        const err = e as AxiosError<{ message?: string; error?: string }>;
-        const msg =
-          err.response?.data?.message || err.response?.data?.error || "Registration failed.";
-        toast.error(msg);
-      } finally {
-        setLoading(false);
-        topLoader.done();
-      }
-    },
-    [stripe, elements, clientSecret, formValues, cardholderName, onSuccess, topLoader]
-  );
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <p className="mb-3 text-sm font-medium">Card details</p>
-        <div className="mb-3 grid gap-2">
-          <Label htmlFor="cardholderName">Cardholder name</Label>
-          <Input
-            id="cardholderName"
-            value={cardholderName}
-            onChange={(e) => setCardholderName(e.target.value)}
-            placeholder="Name on card"
-          />
-        </div>
-        <div className="rounded-md border border-white/15 bg-white p-4">
-          <CardElement
-            onChange={(e: { complete: boolean }) => setCardComplete(e.complete)}
-            options={{
-              style: {
-                base: { fontSize: "16px" },
-              },
-            }}
-          />
-        </div>
-      </div>
-      <div className="flex gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onBack}
-          disabled={loading}
-          className="border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
-        >
-          Back
-        </Button>
-        <Button
-          type="submit"
-          disabled={!stripe || !cardComplete || loading || cardholderName.trim().length === 0}
-          className="flex-1 bg-gradient-to-r from-amber-500 to-red-500 text-white hover:opacity-90"
-        >
-          {loading ? "Completing…" : "Complete registration"}
-        </Button>
-      </div>
-    </form>
-  );
-}
-
-export default function SignupForm() {
-  const [step, setStep] = useState<1 | 2>(1);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [formValues, setFormValues] = useState<SignupFormSchemaType | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [cardholderName, setCardholderName] = useState("");
   const topLoader = useTopLoader();
   const searchParams = useSearchParams();
 
@@ -207,7 +89,6 @@ export default function SignupForm() {
     },
   });
 
-  // Sync URL changes after mount (e.g. user navigates back with new params)
   useEffect(() => {
     if (planFromUrl) form.setValue("planType", planFromUrl);
     if (intervalFromUrl) form.setValue("planInterval", intervalFromUrl);
@@ -218,6 +99,14 @@ export default function SignupForm() {
   const watchedPlanType = form.watch("planType");
   const watchedInterval = form.watch("planInterval");
   const watchedPromo = form.watch("promoCode");
+  const watchedFullName = form.watch("fullName");
+
+  useEffect(() => {
+    if (!cardholderName && watchedFullName) {
+      setCardholderName(watchedFullName);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchedFullName]);
 
   const selectedPlan = useMemo(
     () => (watchedPlanType ? getPlan(watchedPlanType) : getPlan("NEXT_LEVEL")),
@@ -229,7 +118,25 @@ export default function SignupForm() {
     [popularPlan]
   );
 
-  async function onContinue(values: SignupFormSchemaType) {
+  async function onSubmit(values: SignupFormSchemaType) {
+    if (!stripe || !elements) {
+      toast.error("Payment is still loading. Please wait a moment.");
+      return;
+    }
+    const card = elements.getElement(CardElement);
+    if (!card) {
+      toast.error("Card details are required.");
+      return;
+    }
+    if (!cardComplete) {
+      toast.error("Please complete your card details.");
+      return;
+    }
+    if (cardholderName.trim().length === 0) {
+      toast.error("Please enter the cardholder name.");
+      return;
+    }
+
     const email = values.email.trim().toLowerCase();
     const planType = values.planType;
     const planInterval = values.planInterval;
@@ -237,6 +144,7 @@ export default function SignupForm() {
       toast.error("Please select a plan and interval.");
       return;
     }
+
     setLoading(true);
     topLoader.start();
     try {
@@ -248,56 +156,61 @@ export default function SignupForm() {
           plan_interval: planInterval,
         }
       );
-      if (data?.clientSecret) {
-        setFormValues(values);
-        setClientSecret(data.clientSecret);
-        setStep(2);
-      } else {
+      if (!data?.clientSecret) {
         toast.error("Could not start payment setup.");
+        return;
+      }
+
+      const { error, setupIntent } = await stripe.confirmCardSetup(data.clientSecret, {
+        payment_method: {
+          card,
+          billing_details: { name: cardholderName.trim() },
+        },
+      });
+      if (error) {
+        toast.error(error.message || "Payment failed.");
+        return;
+      }
+      const paymentMethodId = setupIntent?.payment_method;
+      if (typeof paymentMethodId !== "string") {
+        toast.error("Could not save payment method.");
+        return;
+      }
+
+      const promo = values.promoCode?.trim() || undefined;
+      const res = await axiosInstance.post(
+        `auth/register${promo ? `?promo=${encodeURIComponent(promo)}` : ""}`,
+        {
+          fullName: values.fullName.trim(),
+          email,
+          paymentMethodId,
+          planType,
+          planInterval,
+          // TODO(backend): persist these once API supports them
+          phone: values.phone,
+          company: values.company,
+          zipCode: values.zipCode,
+          ...(promo ? { promoCode: promo } : {}),
+        }
+      );
+      if (res.data?.success) {
+        toast.success(res.data.message || "Check your email to set your password.");
+        form.reset();
+        setCardholderName("");
+        card.clear();
+        setCardComplete(false);
+      } else {
+        toast.error("Registration failed. Please try again.");
       }
     } catch (e) {
-      const err = e as AxiosError<{ message?: string }>;
-      toast.error(err.response?.data?.message || "Failed to continue. Try again.");
+      const err = e as AxiosError<{ message?: string; error?: string }>;
+      const msg =
+        err.response?.data?.message || err.response?.data?.error || "Registration failed.";
+      toast.error(msg);
     } finally {
       setLoading(false);
       topLoader.done();
     }
-  }
-
-  if (step === 2 && clientSecret && formValues) {
-    return (
-      <div className="mx-auto max-w-3xl px-6 py-12">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Payment method</h1>
-          <p className="mt-2 text-white/60">
-            Enter your card to complete signup. We&apos;ll email you a link to set your
-            password.
-          </p>
-        </div>
-        <Elements
-          stripe={stripePromise}
-          options={{
-            clientSecret,
-            appearance: { theme: "stripe" },
-          }}
-        >
-          <PaymentStep
-            clientSecret={clientSecret}
-            formValues={formValues}
-            onSuccess={() => {
-              setStep(1);
-              setClientSecret(null);
-              setFormValues(null);
-              form.reset();
-            }}
-            onBack={() => {
-              setStep(1);
-              setClientSecret(null);
-            }}
-          />
-        </Elements>
-      </div>
-    );
   }
 
   return (
@@ -335,7 +248,7 @@ export default function SignupForm() {
       <Form {...form}>
         <form
           className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px]"
-          onSubmit={form.handleSubmit(onContinue)}
+          onSubmit={form.handleSubmit(onSubmit)}
         >
           <div className="space-y-6">
             <h2 className="text-xl font-semibold">Your details</h2>
@@ -421,6 +334,29 @@ export default function SignupForm() {
               />
             </div>
 
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+              <p className="mb-3 text-sm font-medium">Card details</p>
+              <div className="mb-3 grid gap-2">
+                <Label htmlFor="cardholderName">Cardholder name</Label>
+                <Input
+                  id="cardholderName"
+                  value={cardholderName}
+                  onChange={(e) => setCardholderName(e.target.value)}
+                  placeholder="Name on card"
+                />
+              </div>
+              <div className="rounded-md border border-white/15 bg-white p-4">
+                <CardElement
+                  onChange={(e: { complete: boolean }) => setCardComplete(e.complete)}
+                  options={{
+                    style: {
+                      base: { fontSize: "16px" },
+                    },
+                  }}
+                />
+              </div>
+            </div>
+
             <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-center text-sm text-white/70">
               Trusted by 1,000+ artists, managers &amp; labels
             </div>
@@ -429,6 +365,7 @@ export default function SignupForm() {
               type="submit"
               size="full"
               isLoading={loading}
+              disabled={!stripe || loading}
               className="bg-gradient-to-r from-amber-500 to-red-500 text-white hover:opacity-90 h-12 text-base font-semibold"
             >
               Start your free trial
